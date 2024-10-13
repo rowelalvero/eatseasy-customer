@@ -6,6 +6,8 @@ import 'package:eatseasy/controllers/order_controller.dart';
 import 'package:eatseasy/views/entrypoint.dart';
 import 'package:get/get.dart';
 
+import '../../../constants/constants.dart';
+
 class PaymentFailed extends StatelessWidget {
   const PaymentFailed({super.key});
 
@@ -24,7 +26,7 @@ class PaymentFailed extends StatelessWidget {
           },
           child: const Icon(
             AntDesign.closecircleo,
-            color: Colors.black,
+            color: kDark,
           ),
         ),
       ),
@@ -39,7 +41,7 @@ class PaymentFailed extends StatelessWidget {
             ),
             ReusableText(
                 text: "Payment Failed",
-                style: appStyle(28, Colors.black, FontWeight.bold))
+                style: appStyle(28, kDark, FontWeight.bold))
           ],
         ),
       ),

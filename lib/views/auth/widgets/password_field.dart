@@ -20,7 +20,7 @@ class PasswordField extends StatelessWidget {
     return Obx(() => Padding(
           padding: const EdgeInsets.only(bottom: 10.0),
           child: TextFormField(
-            cursorColor: Colors.black,
+            cursorColor: kDark,
             textInputAction: TextInputAction.next,
             focusNode: focusNode,
             keyboardType: TextInputType.visiblePassword,

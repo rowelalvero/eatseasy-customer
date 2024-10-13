@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -18,7 +19,10 @@ import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../controllers/address_controller.dart';
 
 class DirectionsPage extends StatefulWidget {
   const DirectionsPage({super.key, required this.restaurant});
@@ -38,12 +42,19 @@ class _DirectionsPageState extends State<DirectionsPage> {
   late GoogleMapController mapController;
   LatLng _center = const LatLng(45.521563, -122.677433);
 
+  final box =  GetStorage();
+  String accessToken = "";
+  DistanceTime? distanceTime;
+  final controller = Get.put(AddressController());
+  double totalTime = 30;
+
   Map<MarkerId, Marker> markers = {};
 
   @override
   void initState() {
     super.initState();
     _determinePosition();
+    _fetchDistance();
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -149,20 +160,44 @@ class _DirectionsPageState extends State<DirectionsPage> {
 
     setState(() {});
   }
-
-  @override
-  Widget build(BuildContext context) {
-    final location = Get.put(UserLocationController());
-    
-    DistanceTime distanceTime = Distance().calculateDistanceTimePrice(
-        location.currentLocation.latitude,
-        location.currentLocation.longitude,
+  Future<void> _fetchDistance() async {
+    Distance distanceCalculator = Distance();
+    distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
+        controller.defaultAddress!.latitude,
+        controller.defaultAddress!.longitude,
         widget.restaurant.coords.latitude,
         widget.restaurant.coords.longitude,
-        10,
-        2.00);
+        35,
+        pricePkm
+    );
+    setState(() {
+      totalTime += distanceTime!.time;
+    }); // Update the UI with fetched data
+  }
+  @override
+  Widget build(BuildContext context) {
+    //final location = Get.put(UserLocationController());
+    String? token = box.read('token');
+    /*if (controller.defaultAddress != null && token != null) {
+      accessToken = jsonDecode(token);
+      distanceTime = Distance().calculateDistanceTimePrice(
+          controller.defaultAddress!.latitude,
+          controller.defaultAddress!.longitude,
+          widget.restaurant.coords.latitude,
+          widget.restaurant.coords.longitude,
+          35,
+          baseDeliveryFee);
+    } else{
+      distanceTime = Distance().calculateDistanceTimePrice(
+          location.currentLocation.latitude,
+          location.currentLocation.longitude,
+          widget.restaurant.coords.latitude,
+          widget.restaurant.coords.longitude,
+          35,
+          baseDeliveryFee);
+    }
 
-    double totalTime = 20 + distanceTime.time;
+    double totalTime = 25 + distanceTime.time;*/
 
     LatLng restaurant = LatLng(
         widget.restaurant.coords.latitude, widget.restaurant.coords.longitude);
@@ -218,22 +253,27 @@ class _DirectionsPageState extends State<DirectionsPage> {
                       ],
                     ),
                     const Divida(),
-                    RowText(
-                        first: "Distance To Restaurant",
-                        second:
-                            "${distanceTime.distance.toStringAsFixed(2)} km"),
+                RowText(
+                    first: "Distance To Restaurant",
+                    second: distanceTime != null
+                        ? "${distanceTime!.distance.toStringAsFixed(2)} km"
+                        : "Loading..."),
                     SizedBox(
                       height: 5.h,
                     ),
                     RowText(
-                        first: "Price From Current Location",
-                        second: "\$ ${distanceTime.price.toStringAsFixed(2)}"),
+                        first: "Delivery fee",
+                        second: distanceTime != null
+                            ? "\$ ${distanceTime!.price.toStringAsFixed(2)} km"
+                            : "Loading..."),
                     SizedBox(
                       height: 5.h,
                     ),
                     RowText(
-                        first: "Estimated Delivery Time",
-                        second: "${totalTime.toStringAsFixed(0)} mins."),
+                        first: "Estimated Delivery Time to Current Location",
+                        second: distanceTime != null
+                            ? "${"${totalTime.toStringAsFixed(0)} - ${(totalTime + distanceTime!.time).toStringAsFixed(0)}" } mins."
+                            : "Loading..."),
                     SizedBox(
                       height: 5.h,
                     ),

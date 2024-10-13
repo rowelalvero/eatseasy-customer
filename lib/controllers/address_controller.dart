@@ -8,7 +8,7 @@ import 'package:eatseasy/models/all_addresses.dart';
 import 'package:eatseasy/models/api_error.dart';
 import 'package:eatseasy/models/environment.dart';
 import 'package:eatseasy/views/entrypoint.dart';
-import 'package:eatseasy/views/profile/address.dart';
+import 'package:eatseasy/views/profile/saved_places.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -57,15 +57,15 @@ class AddressController extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        setLoading = false;
 
-        Get.snackbar("Address successfully add",
-            "Thank you for adding the address, you can now order food",
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
+
+        Get.snackbar("Address successfully added",
+            "Please reload this page",
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             icon: const Icon(Icons.add_alert));
 
-        Get.off(() =>   MainScreen());
+        setLoading = false;
       } else {
         var data = apiErrorFromJson(response.body);
 
@@ -86,7 +86,7 @@ class AddressController extends GetxController {
     }
   }
 
-  void setDefaultAddress(String id) async {
+  Future<void> setDefaultAddress(String id) async {
     
     String token = box.read('token');
     String accessToken = jsonDecode(token);
@@ -104,15 +104,15 @@ class AddressController extends GetxController {
       );
 
       if (response.statusCode == 200) {
+
+        Get.snackbar("Address successfully updated",
+            "Please reload this page",
+            colorText: kDark,
+            backgroundColor: kOffWhite,
+            icon: const Icon(Icons.add_alert));
         setLoading = false;
 
-        Get.snackbar("Default Address successfully updated",
-            "Thank you for updating the address, you can now order food",
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
-            icon: const Icon(Icons.add_alert));
-
-        Get.off(() =>  const Addresses());
+        //Get.off(() =>  const SavedPlaces());
       } else {
         var data = apiErrorFromJson(response.body);
 
@@ -125,6 +125,99 @@ class AddressController extends GetxController {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to update address, please try again",
+          colorText: kLightWhite,
+          backgroundColor: kRed,
+          icon: const Icon(Icons.error));
+    } finally {
+      setLoading = false;
+    }
+  }
+
+  Future<void> deleteAddress(String id) async {
+    String token = box.read('token');
+    String accessToken = jsonDecode(token);
+
+    setLoading = true;
+    var url = Uri.parse('${Environment.appBaseUrl}/api/address/$id');
+
+    try {
+      var response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+
+        Get.snackbar("Address successfully deleted",
+            "Please reload this page",
+            colorText: kDark,
+            backgroundColor: kOffWhite,
+            icon: const Icon(Icons.delete));
+
+        setLoading = false;
+        //Get.off(() => const SavedPlaces());
+      } else {
+        var data = apiErrorFromJson(response.body);
+
+        Get.snackbar(data.message, "Failed to delete address. Try again.",
+            colorText: kLightWhite,
+            backgroundColor: kRed,
+            icon: const Icon(Icons.error));
+      }
+    } catch (e) {
+      setLoading = false;
+
+      Get.snackbar(e.toString(), "Failed to delete address. Try again.",
+          colorText: kLightWhite,
+          backgroundColor: kRed,
+          icon: const Icon(Icons.error));
+    } finally {
+      setLoading = false;
+    }
+  }
+
+  void updateAddress(String id, String updatedAddress) async {
+    String token = box.read('token');
+    String accessToken = jsonDecode(token);
+
+    setLoading = true;
+    var url = Uri.parse('${Environment.appBaseUrl}/api/address/$id');
+
+    try {
+      var response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: updatedAddress,
+      );
+
+      if (response.statusCode == 200) {
+
+        Get.snackbar("Address Updated",
+            "Please reload this page",
+            colorText: kDark,
+            backgroundColor: kOffWhite,
+            icon: const Icon(Icons.update));
+
+        setLoading = false;
+        //Get.off(() => const SavedPlaces());
+      } else {
+        var data = apiErrorFromJson(response.body);
+
+        Get.snackbar(data.message, "Failed to update address. Try again.",
+            colorText: kLightWhite,
+            backgroundColor: kRed,
+            icon: const Icon(Icons.error));
+      }
+    } catch (e) {
+      setLoading = false;
+
+      Get.snackbar(e.toString(), "Failed to update address. Try again.",
           colorText: kLightWhite,
           backgroundColor: kRed,
           icon: const Icon(Icons.error));

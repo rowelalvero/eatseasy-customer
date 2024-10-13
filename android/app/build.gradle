@@ -28,7 +28,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.szacheo.eatseasy"
-    compileSdk = 34
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {

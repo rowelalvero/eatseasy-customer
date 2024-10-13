@@ -25,7 +25,7 @@ class CategoryFoodList extends HookWidget {
         ? const FoodsListShimmer()
         : Container(
             padding: EdgeInsets.only(left: 12.w, top: 10.h, right: 12.w),
-            height: hieght,
+            height: height,
             child: ListView.builder(
                 scrollDirection: Axis.vertical,
                 itemCount: foods.length,

@@ -44,7 +44,7 @@ class FoodList extends HookWidget {
     }
 
     if (foods == null || foods.isEmpty) {
-      return Center(child: Text('No foods available'));
+      return const Center(child: Text('No foods available'));
     }
 
     return Container(

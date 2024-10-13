@@ -41,7 +41,7 @@ class ReviewPage extends HookWidget {
         backgroundColor: kOffWhite,
         title: ReusableText(
             text: "Rate Restaurant and Food",
-            style: appStyle(12, kGray, FontWeight.w600)),
+            style: appStyle(20, kGray, FontWeight.w400)),
       ),
       body: BackGroundContainer(
           child: isLoading || isFoodLoading

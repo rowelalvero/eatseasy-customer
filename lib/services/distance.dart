@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
-
+import 'package:http/http.dart' as http;
 import 'package:eatseasy/models/distance_time.dart';
+
+import '../constants/constants.dart';
 
 class Distance {
   DistanceTime calculateDistanceTimePrice(double lat1, double lon1, double lat2,
@@ -26,7 +29,7 @@ class Distance {
     var time = distance / speedKmPerHr;
 
     // Calculate price (distance * rate per km)
-    var price = distance * pricePerKm;
+    var price = distance + pricePerKm;
 
     return DistanceTime(distance: distance, time: time, price: price);
   }
@@ -35,4 +38,46 @@ class Distance {
   double _toRadians(double degree) {
     return degree * pi / 180;
   }
+
+
+  Future<DistanceTime?> calculateDistanceDurationPrice(
+      double lat1, double lon1, double lat2, double lon2, double speedKmPerHr, double pricePkm) async {
+    String origin = "$lat1,$lon1";
+    String destination = "$lat2,$lon2";
+    String googleApiKey = "AIzaSyB9uB41yBJl1leHrJuqLyADxwajSqgloI4";
+
+    final String url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$googleApiKey';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if ((data['routes'] as List).isNotEmpty) {
+          final route = data['routes'][0];
+
+          final leg = route['legs'][0];
+
+          // Extracting the distance and duration
+          final distanceText = leg['distance']['value'] / 1000; // in kilometers
+          final durationText = leg['duration']['value'] / 60; // in minutes
+
+          // Calculate price (distance * rate per km)
+          final price = (distanceText * pricePkm) + baseDeliveryFee;
+
+
+          return DistanceTime(distance: distanceText, time: durationText, price: price);
+        }
+      } else {
+        print('Failed to load data from Google API');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+    }
+
+    return null;
+  }
 }
+

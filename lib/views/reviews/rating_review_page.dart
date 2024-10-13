@@ -16,7 +16,7 @@ class RatingReview extends StatelessWidget {
           elevation: 0,
           title: ReusableText(
             text: "Reviews and Ratings",
-            style: appStyle(16, Colors.black, FontWeight.w600),
+            style: appStyle(20, kDark, FontWeight.w400),
           ),),
       body: const RateOrders(),
     );

@@ -17,18 +17,6 @@ class ProfileAppBar extends StatelessWidget {
     return AppBar(
       backgroundColor: const Color(0xFFFFFFFF),
       elevation: 0,
-      leading: GestureDetector(
-        onTap: () {},
-        child: GestureDetector(
-          onTap: () {
-            controller.logout();
-          },
-          child: const Icon(
-            AntDesign.logout,
-            size: 18,
-          ),
-        ),
-      ),
       actions: [
         GestureDetector(
           onTap: () {},

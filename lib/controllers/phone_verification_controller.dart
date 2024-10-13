@@ -72,9 +72,9 @@ class PhoneVerificationController extends GetxController {
         phoneNumber = '';
         Get.snackbar("Successfully verified your phone number ",
             "Enjoy your awesome experience",
-            colorText: kLightWhite,
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: kPrimary,
             icon: const Icon(Ionicons.fast_food_outline));
         if (data.phoneVerification == true) {
           Get.offAll(() => MainScreen());

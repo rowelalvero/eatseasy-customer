@@ -66,7 +66,7 @@ class FoodWidget extends StatelessWidget {
                             text: "Delivery time",
                             style: appStyle(9, kGray, FontWeight.w500)),
                         ReusableText(
-                            text: time,
+                            text: '${time} mins',
                             style: appStyle(9, kGray, FontWeight.w500)),
                       ],
                     ),

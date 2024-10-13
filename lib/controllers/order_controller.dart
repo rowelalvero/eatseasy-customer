@@ -13,13 +13,25 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../views/orders/payments/successful.dart';
+import 'cart_controller.dart';
+
 class OrderController extends GetxController {
   final box = GetStorage();
+  final controller = Get.put(CartController());
 
   Order? order;
 
   void set setOrder(Order newValue) {
     order = newValue;
+  }
+
+  final RxString _paymentId = ''.obs;
+
+  String get paymentId => _paymentId.value;
+
+  set paymentId(String newValue) {
+    _paymentId.value = newValue;
   }
 
   final RxString _paymentUrl = ''.obs;
@@ -72,14 +84,14 @@ class OrderController extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        setLoading = false;
+
         OrderResponse data = orderResponseFromJson(response.body);
 
         orderId = data.orderId;
 
         Get.snackbar("Order successfully created", data.message,
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             icon: const Icon(Icons.money));
 
         Payment payment = Payment(userId: item.userId, cartItems: [
@@ -91,8 +103,17 @@ class OrderController extends GetxController {
               restaurantId: item.restaurantId)
         ]);
 
-        String paymentData = paymentToJson(payment);
-        paymentFunction(paymentData);
+        setLoading = false;
+
+        if(item.paymentMethod == 'STRIPE') {
+          String paymentData = paymentToJson(payment);
+          paymentFunction(paymentData);
+        } else {
+          Get.to(const Successful());
+        }
+
+
+
       } else {
         var data = apiErrorFromJson(response.body);
 
@@ -132,6 +153,7 @@ class OrderController extends GetxController {
       if (response.statusCode == 200) {
         var urlData = jsonDecode(response.body);
 
+        //paymentId = urlData['paymentId'];
         paymentUrl = urlData['url'];
       }
     } catch (e) {

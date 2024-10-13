@@ -35,7 +35,7 @@ class OrderDetailsPage extends StatelessWidget {
         elevation: 0,
         title: ReusableText(
             text: 'Order Details Page',
-            style: appStyle(12, kGray, FontWeight.w600)),
+          style: appStyle(20, kDark, FontWeight.w400),),
       ),
       body: controller.loading == true  ? const FoodsListShimmer() : BackGroundContainer(
         child: Column(
@@ -45,7 +45,7 @@ class OrderDetailsPage extends StatelessWidget {
               ),
               Container(
                 width: width,
-                height: hieght / 5,
+                height: height / 5,
                 decoration:
                     BoxDecoration(borderRadius: BorderRadius.circular(20.r)),
                 child: Container(

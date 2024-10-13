@@ -9,6 +9,7 @@ import 'package:eatseasy/views/auth/widgets/email_textfield.dart';
 import 'package:eatseasy/views/auth/widgets/password_field.dart';
 import 'package:eatseasy/views/home/widgets/custom_btn.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -131,12 +132,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                   Obx(
                     () => controller.isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator.adaptive(
-                              backgroundColor: kPrimary,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(kLightWhite),
-                          ))
+                        ? Center(
+                            child: LoadingAnimationWidget.waveDots(
+                              color: kPrimary,
+                              size: 35
+                            ))
                         : CustomButton(
                             btnHieght: 37.h,
                             color: kPrimary,

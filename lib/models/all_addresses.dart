@@ -11,6 +11,7 @@ String addressesListToJson(List<AddressesList> data) => json.encode(List<dynamic
 class AddressesList {
     final String id;
     final String userId;
+    final String addressName;
     final String addressLine1;
     final String postalCode;
     final bool addressesListDefault;
@@ -21,6 +22,7 @@ class AddressesList {
     AddressesList({
         required this.id,
         required this.userId,
+        required this.addressName,
         required this.addressLine1,
         required this.postalCode,
         required this.addressesListDefault,
@@ -32,6 +34,7 @@ class AddressesList {
     factory AddressesList.fromJson(Map<String, dynamic> json) => AddressesList(
         id: json["_id"],
         userId: json["userId"],
+        addressName: json["addressName"],
         addressLine1: json["addressLine1"],
         postalCode: json["postalCode"],
         addressesListDefault: json["default"],
@@ -43,6 +46,7 @@ class AddressesList {
     Map<String, dynamic> toJson() => {
         "_id": id,
         "userId": userId,
+        "addressName": addressName,
         "addressLine1": addressLine1,
         "postalCode": postalCode,
         "default": addressesListDefault,

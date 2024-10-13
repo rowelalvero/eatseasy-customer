@@ -54,10 +54,12 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           onUrlChange: (UrlChange change) {
             if (change.url!.contains("checkout-success")) {
             orderController.paymentUrl = '';
+            orderController.paymentId = '';
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Successful()));
             }else if(change.url!.contains("cancel")){
               orderController.paymentUrl = '';
+              orderController.paymentId = '';
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const PaymentFailed()));
             }
@@ -92,7 +94,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        toolbarHeight: 20,
+        toolbarHeight: 5,
+        leading: Container()
       ),
       body: WebViewWidget(controller: _controller));
   }

@@ -366,10 +366,10 @@ const choicesList = [
   },
   {
     "id": 2,
-    "name": "4 Star",
-    "value": "4star",
+    "name": "Made to order",
+    "value": "madeToOrder",
   },
-  {
+  /*{
     "id": 3,
     "name": "3 Star",
     "value": "3star",
@@ -383,7 +383,7 @@ const choicesList = [
     "id": 5,
     "name": "Recommended",
     "value": "recommended",
-  },
+  },*/
 ];
 
 Map<String, Object> order = {

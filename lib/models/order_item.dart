@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/src/foundation/change_notifier.dart';
+
 Order orderFromJson(String str) => Order.fromJson(json.decode(str));
 
 String orderToJson(Order data) => json.encode(data.toJson());
@@ -16,6 +18,7 @@ class Order {
     final String deliveryAddress;
     final String paymentMethod;
     final String restaurantId;
+    final String deliveryOption;
 
     Order({
         required this.userId,
@@ -29,6 +32,7 @@ class Order {
         required this.deliveryAddress,
         required this.paymentMethod,
         required this.restaurantId,
+        required this.deliveryOption,
     });
 
     factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -43,6 +47,7 @@ class Order {
         deliveryAddress: json["deliveryAddress"],
         paymentMethod: json["paymentMethod"],
         restaurantId: json["restaurantId"],
+        deliveryOption: json["deliveryOption"]
     );
 
     Map<String, dynamic> toJson() => {
@@ -57,6 +62,7 @@ class Order {
         "deliveryAddress": deliveryAddress,
         "paymentMethod": paymentMethod,
         "restaurantId": restaurantId,
+        "deliveryOption": deliveryOption
     };
 }
 
@@ -66,6 +72,7 @@ class OrderItem {
     final String quantity;
     final String price;
     final String instructions;
+    final String? cartItemId;
 
     OrderItem({
         required this.foodId,
@@ -73,6 +80,7 @@ class OrderItem {
         required this.quantity,
         required this.price,
         required this.instructions,
+        this.cartItemId,
     });
 
     factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
@@ -81,6 +89,7 @@ class OrderItem {
         quantity: json["quantity"],
         price: json["price"],
         instructions: json["instructions"],
+        cartItemId: json["cartItemId"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -89,5 +98,6 @@ class OrderItem {
         "quantity": quantity,
         "price": price,
         "instructions": instructions,
+        "cartItemId": cartItemId
     };
 }

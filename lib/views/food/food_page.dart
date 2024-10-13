@@ -30,6 +30,9 @@ import 'package:eatseasy/views/orders/orders_page.dart';
 import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../../hooks/fetchCart.dart';
 
 class FoodPage extends StatefulHookWidget {
   const FoodPage({
@@ -82,6 +85,15 @@ class _FoodPageState extends State<FoodPage> {
     var restaurantData ;//= hookResult.data;
     final load = hookResult.isLoading;
 
+    final cartHookResult = useFetchCart();
+    final items = cartHookResult.data ?? [];
+    final isLoading = cartHookResult.isLoading;
+
+    List<double> foodPriceList = [];
+    List<int> foodQuantityList = [];
+
+    RxBool isThisProductInCart = false.obs;
+
     if (load == false) {
       restaurantData = hookResult.data;
 
@@ -105,11 +117,14 @@ class _FoodPageState extends State<FoodPage> {
 
     String? token = box.read('token');
     return load == true
-        ? const Center(
+        ? Center(
             child: SizedBox(
               width: 150,
               height: 150,
-              child: CircularProgressIndicator(color: kSecondary,),
+              child: LoadingAnimationWidget.threeArchedCircle(
+                color: kSecondary,
+                size: 35
+              )
             ),
           )
         : Scaffold(
@@ -200,14 +215,14 @@ class _FoodPageState extends State<FoodPage> {
                               size: 38,
                             ),
                           ),
-                          GestureDetector(
+                          /*GestureDetector(
                             onTap: () {},
                             child: const Icon(
                               Entypo.share,
                               color: kPrimary,
                               size: 38,
                             ),
-                          )
+                          )*/
                         ],
                       ),
                     ),
@@ -234,7 +249,8 @@ class _FoodPageState extends State<FoodPage> {
                               }
 
                             },
-                            text: "Chat")),
+                            text: "Chat")
+                    ),
                     Positioned(
                         bottom: 10,
                         right: 75,
@@ -268,12 +284,10 @@ class _FoodPageState extends State<FoodPage> {
                           ReusableText(
                               text: widget.food.title,
                               style: appStyle(18, kDark, FontWeight.w600)),
-                          Obx(
-                            () => ReusableText(
-                                text:
-                                    "\$ ${((widget.food.price + foodController.additiveTotal) * counterController.count.toDouble()).toStringAsFixed(2)}",
-                                style: appStyle(18, kPrimary, FontWeight.w600)),
-                          )
+                          ReusableText(
+                              text:
+                              "\$ ${widget.food.price.toStringAsFixed(2)}",
+                              style: appStyle(18, kPrimary, FontWeight.w600)),
                         ],
                       ),
                       SizedBox(
@@ -412,110 +426,186 @@ class _FoodPageState extends State<FoodPage> {
                 SizedBox(
                   height: 20.h,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 40.h,
-                    width: width,
-                    decoration: BoxDecoration(
-                      color: kPrimary,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(30.r),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (token == null) {
-                              Get.to(() => const Login());
-                            } else {
-                              double totalPrice = (widget.food.price +
-                                      foodController.additiveTotal) *
-                                  counterController.count.toDouble();
-                              ToCart item = ToCart(
-                                  productId: widget.food.id,
-                                  instructions: _preferences.text,
-                                  additives: foodController.getList(),
-                                  quantity: counterController.count.toInt(),
-                                  totalPrice: totalPrice);
-
-                              String cart = toCartToJson(item);
-
-                              cartController.addToCart(cart);
-                            }
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: kSecondary,
-                            radius: 20.r,
-                            child: const Icon(
-                              Entypo.plus,
-                              color: kLightWhite,
-                            ),
+              ],
+            ),
+        bottomSheet: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(16),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 20,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Obx(() =>Column(
+            mainAxisSize: MainAxisSize.min,
+            // Ensures the container takes only the space it needs
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 50.h,
+                  width: width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      cartController.isLoading
+                          ? Expanded(
+                        flex: 3,
+                        child: Center( // Center the loading animation
+                          child: LoadingAnimationWidget.waveDots(
+                            color: kSecondary,
+                            size: 35
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            if (token == null) {
-                              Get.to(() => const Login());
-                            } else {
-                              // var user = controller.getUserData();
-                              /* if (phone_verification == false ||
-                              phone_verification == null) {
-                            _showVerificationSheet(context);
-
-                          } else*/
-                              if (address == false) {
-                                showAddressSheet(context);
-                              } else {
-                                OrderItem orderItem = OrderItem(
-                                    foodId: widget.food.id,
-                                    additives: foodController.getList(),
-                                    quantity:
-                                        counterController.count.toString(),
-                                    price: ((widget.food.price +
-                                                foodController.additiveTotal) *
-                                            counterController.count.toDouble())
-                                        .toStringAsFixed(2),
-                                    instructions: _preferences.text);
-
-                                Get.to(
-                                    () => OrderPage(
-                                          food: widget.food,
-                                          restaurant: restaurantData,
-                                          item: orderItem,
-                                        ));
+                      )
+                          : Expanded(
+                        //flex: 3,
+                        child: Expanded(
+                          child: Obx(() {
+                            for (var cart in items) {
+                              if (cart.productId.id == widget.food.id) {
+                                isThisProductInCart.value = true;
+                                foodPriceList.add(cart.totalPrice);
+                                foodQuantityList.add(cart.quantity);
                               }
                             }
-                          },
-                          child: ReusableText(
-                              text: "Place Order",
-                              style:
-                                  appStyle(18, kLightWhite, FontWeight.w600)),
+
+                            return ElevatedButton(
+                              onPressed: () async {
+                                cartController.setLoading = true; // Can be reactive, if needed
+                                if (token == null) {
+                                  Get.to(() => const Login());
+                                } else {
+                                  double totalPrice = (widget.food.price +
+                                      foodController.additiveTotal) *
+                                      counterController.count.toDouble();
+
+                                  ToCart item = ToCart(
+                                    productId: widget.food.id,
+                                    instructions: _preferences.text,
+                                    additives: foodController.getList(),
+                                    quantity: counterController.count.toInt(),
+                                    totalPrice: totalPrice,
+                                    prepTime: widget.food.time,
+                                    restaurant: widget.food.restaurant,
+                                  );
+
+                                  String cart = toCartToJson(item);
+
+                                  await cartController.addToCart(cart);
+                                  cartHookResult.refetch();
+                                }
+
+                                cartController.setLoading = false; // Can be reactive, if needed
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isThisProductInCart.value ? kPrimary : kGray,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                elevation: 4,
+                                shadowColor: Colors.grey.withOpacity(0.3),
+                              ),
+                              child: isThisProductInCart.value ?
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text("Cart",style: TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600),),
+                                      const Text("       •       ", style: TextStyle(color: kWhite)),
+                                      Text("${foodQuantityList.first.toString()} ${foodQuantityList.first == 1 ? "item" : "items"} ", style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text("\$ ${foodPriceList.first.toStringAsFixed(2)}",style: const TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ],
+                              )
+                                  : const Text("Add to cart",style: TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
+                            );
+                          }),
                         ),
-                        CircleAvatar(
-                          backgroundColor: kSecondary,
-                          radius: 20.r,
-                          child: Badge(
-                            label: ReusableText(
-                                text: box.read('cart') ?? "0",
-                                style: appStyle(
-                                    9, kLightWhite, FontWeight.normal)),
-                            child: const Icon(
-                              Ionicons.fast_food_outline,
-                              color: kLightWhite,
+                      ),
+                      /*SizedBox(
+                          width: 10.h,
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              LoadingAnimationWidget.waveDots(
+                                color: kPrimary,
+                                size: 35
+                              );
+                              if (token == null) {
+                                Get.to(() => const Login());
+                              } else {
+                                // var user = controller.getUserData();
+                                *//*if (phone_verification == false ||
+                                  phone_verification == null) {
+                                _showVerificationSheet(context);
+
+                              } else*//*
+                                if (address == false) {
+                                  showAddressSheet(context);
+                                } else {
+                                  OrderItem orderItem = OrderItem(
+                                    foodId: widget.food.id,
+                                    additives: foodController.getList(),
+                                    quantity: counterController.count.toString(),
+                                    price: ((widget.food.price +
+                                        foodController.additiveTotal) *
+                                        counterController.count.toDouble())
+                                        .toStringAsFixed(2),
+                                    instructions: _preferences.text,
+
+                                  );
+
+                                  *//*Get.to(
+                                          () => OrderPage(
+                                        food: widget.food,
+                                        restaurant: restaurantData,
+                                        item: orderItem,
+                                      ));*//*
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 242, 198, 65),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              elevation: 4,
+                              shadowColor: Colors.grey.withOpacity(0.3),
                             ),
+                            child: ReusableText(
+                                text: "Place Order",
+                                style:
+                                appStyle(18, kLightWhite, FontWeight.w600)),
                           ),
-                        ),
-                      ],
-                    ),
+                        ),*/
+                    ],
                   ),
                 ),
-              ],
-            ));
+              ),
+            ],
+          ),)
+        ),
+        );
   }
-
   Future<dynamic> _showVerificationSheet(BuildContext context) {
     return showModalBottomSheet(
         backgroundColor: Colors.transparent,

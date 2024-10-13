@@ -27,7 +27,7 @@ class RestaurantMenu extends HookWidget {
           : Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
-              height: hieght * 0.7,
+              height: height * 0.7,
               child: ListView.builder(
                   padding: EdgeInsets.zero,
                   itemCount: foods.length,

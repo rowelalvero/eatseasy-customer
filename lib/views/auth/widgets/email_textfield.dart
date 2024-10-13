@@ -23,7 +23,7 @@ class EmailTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-        cursorColor: Colors.black,
+        cursorColor: kDark,
         textInputAction: TextInputAction.next,
         onEditingComplete: onEditingComplete,
         keyboardType: keyboardType,

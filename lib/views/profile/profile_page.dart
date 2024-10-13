@@ -15,7 +15,7 @@ import 'package:eatseasy/models/login_response.dart';
 import 'package:eatseasy/views/auth/widgets/login_redirect.dart';
 import 'package:eatseasy/views/message/index.dart';
 import 'package:eatseasy/views/orders/client_orders.dart';
-import 'package:eatseasy/views/profile/address.dart';
+import 'package:eatseasy/views/profile/saved_places.dart';
 import 'package:eatseasy/views/profile/widgets/profile_appbar.dart';
 import 'package:eatseasy/views/profile/widgets/tile_widget.dart';
 import 'package:eatseasy/views/reviews/rating_review_page.dart';
@@ -51,7 +51,7 @@ class ProfilePage extends HookWidget {
                   containerContent: Column(
                 children: [
                   Container(
-                    height: hieght * 0.06,
+                    height: height * 0.06,
                     decoration: const BoxDecoration(color: Colors.white),
                     child: Column(
                       children: [
@@ -69,7 +69,7 @@ class ProfilePage extends HookWidget {
                                     child: CircleAvatar(
                                       backgroundColor: Colors.grey.shade100,
                                       backgroundImage:
-                                          NetworkImage(user!.profile),
+                                      NetworkImage(user!.profile),
                                     ),
                                   ),
                                   const SizedBox(
@@ -79,7 +79,7 @@ class ProfilePage extends HookWidget {
                                     padding: const EdgeInsets.all(4.0),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           user.username,
@@ -96,12 +96,12 @@ class ProfilePage extends HookWidget {
                                   ),
                                 ],
                               ),
-                              // GestureDetector(
-                              //     onTap: () {},
-                              //     child: Padding(
-                              //       padding: EdgeInsets.only(top: 12.0.h),
-                              //       child: const Icon(Feather.edit, size: 18),
-                              //     ))
+                              GestureDetector(
+                                  onTap: () {},
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 12.0.h),
+                                    child: const Icon(Feather.edit, size: 18),
+                                  ))
                             ],
                           ),
                         ),
@@ -123,14 +123,14 @@ class ProfilePage extends HookWidget {
                             Get.to(() => const ClientOrderPage());
                           },
                           title: "My Orders",
-                          leading: Ionicons.cart_outline,
+                          leading: Feather.shopping_cart,
                         ),
                         TilesWidget(
                           onTap: () {
                             Get.to(() => const RatingReview());
                           },
                           title: "Reviews and rating",
-                          leading: Ionicons.chatbubble_ellipses_outline,
+                          leading: Feather.message_circle,
                         ),
                       ],
                     ),
@@ -147,10 +147,10 @@ class ProfilePage extends HookWidget {
                       children: [
                         TilesWidget(
                           onTap: () {
-                            Get.to(() => const Addresses());
+                            Get.to(() => SavedPlaces());
                           },
                           title: "Shipping addresses",
-                          leading: SimpleLineIcons.location_pin,
+                          leading: Feather.map_pin,
                         ),
                         TilesWidget(
                           onTap: () {
@@ -161,7 +161,7 @@ class ProfilePage extends HookWidget {
                         ),
                         TilesWidget(
                           title: "App Feedback",
-                          leading: MaterialIcons.rss_feed,
+                          leading: Feather.pen_tool,
                           onTap: () {
                             BetterFeedback.of(context)
                                 .show((UserFeedback feedback) async {
@@ -193,7 +193,30 @@ class ProfilePage extends HookWidget {
                             Get.to(() => const MessagePage());
                           },
                           title: "Chats",
-                          leading: SimpleLineIcons.speech,
+                          leading: Feather.message_square,
+                        ),
+
+
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    height: 45.h,
+                    decoration: const BoxDecoration(color: Colors.white),
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        TilesWidget(
+                          onTap: () {
+                            controller.logout();
+                          },
+                          title: "Log out",
+                          leading: Feather.log_out,
                         ),
 
 

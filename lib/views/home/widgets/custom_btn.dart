@@ -13,6 +13,7 @@ class CustomButton extends StatelessWidget {
   final double? radius;
   final void Function()? onTap;
 
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -21,12 +22,12 @@ class CustomButton extends StatelessWidget {
         width: btnWidth ?? width,
         height: btnHieght??28,
         decoration:  BoxDecoration(
-            color: color?? kSecondary,
-            borderRadius:  BorderRadius.all(Radius.circular(radius??12))),
+            color: color?? kPrimary,
+            borderRadius:  BorderRadius.all(Radius.circular(radius??24))),
         child: Center(
           child: ReusableText(
               text: text,
-              style: appStyle(12,  kLightWhite, FontWeight.w500)),
+              style: appStyle(14,  kLightWhite, FontWeight.w600)),
         ),
       )
     );

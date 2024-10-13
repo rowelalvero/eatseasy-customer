@@ -27,7 +27,7 @@ class PhoneTextField extends StatelessWidget {
       width: width * 0.7,
       
       child: TextFormField(
-          cursorColor: Colors.black,
+          cursorColor: kDark,
           textInputAction: TextInputAction.next,
           onEditingComplete: onEditingComplete,
           keyboardType: keyboardType,

@@ -14,10 +14,11 @@ class Recommendations extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hookResult = useFetchRecommendations("41007428", true);
+    final hookResult = useFetchRecommendations("1400", true);
     final foods = hookResult.data;
     final isLoading = hookResult.isLoading;
     final error = hookResult.error;
+    final refetch = hookResult.refetch;
 
     return Scaffold(
       backgroundColor: kLightWhite,
@@ -33,7 +34,7 @@ class Recommendations extends HookWidget {
         ],
         title: ReusableText(
           text: "Recommendations",
-          style: appStyle(12, kGray, FontWeight.w600),
+          style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
       body: isLoading
@@ -42,15 +43,22 @@ class Recommendations extends HookWidget {
           ? Center(child: Text('Error: ${error.toString()}'))
           : (foods == null || foods.isEmpty)
           ? const Center(child: Text('No recommendations available'))
-          : Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        child: ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: foods.length,
-          itemBuilder: (context, i) {
-            Food food = foods[i];
-            return FoodTile(food: food);
-          },
+          : RefreshIndicator(
+        color: kPrimary,
+        onRefresh: () async {
+          // Trigger the refetch function to reload the recommendations
+          refetch();
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: foods.length,
+            itemBuilder: (context, i) {
+              Food food = foods[i];
+              return FoodTile(food: food);
+            },
+          ),
         ),
       ),
     );

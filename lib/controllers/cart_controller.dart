@@ -33,7 +33,7 @@ class CartController extends GetxController {
   }
 
 
-  void addToCart(String item) async {
+  Future<void> addToCart(String item) async {
     String token = box.read('token');
     String accessToken = jsonDecode(token);
 
@@ -51,7 +51,6 @@ class CartController extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        setLoading = false;
 
         CartResponse data = cartResponseFromJson(response.body);
 
@@ -59,9 +58,10 @@ class CartController extends GetxController {
 
         Get.snackbar("Product added successfully to cart",
             "You can now order multiple items via the cart",
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             icon: const Icon(Icons.add_alert));
+
       } else {
         var data = apiErrorFromJson(response.body);
 
@@ -81,21 +81,20 @@ class CartController extends GetxController {
     }
   }
 
-
-  void removeFormCart(String productId) async {
+  void removeFormCart(String itemId) async {
     String token = box.read('token');
     String accessToken = jsonDecode(token);
-
+    print("Attempting to remove item: $itemId");
     setLoading = true;
-    var url = Uri.parse('${Environment.appBaseUrl}/api/cart/delete/$productId');
+    var url = Uri.parse('${Environment.appBaseUrl}/api/cart/delete/$itemId');
 
     try {
       var response = await http.delete(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken'
-        }
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken'
+          }
       );
 
       if (response.statusCode == 200) {
@@ -104,12 +103,7 @@ class CartController extends GetxController {
 
         box.write("cart", jsonEncode(data.count));
 
-        Get.snackbar("Product removed",
-            "The product was removed from cart successfully",
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
-            icon: const Icon(Icons.add_alert));
-        Get.offAll(() =>  MainScreen());
+        //Get.offAll(() =>  const MainScreen());
       } else {
         var data = apiErrorFromJson(response.body);
 

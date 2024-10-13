@@ -36,8 +36,7 @@ class RestaurantPage extends StatefulWidget {
   State<RestaurantPage> createState() => _RestaurantPageState();
 }
 
-class _RestaurantPageState extends State<RestaurantPage>
-    with TickerProviderStateMixin {
+class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStateMixin {
   late TabController _tabController = TabController(
     length: 2,
     vsync: this,
@@ -46,33 +45,53 @@ class _RestaurantPageState extends State<RestaurantPage>
   final controller = Get.put(AddressController());
   final location = Get.put(UserLocationController());
   String accessToken = "";
-  late DistanceTime distanceTime;
+  DistanceTime? distanceTime;
+  double totalTime = 30;
+  @override
+  void initState() {
+    super.initState();
+    _fetchDistance();
+  }
+
+  Future<void> _fetchDistance() async {
+    Distance distanceCalculator = Distance();
+    distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
+        controller.defaultAddress!.latitude,
+        controller.defaultAddress!.longitude,
+        widget.restaurant.coords.latitude,
+        widget.restaurant.coords.longitude,
+        35,
+        pricePkm
+    );
+    setState(() {
+      totalTime += distanceTime!.time;
+    }); // Update the UI with fetched data
+  }
   @override
   Widget build(BuildContext context) {
 
     String? token = box.read('token');
 
-    if (controller.defaultAddress != null && token != null) {
+    /*if (controller.defaultAddress != null && token != null) {
        accessToken = jsonDecode(token);
-       distanceTime = Distance().calculateDistanceTimePrice(
+       distanceTime = Distance().calculateDistanceDurationPrice(
           controller.defaultAddress!.latitude,
           controller.defaultAddress!.longitude,
           widget.restaurant.coords.latitude,
           widget.restaurant.coords.longitude,
-          10,
-          2.00);
+           35,
+           deliveryFee);
     } else{
-      distanceTime = Distance().calculateDistanceTimePrice(
+      distanceTime = Distance().calculateDistanceDurationPrice(
           location.currentLocation.latitude,
           location.currentLocation.longitude,
           widget.restaurant.coords.latitude,
           widget.restaurant.coords.longitude,
-          10,
-          2.00);
-    }
+          35,
+          deliveryFee);
+    }*/
 
-    // String numberString = widget.restaurant.time.substring(0, 2);
-    double totalTime = 25 + distanceTime.time;
+
 
     return DefaultTabController(
       length: 2,
@@ -91,7 +110,7 @@ class _RestaurantPageState extends State<RestaurantPage>
                         fit: BoxFit.cover,
                         imageUrl: widget.restaurant.imageUrl!),
                   ),
-                 
+
                   Positioned(
                     left: 0,
                     right: 0,
@@ -114,20 +133,26 @@ class _RestaurantPageState extends State<RestaurantPage>
                     ),
                     RowText(
                         first: "Distance To Restaurant",
-                        second:
-                            "${distanceTime.distance.toStringAsFixed(2)} km"),
+                        second: distanceTime != null
+                            ? "${distanceTime!.distance.toStringAsFixed(2)} km"
+                            : "Loading..."),
                     SizedBox(
                       height: 10.h,
                     ),
                     RowText(
                         first: "Delivery Price From Current Location",
-                        second: "\$ ${distanceTime.price.toStringAsFixed(2)}"),
+                        second: distanceTime != null
+                            ? "\$ ${distanceTime!.price.toStringAsFixed(2)} km"
+                            : "Loading..."),
+
                     SizedBox(
                       height: 10.h,
                     ),
                     RowText(
                         first: "Estimated Delivery Time to Current Location",
-                        second: "${totalTime.toStringAsFixed(0)} mins")
+                        second: distanceTime != null
+                            ? "${"${totalTime.toStringAsFixed(0)} - ${(totalTime + distanceTime!.time).toStringAsFixed(0)}" } mins."
+                            : "Loading..."),
                   ],
                 ),
               ),
@@ -176,9 +201,9 @@ class _RestaurantPageState extends State<RestaurantPage>
                     blurX: 8,
                     blurY: 8),
               ),
-              
+
               SizedBox(
-                  height: hieght / 1.3,
+                  height: height / 1.3,
                   child: TabBarView(controller: _tabController, children: [
                     RestaurantMenu(
                       restaurantId: widget.restaurant.id!,
@@ -294,7 +319,7 @@ class RestaurantTopBar extends StatelessWidget {
               ));
             },
             child: const Icon(
-              Entypo.star,
+              Feather.star,
               color: kLightWhite,
               size: 38,
             ),
@@ -306,7 +331,7 @@ class RestaurantTopBar extends StatelessWidget {
                   ));
             },
             child: const Icon(
-              Entypo.direction,
+              Feather.map_pin,
               color: kLightWhite,
               size: 38,
             ),

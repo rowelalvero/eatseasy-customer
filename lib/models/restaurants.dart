@@ -6,15 +6,15 @@ String restaurantsToJson(List<Restaurants> data) => json.encode(List<dynamic>.fr
 
 class Restaurants {
     String? id;
-     String? title;
+    String? title;
     final String time;
-     String? imageUrl;
+    String? imageUrl;
     final String owner;
     final String code;
     final bool isAvailable;
     final bool pickup;
     final bool delivery;
-     List<dynamic>? foods;
+    List<dynamic>? foods;
     final String? logoUrl;
     final double rating;
     final String ratingCount;

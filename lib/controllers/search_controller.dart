@@ -3,6 +3,8 @@ import 'package:eatseasy/models/foods.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/restaurants.dart';
+
 class FoodSearchController extends GetxController {
   final _searchQuery = 'initial value'.obs;
 
@@ -20,7 +22,8 @@ class FoodSearchController extends GetxController {
     _isLoading.value = newValue;
   }
 
-  List<Food>? searchResults;
+  List<Food>? foodSearchResults;
+  List<Restaurants>? restaurantSearchResults;
 
   void searchFoods(String key) async {
     setLoading = true;
@@ -31,7 +34,8 @@ class FoodSearchController extends GetxController {
 
       if (response.statusCode == 200) {
         setLoading = false;
-        searchResults = foodFromJson(response.body);
+        foodSearchResults = foodFromJson(response.body);
+        print("foods: " + foodSearchResults.toString());
         
         return;
       } else {
@@ -44,4 +48,26 @@ class FoodSearchController extends GetxController {
       setLoading = false;
     }
   }
+
+  void searchRestaurants(String key) async {
+    setLoading = true;
+    var url = Uri.parse('${Environment.appBaseUrl}/api/restaurants/search/$key');
+
+    try {
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        restaurantSearchResults = restaurantsFromJson(response.body);
+        print("resto: " + restaurantSearchResults.toString());
+      } else {
+        throw Exception('Failed to load restaurant data');
+      }
+    } catch (e) {
+      print(e); // Log the error for debugging
+    } finally {
+      setLoading = false;
+    }
+  }
+
+
 }

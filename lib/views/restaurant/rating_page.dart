@@ -35,7 +35,7 @@ class RatingPage extends HookWidget {
         backgroundColor: kOffWhite,
         title: ReusableText(
             text: "Rate ${restaurant.title} Restaurant",
-            style: appStyle(12, kGray, FontWeight.w600)),
+          style: appStyle(20, kDark, FontWeight.w400),),
       ),
       body: BackGroundContainer(
         child: isLoading

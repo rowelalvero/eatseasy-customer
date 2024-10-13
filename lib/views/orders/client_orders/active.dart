@@ -6,22 +6,25 @@ import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/hooks/fetchOrders.dart';
 import 'package:eatseasy/models/client_orders.dart';
 import 'package:eatseasy/views/orders/widgets/client_order_tile.dart';
+import 'package:get/get.dart';
+
+import '../../../controllers/updates_controllers/picked_controller.dart';
 
 class ActiveOrders extends HookWidget {
   const ActiveOrders({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // final controller = Get.put(PickedController());
+    final controller = Get.put(PickedController());
     final hookResult = useFetchClientOrders('orderStatus', 'Out_for_Delivery');
     List<ClientOrders>? orders = hookResult.data;
     final isLoading = hookResult.isLoading;
     final refetch = hookResult.refetch;
 
-    // controller.setOnStatusChangeCallback(refetch);
+    controller.setOnStatusChangeCallback(refetch);
 
     return Container(
-      height: hieght / 1.3,
+      height: height / 1.3,
       width: width,
       color: kLightWhite,
       child: isLoading

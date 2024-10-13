@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:eatseasy/models/all_addresses.dart';
 import 'package:eatseasy/views/profile/widgets/address_tile.dart';
@@ -27,8 +28,9 @@ class AddressList extends StatelessWidget {
                     top: BorderSide(
                         width: 0.5,
                         color: Colors.grey.shade300))),
-            child: AddressTile(address: address),
+            child: AddressTile(address: address, refetch: () {  },),
           );
         });
   }
 }
+*/

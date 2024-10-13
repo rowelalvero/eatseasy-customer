@@ -1,3 +1,4 @@
+import 'package:eatseasy/views/search/resto_search_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -30,29 +31,43 @@ class _SearchPageState extends State<SearchPage> {
             backgroundColor: kOffWhite,
             title: Padding(
               padding:  EdgeInsets.only(top: 12.h),
-              child: CustomTextField(
-                controller: controller,
-                hintText: "Search for food",
-                keyboardType: TextInputType.text,
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    searchController.searchFoods(controller.text);
-                  },
-                  child: Icon(
-                    Ionicons.search_circle,
-                    size: 36.h,
-                    color: kPrimary,
+
+              child: Container(
+                  height: 50, // Adjust the height as necessary
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200], // Light grey background for text field
+                    borderRadius: BorderRadius.circular(30), // Rounded corners
                   ),
-                ),
-              ),
+                  child: TextField(
+                    controller: controller,
+                    onChanged: (text) {
+                      searchController.searchFoods(text);
+                      //searchController.searchRestaurants(text);
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "Enter a location",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                  )
+
+              )
             ),
           ),
           body: CustomContainer(
               containerContent: Column(
             children: [
+              /*searchController.isLoading
+                  ? const FoodsListShimmer()
+                  :  searchController.restaurantSearchResults == null
+                  ? const LoadingWidget()
+                  : const RestoSearchResults(),*/
+
               searchController.isLoading
                   ? const FoodsListShimmer()
-                  :  searchController.searchResults == null ? const LoadingWidget() : const SearchResults(),
+                  :  searchController.foodSearchResults == null
+                  ? const LoadingWidget()
+                  : const SearchResults(),
             ],
           )),
         ));
@@ -68,7 +83,7 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      height: hieght,
+      height: height,
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -76,7 +91,7 @@ class LoadingWidget extends StatelessWidget {
       ),
       child: Padding(
         padding:  EdgeInsets.only(bottom: 180.0.h),
-        child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: hieght/2,),
+        child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: height/2,),
       ),
     );
   }

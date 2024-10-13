@@ -14,9 +14,11 @@ class FastestFoods extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-     final hookResult = useFetchRecommendations("41007428", true);
+    final hookResult = useFetchRecommendations("1400", true);
     final foods = hookResult.data;
     final isLoading = hookResult.isLoading;
+    final error = hookResult.error; // Capture error if any
+    final refetch = hookResult.refetch;
 
     return Scaffold(
       backgroundColor: kLightWhite,
@@ -31,22 +33,34 @@ class FastestFoods extends HookWidget {
           ),
         ],
         title: ReusableText(
-            text: "Fastest Food", style: appStyle(12, kGray, FontWeight.w600)),
+          text: "Fastest Food",
+          style: appStyle(20, kDark, FontWeight.w400),
+        ),
       ),
       body: isLoading
           ? const FoodsListShimmer()
-          : Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              height: hieght,
-              child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: foods.length,
-                  itemBuilder: (context, i) {
-                    Food food = foods[i];
-                    return FoodTile(food: food);
-                  }),
-            ),
+          : error != null
+          ? Center(child: Text('Error: ${error.toString()}')) // Display error message
+          : (foods == null || foods.isEmpty)
+          ? const Center(child: Text('No fastest foods available')) // Display no data message
+          : RefreshIndicator(
+        color: kPrimary,
+        onRefresh: () async {
+          refetch(); // Trigger refetch on pull down
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          height: height,
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: foods.length,
+            itemBuilder: (context, i) {
+              Food food = foods[i];
+              return FoodTile(food: food);
+            },
+          ),
+        ),
+      ),
     );
-  
   }
 }

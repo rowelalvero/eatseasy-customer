@@ -13,6 +13,7 @@ import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/views/food/food_page.dart';
 import 'package:eatseasy/views/home/widgets/food_tile.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CategoriesPage extends HookWidget {
   const CategoriesPage({super.key, required this.category});
@@ -25,7 +26,10 @@ class CategoriesPage extends HookWidget {
     final foods = hookResult.data;
     final isLoading = hookResult.isLoading;
     if (hookResult.isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(child: LoadingAnimationWidget.waveDots(
+        color: kPrimary,
+        size: 35
+      ));
     }
 
     if (hookResult.error != null) {
@@ -41,7 +45,7 @@ class CategoriesPage extends HookWidget {
         centerTitle: true,
         backgroundColor: kOffWhite,
         title: ReusableText(
-            text: category.title, style: appStyle(12, kGray, FontWeight.w600)),
+            text: category.title, style: appStyle(20, kDark, FontWeight.w400),),
       ),
       body: BackGroundContainer(
           child: isLoading
@@ -49,7 +53,7 @@ class CategoriesPage extends HookWidget {
               : Container(
             padding:
             EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            height: hieght,
+            height: height,
             child: ListView.builder(
                 scrollDirection: Axis.vertical,
                 itemCount: foods.length,

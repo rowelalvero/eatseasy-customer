@@ -26,14 +26,14 @@ class AllCategories extends HookWidget {
         backgroundColor: kOffWhite,
         centerTitle: true,
         title: ReusableText(
-            text: "Categories", style: appStyle(12, kGray, FontWeight.w600)),
+            text: "Categories", style: appStyle(20, kDark, FontWeight.w400),),
       ),
       body: isLoading
           ? const FoodsListShimmer()
           : BackGroundContainer(
             child: Container(
                 padding: const EdgeInsets.only(left: 12, top: 10),
-                height: hieght,
+                height: height,
                 child: ListView.builder(
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.vertical,
@@ -54,7 +54,7 @@ class AllCategories extends HookWidget {
                         ),
                         title: ReusableText(
                             text: category.title,
-                            style: appStyle(12, kGray, FontWeight.normal)),
+                          style: appStyle(20, kDark, FontWeight.w400),),
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,
                           color: kGray,

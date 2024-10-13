@@ -24,7 +24,7 @@ class Explore extends HookWidget {
           ? const FoodsListShimmer()
           : Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              height: hieght * 0.7,
+              height: height * 0.7,
               child: ListView.builder(
                   padding: EdgeInsets.zero,
                   itemCount: foods.length,

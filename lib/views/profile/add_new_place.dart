@@ -12,42 +12,80 @@ import 'package:eatseasy/controllers/location_controller.dart';
 import 'package:eatseasy/models/address_request.dart';
 import 'package:eatseasy/models/environment.dart';
 import 'package:eatseasy/views/home/widgets/custom_btn.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class AddAddress extends StatefulWidget {
-  const AddAddress({super.key});
+import 'saved_places.dart';
 
+class AddNewPlace extends StatefulWidget {
+  const AddNewPlace({super.key, this.update});
+  final bool? update;
   @override
-  State<AddAddress> createState() => _AddAddressState();
+  State<AddNewPlace> createState() => _AddNewPlaceState();
 }
 
-class _AddAddressState extends State<AddAddress> {
+class _AddNewPlaceState extends State<AddNewPlace> {
   final TextEditingController _searchController = TextEditingController();
-  late final PageController _pageController = PageController(initialPage: 0);
+  final location = Get.put(UserLocationController());
+  final controller = Get.put(UserLocationController());
+  final addressController = Get.put(AddressController());
+  late PageController _pageController = PageController(initialPage: 0);
   GoogleMapController? _mapController;
   final box = GetStorage();
 
   @override
   void initState() {
     super.initState();
+    getCurrentLocation();
+    controller.currentIndex = 0;
     _pageController.addListener(() {
-      setState(() {});
+      setState(() {
+      });
     });
   }
 
   @override
   void dispose() {
+    _searchController.dispose();
+    _name.dispose();
+    _postalCodeRes.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
+
   List<dynamic> _placeList = [];
-  List<dynamic> _selectedPlace = [];
+  final List<dynamic> _selectedPlace = [];
 
   LatLng? _selectedLocation;
+
+  Future<void> getCurrentLocation() async {
+    var currentLocation = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      _selectedLocation = LatLng(currentLocation.latitude, currentLocation.longitude);
+      location.getAddressFromLatLng(_selectedLocation!);
+
+      _searchController.text = location.address;
+      _postalCodeRes.text = location.postalCode;
+
+      if (_selectedLocation != null && _mapController != null) {
+        _mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: _selectedLocation!,
+              zoom: 16.0, // You can adjust the zoom level
+            ),
+          ),
+        );
+      }
+    });
+  }
 
   void _onSearchChanged(String searchQuery) async {
     if (searchQuery.isNotEmpty) {
@@ -155,17 +193,36 @@ class _AddAddressState extends State<AddAddress> {
 
   String restaurantAddress = "";
   final TextEditingController _postalCodeRes = TextEditingController();
+  final TextEditingController _name = TextEditingController();
   final TextEditingController _instructions = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(UserLocationController());
-    final addressController = Get.put(AddressController());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: ReusableText(
-            text: "Add Address", style: appStyle(16, kDark, FontWeight.w600)),
+        toolbarHeight: 80,
+        title: controller.currentIndex == 0 ?
+        Container(
+          height: 50, // Adjust the height as necessary
+          decoration: BoxDecoration(
+            color: Colors.grey[200], // Light grey background for text field
+            borderRadius: BorderRadius.circular(30), // Rounded corners
+          ),
+          child: TextField(
+            controller: _searchController,
+            onChanged: _onSearchChanged,
+            decoration: const InputDecoration(
+              hintText: "Enter a location",
+              border: InputBorder.none, // Remove default borders
+              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+            ),
+          )
+        ) :
+        ReusableText(
+          text: "Add new place",
+          style: appStyle(20, kDark, FontWeight.w400),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Obx(
@@ -173,10 +230,12 @@ class _AddAddressState extends State<AddAddress> {
             padding: EdgeInsets.only(right: 0.w),
             child: controller.currentIndex == 0
                 ? IconButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    icon: const Icon(AntDesign.closecircleo))
+              icon: const Icon(Icons.arrow_back_rounded, color: kDark),
+              onPressed: () {
+                Get.back();
+              },
+            )
+
                 : IconButton(
                     onPressed: () {
                       controller.currentIndex = 0;
@@ -184,35 +243,54 @@ class _AddAddressState extends State<AddAddress> {
                           duration: const Duration(milliseconds: 500),
                           curve: Curves.ease);
                     },
-                    icon: const Icon(
-                      AntDesign.leftcircleo,
-                      color: kDark,
-                    ),
+              icon: const Icon(Icons.arrow_back_rounded, color: kDark),
                   ),
           ),
         ),
-        actions: [
-          Obx(() => Padding(
-                padding: EdgeInsets.only(right: 0.w, top: 6.h),
-                child: controller.currentIndex == 1
-                    ? const SizedBox.shrink()
-                    : IconButton(
-                        onPressed: () {
-                          controller.currentIndex = 1;
-                          _pageController.nextPage(
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.ease);
-                        },
-                        icon: const Icon(
-                          AntDesign.rightcircleo,
-                          color: kDark,
-                        ),
-                      ),
-              ))
-        ],
       ),
+      /*appBar: AppBar(
+        automaticallyImplyLeading: false, // Disable default back button
+        backgroundColor: Colors.white, // Set background to white
+        elevation: 0, // Remove the shadow
+        title: Row(
+          children: [
+            // Back button
+            IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            // Spacer between back button and text field
+            Expanded(
+              child: Container(
+                height: 50, // Adjust the height as necessary
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Light grey background for text field
+                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Enter a location",
+                    border: InputBorder.none, // Remove default borders
+                    contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                ),
+              ),
+            ),
+            // Right-side flag icon
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0),
+              child: CircleAvatar(
+                backgroundImage: AssetImage('assets/images/philippines_flag.png'), // Replace with your image
+                radius: 15, // Adjust size as needed
+              ),
+            ),
+          ],
+        ),
+      ),*/
       body: SizedBox(
-        height: hieght,
+        height: height,
         width: width,
         child: PageView(
           controller: _pageController,
@@ -225,7 +303,7 @@ class _AddAddressState extends State<AddAddress> {
             Container(
               color: kGrayLight,
               width: width,
-              height: hieght,
+              height: height,
               child: Stack(
                 children: [
                   GoogleMap(
@@ -255,16 +333,6 @@ class _AddAddressState extends State<AddAddress> {
                   ),
                   Column(
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.h),
-                        color: Colors.white,
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: _onSearchChanged,
-                          decoration: const InputDecoration(
-                              hintText: 'Search for your address...'),
-                        ),
-                      ),
                       _placeList.isEmpty
                           ? const SizedBox.shrink()
                           : Expanded(
@@ -301,8 +369,10 @@ class _AddAddressState extends State<AddAddress> {
                   SizedBox(
                     height: 20.h,
                   ),
-                  SizedBox(
-                    height: 20.h,
+                  _buildtextfield(
+                    hintText: "Name",
+                    controller: _name,
+                    onSubmitted: (value) {},
                   ),
                   _buildtextfield(
                     hintText: "Postal Code",
@@ -335,55 +405,173 @@ class _AddAddressState extends State<AddAddress> {
                         children: [
                           Text("Set this address as default",
                               style:
-                                  appStyle(12, Colors.black, FontWeight.w500)),
-                          Obx(() => CupertinoSwitch(
-                                value: controller.defaultAddress,
-                                onChanged: (value) {
-                                  controller.defaultAddress = value;
-                                },
-                                thumbColor: kSecondary,
-                                activeColor: kPrimary,
-                              )),
+                                  appStyle(12, kDark, FontWeight.w500)),
+                          Obx(() => Switch.adaptive(
+                            value: controller.defaultAddress,
+                            onChanged: (value) {
+                              controller.defaultAddress = value;
+                            },
+                            thumbColor: MaterialStateProperty. resolveWith<Color>((Set<MaterialState> states) {
+                              if (states. contains(MaterialState. disabled)) {
+                                return kPrimary. withOpacity(.48);
+                              }
+                              return kPrimary;
+                            }),
+                            activeColor: kCupertinoModalBarrierColor,
+                          ),),
+
                         ]),
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  CustomButton(
-                    onTap: () {
-                      if (_searchController.text.isNotEmpty &&
-                          _postalCodeRes.text.isNotEmpty &&
-                          _instructions.text.isNotEmpty) {
-                        AddressRequest address = AddressRequest(
-                            addressLine1: _searchController.text,
-                            postalCode: _postalCodeRes.text,
-                            latitude: _selectedLocation!.latitude,
-                            longitude: _selectedLocation!.longitude,
-                            addressRequestDefault: controller.defaultAddress,
-                            deliveryInstructions: _instructions.text);
-
-                        String addressData = addressRequestToJson(address);
-
-                        addressController.addAddress(addressData);
-                      } else {
-                        Get.snackbar(
-                            "Error", "Please fill all the fields to continue",
-                            colorText: kLightWhite,
-                            backgroundColor: kRed,
-                            icon: const Icon(Icons.error));
-                      }
-                    },
-                    radius: 9,
-                    color: kPrimary,
-                    btnWidth: width * 0.95,
-                    btnHieght: 34.h,
-                    text: "S U B M I T",
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+      bottomSheet: buildBottomSheet(context),
+      /*bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: const CircularNotchedRectangle(),
+        height: 50,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                getCurrentLocation();
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+
+                  const Icon(
+                    Icons.gps_fixed_sharp,
+                    color: kDark,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10,),
+                  ReusableText(
+                      text: "Get my current location",
+                      style: appStyle(15, kDark, FontWeight.w400)),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),*/
+    );
+  }
+  Widget buildBottomSheet(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(16),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 20,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // Ensures the container takes only the space it needs
+        children: [
+          controller.currentIndex == 1
+              ? const SizedBox.shrink()
+              : Container(
+                width: width,
+                decoration: const BoxDecoration(
+                    color: kOffWhite,
+                    borderRadius: BorderRadius.all(Radius.circular(9))),
+                child: // Priority Option
+                // Standard Option
+                ListTile(
+                  leading: const Icon(Icons.location_on, color: kPrimary),
+                  title: Text(location.city),
+                  subtitle: Text(_searchController.text),
+                  trailing: const Icon(Icons.more_vert),
+                ),
+              ),
+          const SizedBox(height: 14),
+          addressController.isLoading ?
+          Center(
+            child: LoadingAnimationWidget.waveDots(
+              color: kPrimary,
+              size: 35
+            ),
+          )
+          : widget.update == true
+          ? CustomButton(
+            onTap: () {
+              if (_selectedLocation != null) {
+                // Collect the necessary data, like the address and location
+                final updatedAddress = {
+                  "address": _searchController.text,
+                  "latitude": _selectedLocation!.latitude,
+                  "longitude": _selectedLocation!.longitude,
+                  "postalCode": _postalCodeRes.text,
+                };
+
+                // Return the updated address to the previous screen
+                Navigator.pop(context, updatedAddress);
+              }
+
+            },
+            radius: 24,
+            color: kPrimary,
+            btnWidth: width * 0.90,
+            btnHieght: 50.h,
+            text: "Save Address",
+          )
+          : CustomButton(
+            onTap: () {
+              if (controller.currentIndex == 1) {
+                if (_searchController.text.isNotEmpty &&
+                    _postalCodeRes.text.isNotEmpty &&
+                    _instructions.text.isNotEmpty &&
+                    _name.text.isNotEmpty) {
+                  AddressRequest address = AddressRequest(
+                      addressName: _name.text,
+                      addressLine1: _searchController.text,
+                      postalCode: _postalCodeRes.text,
+                      latitude: _selectedLocation!.latitude,
+                      longitude: _selectedLocation!.longitude,
+                      addressRequestDefault: controller.defaultAddress,
+                      deliveryInstructions: _instructions.text);
+
+                  String addressData = addressRequestToJson(address);
+
+                  addressController.addAddress(addressData);
+                  Navigator.pop(context, true);
+                } else {
+                  Get.snackbar(
+                      "Error", "Please fill all the fields to continue",
+                      colorText: kLightWhite,
+                      backgroundColor: kRed,
+                      icon: const Icon(Icons.error));
+                }
+              } else {
+                controller.currentIndex = 1;
+                _pageController.nextPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.ease);
+              }
+            },
+            radius: 24,
+            color: kPrimary,
+            btnWidth: width * 0.90,
+            btnHieght: 50.h,
+            text: controller.currentIndex == 1
+                ? 'Submit'
+                : 'Choose This Location',
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
@@ -429,10 +617,10 @@ class _buildtextfield extends StatelessWidget {
               enabledBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(color: kGray, width: 0.5),
               ),
-              border: InputBorder.none),
+              border: const OutlineInputBorder(),),
           controller: controller,
           cursorHeight: 25,
-          style: appStyle(12, Colors.black, FontWeight.normal),
+          style: appStyle(12, kDark, FontWeight.normal),
           onSubmitted: onSubmitted),
     );
   }

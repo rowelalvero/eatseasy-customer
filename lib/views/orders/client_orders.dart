@@ -39,7 +39,7 @@ class _ClientOrderPageState extends State<ClientOrderPage>
           elevation: 0,
           title: ReusableText(
             text: "Orders",
-            style: appStyle(16, Colors.black, FontWeight.w600),
+            style: appStyle(20, kDark, FontWeight.w400),
           ),
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(30.h),
@@ -130,7 +130,7 @@ class _ClientOrderPageState extends State<ClientOrderPage>
         body: SafeArea(
           child: CustomContainer(
             containerContent: SizedBox(
-              height: hieght,
+              height: height,
               child: TabBarView(controller: _tabController, children: const [
                 PendingOrders(),
                 PaidOrders(),

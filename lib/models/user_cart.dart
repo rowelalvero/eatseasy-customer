@@ -16,8 +16,10 @@ class UserCart {
     final String instructions;
     final double totalPrice;
     final int quantity;
+    final String prepTime;
+    final String restaurant;
 
-    UserCart({
+    UserCart( {
         required this.id,
         required this.userId,
         required this.productId,
@@ -25,6 +27,8 @@ class UserCart {
         required this.instructions,
         required this.totalPrice,
         required this.quantity,
+        required this.prepTime,
+        required this.restaurant,
     });
 
     factory UserCart.fromJson(Map<String, dynamic> json) => UserCart(
@@ -35,6 +39,8 @@ class UserCart {
         instructions: json["instructions"],
         totalPrice: json["totalPrice"]?.toDouble(),
         quantity: json["quantity"],
+        prepTime: json["prepTime"],
+        restaurant: json["restaurant"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -45,6 +51,8 @@ class UserCart {
         "instructions": instructions,
         "totalPrice": totalPrice,
         "quantity": quantity,
+        "prepTime": prepTime,
+        "restaurant": restaurant
     };
 }
 

@@ -14,10 +14,11 @@ class AllNearbyRestaurants extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hookResult = useFetchAllRestaurants("41007428");
+    final hookResult = useFetchAllRestaurants("");
     final restaurants = hookResult.data;
     final isLoading = hookResult.isLoading;
     final error = hookResult.error;
+    final refetch = hookResult.refetch;
 
     return Scaffold(
       backgroundColor: kLightWhite,
@@ -33,7 +34,7 @@ class AllNearbyRestaurants extends HookWidget {
         ],
         title: ReusableText(
           text: "Nearby Restaurants",
-          style: appStyle(12, kGray, FontWeight.w600),
+          style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
       body: isLoading
@@ -42,11 +43,15 @@ class AllNearbyRestaurants extends HookWidget {
           ? Center(child: Text('Error: ${error.toString()}'))
           : (restaurants == null || restaurants.isEmpty)
           ? const Center(child: Text('No nearby restaurants found'))
-          : Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        height: hieght,
+          : RefreshIndicator(
+        color: kPrimary,
+        onRefresh: () async {
+          // Trigger the refetch function to reload the restaurant list
+          refetch();
+        },
         child: ListView.builder(
-          padding: EdgeInsets.zero,
+          padding: EdgeInsets.symmetric(
+              horizontal: 12.w, vertical: 10.h),
           itemCount: restaurants.length,
           itemBuilder: (context, i) {
             Restaurants restaurant = restaurants[i];

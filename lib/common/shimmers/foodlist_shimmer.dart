@@ -10,11 +10,11 @@ class FoodsListShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 10),
-      height: hieght,
+      height: height,
       child: ListView.builder(
           scrollDirection: Axis.vertical,
           padding: EdgeInsets.zero,
-          itemCount: 6,
+          itemCount: 3,
           itemBuilder: (context, index) {
             return ShimmerWidget(
                 shimmerWidth: width,

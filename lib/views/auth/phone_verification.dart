@@ -8,6 +8,7 @@ import 'package:eatseasy/controllers/phone_verification_controller.dart';
 import 'package:eatseasy/services/verification.dart';
 
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:phone_otp_verification/phone_verification.dart';
 
 class PhoneVerificationPage extends StatefulWidget {
@@ -42,12 +43,13 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
       },
     ): Container(
       width: width,
-      height: hieght,
+      height: height,
       color: kLightWhite,
-      child: const Center(
-        child: CircularProgressIndicator(
+      child: Center(
+        child: LoadingAnimationWidget.waveDots(
           color: kPrimary,
-        ),
+          size: 35
+        )
       ),
     ));
   }

@@ -10,15 +10,25 @@ import 'package:eatseasy/controllers/order_controller.dart';
 import 'package:eatseasy/views/entrypoint.dart';
 import 'package:get/get.dart';
 
+import '../../../controllers/cart_controller.dart';
+
 class Successful extends StatelessWidget {
   const Successful({super.key});
 
   @override
   Widget build(BuildContext context) {
     final orderController = Get.put(OrderController());
+    final cartController = Get.put(CartController());
     Timer(const Duration(seconds: 3), () {
       orderController.setIcon = true;
     });
+
+    for (var orderItem in orderController.order!.orderItems) {
+      if (orderItem.cartItemId != null) {
+        cartController.removeFormCart(orderItem.cartItemId!);
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -29,7 +39,7 @@ class Successful extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0,0, 20, 10),
             child: GestureDetector(
                 onTap: () {
-                  Get.offAll(() => MainScreen());
+                  Get.offAll(() => const MainScreen());
                 },
                 child: const Icon(
                   AntDesign.closecircle,
@@ -49,7 +59,7 @@ class Successful extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                height: hieght * 0.3.h,
+                height: height * 0.3.h,
                 width: width - 40,
                 decoration: BoxDecoration(
                     color: kOffWhite,
@@ -88,7 +98,7 @@ class Successful extends StatelessWidget {
                                   style:
                                       appStyle(11, kGray, FontWeight.normal)),
                               ReusableText(
-                                  text: "113456",
+                                  text: orderController.paymentId,
                                   style:
                                       appStyle(11, kGray, FontWeight.normal)),
                             ]),
@@ -98,7 +108,7 @@ class Successful extends StatelessWidget {
                                   style:
                                       appStyle(11, kGray, FontWeight.normal)),
                               ReusableText(
-                                  text: "Stripe",
+                                  text: orderController.order!.paymentMethod,
                                   style:
                                       appStyle(11, kGray, FontWeight.normal)),
                             ]),

@@ -5,6 +5,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:eatseasy/constants/constants.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CachedImageLoader extends StatelessWidget {
   CachedImageLoader({super.key, required this.image, this.imageHeight=120, this.imageWidth=200, this.borderRadius, this.fit=BoxFit.fitWidth});
@@ -30,7 +31,10 @@ class CachedImageLoader extends StatelessWidget {
       ),
       placeholder: (context, url) => Container(
         alignment: Alignment.center,
-        child: const CircularProgressIndicator(), // you can add pre loader iamge as well to show loading.
+        child: LoadingAnimationWidget.threeArchedCircle(
+          color: kPrimary,
+          size: 35
+        ), // you can add pre loader iamge as well to show loading.
       ), //show progress  while loading image
       errorWidget: (context, url, error) => Image.asset("images/flutter.png"),
       //show no image available image on error loading

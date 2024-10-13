@@ -19,7 +19,7 @@ class LoginRedirection extends StatelessWidget {
         backgroundColor: kLightWhite,
         elevation: 0.3,
         title: ReusableText(
-            text: "Please login to access this page", style: appStyle(12, kDark, FontWeight.w500)),
+            text: "Please login to access this page", style: appStyle(20, kDark, FontWeight.w400),),
       ),
       body: SafeArea(
         child: CustomContainer(
@@ -28,12 +28,12 @@ class LoginRedirection extends StatelessWidget {
           children: [
             Container(
               width: width,
-              height: hieght / 2,
+              height: height / 2,
               color: Colors.white,
               child: LottieBuilder.asset(
                 "assets/anime/delivery.json",
                 width: width,
-                height: hieght / 2,
+                height: height / 2,
               ),
             ),
             CustomButton(

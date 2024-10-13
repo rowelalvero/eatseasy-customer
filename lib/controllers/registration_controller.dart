@@ -34,8 +34,8 @@ class RegistrationController extends GetxController {
         setLoading = false;
 
         Get.snackbar(data.message, "Proceed to login",
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             icon: const Icon(Icons.add_alert));
 
         Get.to(() => const Login());

@@ -57,7 +57,8 @@ class EmailVerificationController extends GetxController {
 
         Get.snackbar("Successfully verified your account ",
             "Enjoy your awesome experience",
-            colorText: kLightWhite,
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             snackPosition: SnackPosition.BOTTOM,
             icon: const Icon(Ionicons.fast_food_outline));
         if (data.verification == false) {

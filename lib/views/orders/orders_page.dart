@@ -20,9 +20,10 @@ import 'package:eatseasy/services/distance.dart';
 import 'package:eatseasy/views/home/widgets/custom_btn.dart';
 import 'package:eatseasy/views/orders/payment.dart';
 import 'package:eatseasy/views/orders/widgets/order_tile.dart';
-import 'package:eatseasy/views/profile/shipping_address.dart';
+import 'package:eatseasy/views/profile/add_new_place.dart';
 import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 // ignore: must_be_immutable
 class OrderPage extends HookWidget {
@@ -44,16 +45,48 @@ class OrderPage extends HookWidget {
     final orderController = Get.put(OrderController());
     final hookResult = useFetchDefault(context, false);
 
-    DistanceTime distanceTime = Distance().calculateDistanceTimePrice(
+    final distanceTime = useState<DistanceTime?>(null);
+    final totalTime = useState<double>(30);
+    final grandPrice = useState<double>(0);
+    final totalAmount = useState<num>(0);
+
+    RxBool _isLoading = false.obs;
+
+    setLoading(bool newValue) {
+      _isLoading.value = newValue;
+    }
+
+    Future<void> fetchDistance() async {
+      Distance distanceCalculator = Distance();
+      distanceTime.value = await distanceCalculator.calculateDistanceDurationPrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         restaurant.coords.latitude,
         restaurant.coords.longitude,
-        10,
-        2.00);
+        35,
+        pricePkm,
+      );
+    }
 
-    double totalTime = 25 + distanceTime.time;
-    double grandPrice = double.parse(item.price) + distanceTime.price;
+    useEffect(() {
+      num newTotalAmount = 0;
+
+      fetchDistance().then((_) {
+        if (distanceTime.value != null) {
+          totalTime.value += distanceTime.value!.time;
+
+          totalAmount.value = newTotalAmount; // Update state with new total
+          grandPrice.value = double.parse(item.price) + distanceTime.value!.price;
+
+        } else {
+          // Handle null distanceTime, e.g., set a default value
+          totalAmount.value = newTotalAmount;
+          grandPrice.value = totalAmount.value.toDouble(); // Assuming no additional price
+        }
+      });
+
+      return null; // Effect cleanup not needed
+    }, [distanceTime]);
 
     return Obx(() => orderController.paymentUrl.contains("https")
         ? const PaymentWebView()
@@ -84,7 +117,7 @@ class OrderPage extends HookWidget {
                   OrderTile(food: food),
                   Container(
                     width: width,
-                    height: hieght / 2.8,
+                    height: height / 2.8,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20.r)),
                     child: Container(
@@ -122,35 +155,40 @@ class OrderPage extends HookWidget {
                           ),
                           const Divida(),
                           RowText(
-                              first: "Distance To Restaurant",
-                              second:
-                                  "${distanceTime.distance.toStringAsFixed(3)} km"),
+                            first: "Distance To Restaurant",
+                            second: distanceTime.value != null
+                                ? "${distanceTime.value!.distance.toStringAsFixed(2)} km"
+                                : "Loading...",
+                          ),
                           SizedBox(
                             height: 5.h,
                           ),
                           RowText(
-                              first: controller.defaultAddress == null
-                                  ? "Price To Current Location"
-                                  : "Price To Default Address",
-                              second:
-                                  "\$ ${distanceTime.price.toStringAsFixed(2)}"),
+                            first: "Delivery fee",
+                            second: distanceTime.value != null
+                                ? "\$ ${distanceTime.value!.price.toStringAsFixed(2)}"
+                                : "Loading...",
+                          ),
                           SizedBox(
                             height: 5.h,
                           ),
                           RowText(
                               first: "Estimated Delivery Time",
-                              second: "${totalTime.toStringAsFixed(0)} mins"),
+                              second: distanceTime.value != null
+                                  ? "${"${totalTime.value.toStringAsFixed(0)} - ${(totalTime.value + distanceTime.value!.time).toStringAsFixed(0)}" } mins."
+                                  : "Loading..."
+                          ),
                           SizedBox(
                             height: 5.h,
                           ),
                           RowText(
-                              first: "Order Total", second: "\$ ${item.price}"),
+                              first: "Subtotal", second: "\$ ${item.price}"),
                           SizedBox(
                             height: 5.h,
                           ),
                           RowText(
-                              first: "Order Grand Total",
-                              second: "\$ ${grandPrice.toStringAsFixed(2)}"),
+                              first: "Total",
+                              second: "\$ ${grandPrice.value.toStringAsFixed(2)}"),
                           SizedBox(
                             height: 10.h,
                           ),
@@ -184,7 +222,9 @@ class OrderPage extends HookWidget {
                             height: 5.h,
                           ),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+
+                            },
                             child: RowText(
                                 first: "Phone ",
                                 second: _phone.text.isEmpty
@@ -201,7 +241,7 @@ class OrderPage extends HookWidget {
                   controller.defaultAddress == null
                       ? CustomButton(
                           onTap: () {
-                            Get.to(() => const AddAddress());
+                            Get.to(() => const AddNewPlace());
                           },
                           radius: 9,
                           color: kPrimary,
@@ -210,16 +250,16 @@ class OrderPage extends HookWidget {
                           text: "Add Default Address",
                         )
                       : orderController.isLoading
-                          ? const CircularProgressIndicator.adaptive(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(kPrimary),
+                          ? LoadingAnimationWidget.waveDots(
+                              color: kPrimary,
+                              size: 35
                             )
                           : CustomButton(
                               onTap: () {
-                                if (distanceTime.distance > 10.0) {
+                                if (distanceTime.value!.distance > 10.0) {
                                   Get.snackbar(
-                                      colorText: kRed,
-                                      backgroundColor: kPrimary,
+                                      colorText: kDark,
+                                      backgroundColor: kOffWhite,
                                       "Distance Alert",
                                       "You are too far from the restaurant, please order from a restaurant closer to you ");
                                   return;
@@ -238,13 +278,12 @@ class OrderPage extends HookWidget {
                                         controller.defaultAddress!.latitude,
                                         controller.defaultAddress!.longitude
                                       ],
-                                      deliveryFee:
-                                          distanceTime.price.toStringAsFixed(2),
-                                      grandTotal: grandPrice.toStringAsFixed(0),
-                                      deliveryAddress:
-                                          controller.defaultAddress!.id,
+                                      deliveryFee:distanceTime.value!.price.toStringAsFixed(2),
+                                      grandTotal: grandPrice.value.toStringAsFixed(0),
+                                      deliveryAddress:controller.defaultAddress!.id,
                                       paymentMethod: "STRIPE",
-                                      restaurantId: restaurant.id!);
+                                      restaurantId: restaurant.id!,
+                                      deliveryOption: '');
 
                                   String orderData = orderToJson(order);
 
@@ -256,7 +295,7 @@ class OrderPage extends HookWidget {
                               radius: 9,
                               color: kPrimary,
                               btnWidth: width * 0.95,
-                              btnHieght: 34.h,
+                              btnHieght: 44.h,
                               text: "P R O C E E D  T O  P A Y M E N T",
                             ),
                 ],

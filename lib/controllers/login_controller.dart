@@ -63,9 +63,9 @@ class LoginController extends GetxController {
 
         setLoading = false;
         controller.updateUserToken(controller.fcmToken);
-        Get.snackbar("Successfully logged in ", "Enjoy your awesome experience",
-            colorText: kLightWhite,
-            backgroundColor: kPrimary,
+        Get.snackbar("Welcome Back!", "Successful login",
+            colorText: kDark,
+            backgroundColor: kOffWhite,
             icon: const Icon(Ionicons.fast_food_outline));
 
         var userbase = await db.collection("users").withConverter(
@@ -103,7 +103,7 @@ class LoginController extends GetxController {
         if (data.verification == false) {
           Get.offAll(() => const VerificationPage());
         } else {
-          Get.offAll(() => MainScreen());
+          Get.offAll(() => const MainScreen());
         }
       } else {
         var data = apiErrorFromJson(response.body);
@@ -127,7 +127,7 @@ class LoginController extends GetxController {
 
   void logout() {
     box.erase();
-    Get.offAll(() => MainScreen());
+    Get.offAll(() => const MainScreen());
   }
 
   LoginResponse? getUserData() {
@@ -158,7 +158,7 @@ class LoginController extends GetxController {
       if (response.statusCode == 200) {
         setLoading = false;
         box.erase();
-        Get.offAll(() => MainScreen());
+        Get.offAll(() => const MainScreen());
       } else {
         var data = apiErrorFromJson(response.body);
 

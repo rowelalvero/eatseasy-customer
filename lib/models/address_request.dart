@@ -9,6 +9,7 @@ AddressRequest addressRequestFromJson(String str) => AddressRequest.fromJson(jso
 String addressRequestToJson(AddressRequest data) => json.encode(data.toJson());
 
 class AddressRequest {
+    final String addressName;
     final String addressLine1;
     final String postalCode;
     final bool addressRequestDefault;
@@ -17,6 +18,7 @@ class AddressRequest {
     final double longitude;
 
     AddressRequest({
+        required this.addressName,
         required this.addressLine1,
         required this.postalCode,
         required this.addressRequestDefault,
@@ -26,6 +28,7 @@ class AddressRequest {
     });
 
     factory AddressRequest.fromJson(Map<String, dynamic> json) => AddressRequest(
+        addressName: json["addressName"],
         addressLine1: json["addressLine1"],
         postalCode: json["postalCode"],
         addressRequestDefault: json["default"],
@@ -35,6 +38,7 @@ class AddressRequest {
     );
 
     Map<String, dynamic> toJson() => {
+        "addressName": addressName,
         "addressLine1": addressLine1,
         "postalCode": postalCode,
         "default": addressRequestDefault,

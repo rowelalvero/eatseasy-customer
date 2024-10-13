@@ -47,7 +47,7 @@ FetchHook useFetchAdresses() {
   }, const []);
 
   // Refetch Function
-  void refetch() {
+  Future<void> refetch() async {
     isLoading.value = true;
     fetchData();
   }

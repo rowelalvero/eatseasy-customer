@@ -14,19 +14,19 @@ class SearchResults extends StatelessWidget {
   Widget build(BuildContext context) {
     final searchController = Get.put(FoodSearchController());
     return Container(
-      color: searchController.searchResults!.isEmpty|| searchController.searchResults == null ? kLightWhite : Colors.white,
+      color: searchController.foodSearchResults!.isEmpty|| searchController.foodSearchResults == null ? kLightWhite : Colors.white,
       padding:  EdgeInsets.only(left: 12.w, top: 10.h, right: 12.w),
-      height: hieght,
-      child: searchController.searchResults!.isNotEmpty ? ListView.builder(
+      height: height,
+      child: searchController.foodSearchResults!.isNotEmpty ? ListView.builder(
           scrollDirection: Axis.vertical,
           padding: EdgeInsets.zero,
-          itemCount: searchController.searchResults!.length,
+          itemCount: searchController.foodSearchResults!.length,
           itemBuilder: (context, index) {
-             Food food = searchController.searchResults![index];
+             Food food = searchController.foodSearchResults![index];
             return FoodTile(food: food);
           }): Padding(
             padding:  EdgeInsets.only(bottom:180.0.h),
-            child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: hieght/2,),
+            child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: height/2,),
           ),
     );
   }

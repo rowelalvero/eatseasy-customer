@@ -4,7 +4,7 @@ import 'package:eatseasy/common/app_style.dart';
 import 'package:eatseasy/common/reusable_text.dart';
 import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/views/home/widgets/custom_btn.dart';
-import 'package:eatseasy/views/profile/shipping_address.dart';
+import 'package:eatseasy/views/profile/add_new_place.dart';
 import 'package:get/get.dart';
 
 Future<dynamic> showAddressSheet(BuildContext context) {
@@ -64,7 +64,7 @@ Future<dynamic> showAddressSheet(BuildContext context) {
                   ),
                   CustomButton(
                       onTap: () {
-                        Get.to(() => const AddAddress());
+                        Get.to(() => const AddNewPlace());
                       },
                       btnHieght: 40.h,
                       text: "Proceed To Address Page"),
