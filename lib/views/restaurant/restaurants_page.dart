@@ -55,7 +55,7 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
 
   Future<void> _fetchDistance() async {
     Distance distanceCalculator = Distance();
-    distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
+    distanceTime = distanceCalculator.calculateDistanceTimePrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         widget.restaurant.coords.latitude,
@@ -103,6 +103,7 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
             children: [
               Stack(
                 children: [
+
                   SizedBox(
                     height: 230.h,
                     width: width,
@@ -119,6 +120,31 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                       restaurant: widget.restaurant,
                     ),
                   ),
+                  /*Positioned(
+                    right: 5,
+                    top: 6.h,
+                    child: Container(
+                      width: 60.h,
+                      height: 19.h,
+                      decoration: BoxDecoration(
+                          color: widget.restaurant.isAvailable == true ||
+                              widget.restaurant.isAvailable == null
+                              ? kPrimary
+                              : kSecondaryLight,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          )),
+                      child: Center(
+                        child: ReusableText(
+                          text: widget.restaurant.isAvailable == null ||
+                              widget.restaurant.isAvailable == true
+                              ? "OPEN"
+                              : "CLOSED",
+                          style: appStyle(12, kLightWhite, FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),*/
                 ],
               ),
               Container(
@@ -211,7 +237,8 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                     const Explore()
                   ]))
             ],
-          )),
+          )
+      ),
     );
   }
 }

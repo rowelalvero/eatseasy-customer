@@ -63,13 +63,13 @@ class OrderDetailsPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           ReusableText(
-                              text: controller.order!.restaurantId.title,
+                              text: controller.order!.restaurantId!.title!,
                               style: appStyle(20, kGray, FontWeight.bold)),
                           CircleAvatar(
                             radius: 18,
                             backgroundColor: kTertiary,
                             backgroundImage:
-                                NetworkImage(controller.order!.restaurantId.logoUrl),
+                                NetworkImage(controller.order!.restaurantId!.logoUrl!),
                           ),
                         ],
                       ),
@@ -78,7 +78,7 @@ class OrderDetailsPage extends StatelessWidget {
                       ),
                       RowText(
                           first: "Business Hours",
-                          second: controller.order!.restaurantId.time),
+                          second: controller.order!.restaurantId!.time!),
                       SizedBox(
                         height: 5.h,
                       ),
@@ -94,7 +94,7 @@ class OrderDetailsPage extends StatelessWidget {
                                 style:
                                 appStyle(11, kGray, FontWeight.w600)),
                             ReusableText(
-                                text: controller.order!.deliveryAddress.addressLine1,
+                                text: controller.order!.deliveryAddress!.addressLine1!,
                                 style:
                                 appStyle(11, kGray, FontWeight.normal)),
                           ]),
@@ -105,7 +105,7 @@ class OrderDetailsPage extends StatelessWidget {
                                 style:
                                 appStyle(11, kGray, FontWeight.w600)),
                             ReusableText(
-                                text: controller.order!.restaurantId.coords.address,
+                                text: controller.order!.restaurantId!.coords!.address!,
                                 style:
                                 appStyle(11, kGray, FontWeight.normal)),
                           ]),
@@ -116,7 +116,7 @@ class OrderDetailsPage extends StatelessWidget {
                                 style:
                                 appStyle(11, kGray, FontWeight.w600)),
                             ReusableText(
-                                text: controller.order!.id,
+                                text: controller.order!.id!,
                                 style:
                                 appStyle(11, kGray, FontWeight.normal)),
                           ]),
@@ -137,7 +137,7 @@ class OrderDetailsPage extends StatelessWidget {
               ),
               OrderPageTile(
                 food: controller.order!.orderItems![0],
-                status: controller.order!.orderStatus,
+                status: controller.order!.orderStatus!,
               ),
               SizedBox(
                 height: 20.h,

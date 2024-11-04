@@ -8,6 +8,13 @@ import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/hooks/fetchRecommendations.dart';
 import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/views/food/widgets/food_tile.dart';
+import 'package:get/get.dart';
+
+import '../../controllers/address_controller.dart';
+import '../../hooks/fetchNearbyRestaurants.dart';
+import '../../models/distance_time.dart';
+import '../../models/restaurants.dart';
+import '../../services/distance.dart';
 
 class FastestFoods extends HookWidget {
   const FastestFoods({super.key});
@@ -15,10 +22,15 @@ class FastestFoods extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final hookResult = useFetchRecommendations("1400", true);
+    final controller = Get.put(AddressController());
+
     final foods = hookResult.data;
     final isLoading = hookResult.isLoading;
     final error = hookResult.error; // Capture error if any
     final refetch = hookResult.refetch;
+
+    final hookRestaurantResult = useFetchRestaurants();
+    final restaurants = hookRestaurantResult.data;
 
     return Scaffold(
       backgroundColor: kLightWhite,
@@ -26,12 +38,12 @@ class FastestFoods extends HookWidget {
         elevation: .4,
         centerTitle: true,
         backgroundColor: kLightWhite,
-        actions: [
+        /*actions: [
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.grid_view),
           ),
-        ],
+        ],*/
         title: ReusableText(
           text: "Fastest Food",
           style: appStyle(20, kDark, FontWeight.w400),
@@ -56,6 +68,22 @@ class FastestFoods extends HookWidget {
             itemCount: foods.length,
             itemBuilder: (context, i) {
               Food food = foods[i];
+
+              Restaurants restaurant = restaurants[i];
+
+              Distance distanceCalculator = Distance();
+              DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
+                controller.defaultAddress!.latitude,
+                controller.defaultAddress!.longitude,
+                restaurant.coords.latitude,
+                restaurant.coords.longitude,
+                35,
+                pricePkm,
+              );
+
+              if (distanceTime.distance > 10.0) {
+                return SizedBox.shrink();
+              }
               return FoodTile(food: food);
             },
           ),

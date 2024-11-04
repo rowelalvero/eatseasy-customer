@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:eatseasy/common/address_modal.dart';
 import 'package:eatseasy/common/app_style.dart';
 import 'package:eatseasy/common/custom_textfield.dart';
 import 'package:eatseasy/common/not_found.dart';
@@ -18,21 +18,17 @@ import 'package:eatseasy/controllers/food_controller.dart';
 import 'package:eatseasy/hooks/fetchRestaurant.dart';
 import 'package:eatseasy/models/cart_request.dart';
 import 'package:eatseasy/models/foods.dart';
-import 'package:eatseasy/models/order_item.dart';
 import 'package:eatseasy/models/response_model.dart';
-import 'package:eatseasy/models/user_cart.dart';
 import 'package:eatseasy/views/auth/login_page.dart';
 import 'package:eatseasy/views/auth/phone_verification.dart';
 import 'package:eatseasy/views/home/widgets/custom_btn.dart';
-import 'package:eatseasy/views/message/chat/index.dart';
-import 'package:eatseasy/views/message/index.dart';
-import 'package:eatseasy/views/orders/orders_page.dart';
 import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../hooks/fetchCart.dart';
+import '../../models/obs_custom_additives.dart';
 
 class FoodPage extends StatefulHookWidget {
   const FoodPage({
@@ -47,12 +43,12 @@ class FoodPage extends StatefulHookWidget {
 }
 
 class _FoodPageState extends State<FoodPage> {
+  final foodController = Get.put(FoodController());
   final TextEditingController _preferences = TextEditingController();
-
   final CounterController counterController = Get.put(CounterController());
   final PageController _pageController = PageController();
   final ContactController _controller = Get.put(ContactController());
-
+  Map<String, dynamic> foodControlleruserResponses = {};
   @override
   void dispose() {
     _pageController.dispose();
@@ -78,9 +74,9 @@ class _FoodPageState extends State<FoodPage> {
     final box = GetStorage();
     var phone_verification = box.read('phone_verification');
     var address = box.read('default_address') ?? false;
-    final foodController = Get.put(FoodController());
     final cartController = Get.put(CartController());
-    foodController.loadAdditives(widget.food.additives);
+    //foodController.loadAdditives(widget.food.additives);
+    foodController.loadCustomAdditives(widget.food.customAdditives);
     final hookResult = useFetchRestaurant(widget.food.restaurant);
     var restaurantData ;//= hookResult.data;
     final load = hookResult.isLoading;
@@ -116,7 +112,7 @@ class _FoodPageState extends State<FoodPage> {
     }
 
     String? token = box.read('token');
-    return load == true
+    return load
         ? Center(
             child: SizedBox(
               width: 150,
@@ -131,7 +127,6 @@ class _FoodPageState extends State<FoodPage> {
             backgroundColor: kLightWhite,
             body: ListView(
               padding: EdgeInsets.zero,
-              physics: const NeverScrollableScrollPhysics(),
               children: [
                 Stack(
                   children: [
@@ -284,10 +279,10 @@ class _FoodPageState extends State<FoodPage> {
                           ReusableText(
                               text: widget.food.title,
                               style: appStyle(18, kDark, FontWeight.w600)),
-                          ReusableText(
-                              text:
-                              "\$ ${widget.food.price.toStringAsFixed(2)}",
-                              style: appStyle(18, kPrimary, FontWeight.w600)),
+                          Obx(() => ReusableText(
+                              text: "\$ ${((widget.food.price + foodController.additiveTotalCustom) * counterController.count.toDouble()).toStringAsFixed(2)}",
+                              style: appStyle(18, kPrimary, FontWeight.w600)),),
+
                         ],
                       ),
                       SizedBox(
@@ -297,6 +292,29 @@ class _FoodPageState extends State<FoodPage> {
                         widget.food.description,
                         maxLines: 8,
                         style: appStyle(10, kGray, FontWeight.w400),
+                      ),
+                      SizedBox(
+                        height: 5.h,
+                      ),
+                      Row(
+                        children: [
+                          RatingBarIndicator(
+                            rating: widget.food.rating!,
+                            itemBuilder: (context, index) => const Icon(
+                              Icons.star,
+                              color: kPrimary,
+                            ),
+                            itemCount: 5,
+                            itemSize: 15.0,
+                            direction: Axis.horizontal,
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          ReusableText(
+                              text: "${widget.food.ratingCount} reviews and ratings",
+                              style: appStyle(9, kGray, FontWeight.w500)),
+                        ],
                       ),
                       SizedBox(
                         height: 5.h,
@@ -330,10 +348,68 @@ class _FoodPageState extends State<FoodPage> {
                       SizedBox(
                         height: 15.h,
                       ),
+
+                      // Adding a SizedBox with reduced height
                       ReusableText(
-                          text: "Additives and Toppings",
-                          style: appStyle(18, kDark, FontWeight.w600)),
+                        text: "Additives and Toppings",
+                        style: appStyle(18, kDark, FontWeight.w600),
+                      ),
+
                       Column(
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: foodController.customAdditivesList.length,
+                            itemBuilder: (context, index) {
+                              final question = foodController.customAdditivesList[index];
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  border: Border.all(
+                                    color: Colors.grey, // Set the color of the border
+                                    width: 0.4, // Set the width of the border
+                                  ),
+                                ),
+                                child: ListTile(
+                                  title: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ReusableText(
+                                        text: question.text,
+                                        style: appStyle(16, kDark, FontWeight.w600),
+                                      ),
+                                      if (question.selectionType == "Select at least" ||
+                                          question.selectionType == "Select at most" ||
+                                          question.selectionType == "Select exactly") ...[
+                                        Text(
+                                          '${question.selectionType} ${question.selectionNumber} options.',
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                      if (question.required) ...[
+                                        const Text(
+                                          "Required",
+                                          style: TextStyle(
+                                            color: Colors.redAccent,
+                                            fontSize: 16,
+                                            fontFamily: "Poppins",
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  subtitle: _buildQuestionInput(question),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+
+
+                      /*Column(
                         children: List.generate(
                             foodController.additivesList.length, (i) {
                           final additive = foodController.additivesList[i];
@@ -352,12 +428,11 @@ class _FoodPageState extends State<FoodPage> {
                                 },
                                 activeColor: kPrimary,
                                 checkColor: Colors.white,
-                                controlAffinity:
-                                    ListTileControlAffinity.leading,
+                                controlAffinity: ListTileControlAffinity.leading,
                                 tristate: false,
                               ));
                         }),
-                      ),
+                      ),*/
                       ReusableText(
                           text: "Preferences",
                           style: appStyle(18, kDark, FontWeight.w600)),
@@ -428,183 +503,121 @@ class _FoodPageState extends State<FoodPage> {
                 ),
               ],
             ),
-        bottomSheet: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(16),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 20,
-                spreadRadius: 1,
-              ),
-            ],
+      bottomSheet: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
           ),
-          child: Obx(() =>Column(
-            mainAxisSize: MainAxisSize.min,
-            // Ensures the container takes only the space it needs
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  height: 50.h,
-                  width: width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      cartController.isLoading
-                          ? Expanded(
-                        flex: 3,
-                        child: Center( // Center the loading animation
-                          child: LoadingAnimationWidget.waveDots(
-                            color: kSecondary,
-                            size: 35
-                          ),
-                        ),
-                      )
-                          : Expanded(
-                        //flex: 3,
-                        child: Expanded(
-                          child: Obx(() {
-                            for (var cart in items) {
-                              if (cart.productId.id == widget.food.id) {
-                                isThisProductInCart.value = true;
-                                foodPriceList.add(cart.totalPrice);
-                                foodQuantityList.add(cart.quantity);
-                              }
-                            }
-
-                            return ElevatedButton(
-                              onPressed: () async {
-                                cartController.setLoading = true; // Can be reactive, if needed
-                                if (token == null) {
-                                  Get.to(() => const Login());
-                                } else {
-                                  double totalPrice = (widget.food.price +
-                                      foodController.additiveTotal) *
-                                      counterController.count.toDouble();
-
-                                  ToCart item = ToCart(
-                                    productId: widget.food.id,
-                                    instructions: _preferences.text,
-                                    additives: foodController.getList(),
-                                    quantity: counterController.count.toInt(),
-                                    totalPrice: totalPrice,
-                                    prepTime: widget.food.time,
-                                    restaurant: widget.food.restaurant,
-                                  );
-
-                                  String cart = toCartToJson(item);
-
-                                  await cartController.addToCart(cart);
-                                  cartHookResult.refetch();
-                                }
-
-                                cartController.setLoading = false; // Can be reactive, if needed
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isThisProductInCart.value ? kPrimary : kGray,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                elevation: 4,
-                                shadowColor: Colors.grey.withOpacity(0.3),
-                              ),
-                              child: isThisProductInCart.value ?
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Text("Cart",style: TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600),),
-                                      const Text("       •       ", style: TextStyle(color: kWhite)),
-                                      Text("${foodQuantityList.first.toString()} ${foodQuantityList.first == 1 ? "item" : "items"} ", style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600)),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text("\$ ${foodPriceList.first.toStringAsFixed(2)}",style: const TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
-                                    ],
-                                  ),
-                                ],
-                              )
-                                  : const Text("Add to cart",style: TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
-                            );
-                          }),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 20,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Obx(() => Column(
+          mainAxisSize: MainAxisSize.min, // Ensures the container takes only the space it needs
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: 50.h,
+                width: width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    cartController.isLoading
+                        ? Expanded(
+                      child: Center(
+                        child: LoadingAnimationWidget.waveDots(
+                          color: kSecondary,
+                          size: 35,
                         ),
                       ),
-                      /*SizedBox(
-                          width: 10.h,
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              LoadingAnimationWidget.waveDots(
-                                color: kPrimary,
-                                size: 35
+                    )
+                        : Expanded(
+                      child: Obx(() {
+                        for (var cart in items) {
+                          if (cart.productId.id == widget.food.id) {
+                            isThisProductInCart.value = true;
+                            foodPriceList.add(cart.totalPrice);
+                            foodQuantityList.add(cart.quantity);
+                          }
+                        }
+
+                        return ElevatedButton(
+                          onPressed: () async {
+                            cartController.setLoading = true; // Can be reactive, if needed
+                            if (token == null) {
+                              Get.to(() => const Login());
+                            } else {
+                              double totalPrice = (widget.food.price +
+                                  foodController.additiveTotalCustom) *
+                                  counterController.count.toDouble();
+
+                              ToCart item = ToCart(
+                                productId: widget.food.id,
+                                instructions: _preferences.text,
+                                //additives: foodController.getList(),
+                                quantity: counterController.count.toInt(),
+                                totalPrice: totalPrice,
+                                prepTime: widget.food.time!,
+                                restaurant: widget.food.restaurant!,
+                                customAdditives: foodController.userResponses,
                               );
-                              if (token == null) {
-                                Get.to(() => const Login());
-                              } else {
-                                // var user = controller.getUserData();
-                                *//*if (phone_verification == false ||
-                                  phone_verification == null) {
-                                _showVerificationSheet(context);
 
-                              } else*//*
-                                if (address == false) {
-                                  showAddressSheet(context);
-                                } else {
-                                  OrderItem orderItem = OrderItem(
-                                    foodId: widget.food.id,
-                                    additives: foodController.getList(),
-                                    quantity: counterController.count.toString(),
-                                    price: ((widget.food.price +
-                                        foodController.additiveTotal) *
-                                        counterController.count.toDouble())
-                                        .toStringAsFixed(2),
-                                    instructions: _preferences.text,
+                              String cart = toCartToJson(item);
 
-                                  );
+                              await cartController.addToCart(cart);
+                              print(cart);
+                              cartHookResult.refetch();
+                            }
 
-                                  *//*Get.to(
-                                          () => OrderPage(
-                                        food: widget.food,
-                                        restaurant: restaurantData,
-                                        item: orderItem,
-                                      ));*//*
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 242, 198, 65),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              elevation: 4,
-                              shadowColor: Colors.grey.withOpacity(0.3),
+                            cartController.setLoading = false; // Can be reactive, if needed
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isThisProductInCart.value ? kPrimary : kGray,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
                             ),
-                            child: ReusableText(
-                                text: "Place Order",
-                                style:
-                                appStyle(18, kLightWhite, FontWeight.w600)),
+                            elevation: 4,
+                            shadowColor: Colors.grey.withOpacity(0.3),
                           ),
-                        ),*/
-                    ],
-                  ),
+                          child: isThisProductInCart.value
+                              ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text("Cart", style: TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
+                                  const Text("       •       ", style: TextStyle(color: kWhite)),
+                                  Text("${foodQuantityList.first.toString()} ${foodQuantityList.first == 1 ? "item" : "items"} ", style: const TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text("\$ ${foodPriceList.first.toStringAsFixed(2)}", style: const TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ],
+                          )
+                              : const Text("Add to cart", style: TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
+                        );
+                      }),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),)
-        ),
-        );
+            ),
+          ],
+        )),
+      ),
+    );
   }
   Future<dynamic> _showVerificationSheet(BuildContext context) {
     return showModalBottomSheet(
@@ -671,4 +684,133 @@ class _FoodPageState extends State<FoodPage> {
           );
         });
   }
+  Widget _buildQuestionInput(ObsCustomAdditive question) {
+    switch (question.type) {
+      case 'Multiple Choice':
+        return Column(
+          children: question.options!.map((option) {
+            // Access the 'optionName' and 'price' fields within the Map
+            final optionText = option['optionName'] as String;
+            final optionPrice = option['price'] != null ? '(\$${option['price']})' : '';
+
+            return RadioListTile<String>(
+              activeColor: kPrimary,
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              title: Text('$optionText $optionPrice'),
+              value: optionText,
+              groupValue: foodController.userResponses[question.text],
+              onChanged: (value) {
+                setState(() {
+                  foodController.userResponses[question.text] = value;
+                  question.toggleChecked();
+                  print("jkcacnlkadclka"+foodController.userResponses.toString());
+                  foodController.getTotalPriceCustomAdditives();
+
+                });
+              },
+            );
+          }).toList(),
+        );
+      case 'Checkbox':
+        return Column(
+          children: question.options!.map((option) {
+            final optionText = option['optionName'] as String;
+            final optionPrice = option['price'] != null ? '(\$${option['price']})' : '';
+
+            return CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              activeColor: kPrimary,
+              checkColor: Colors.white,
+              controlAffinity: ListTileControlAffinity.leading,
+              tristate: false,
+              visualDensity: VisualDensity.compact,
+              title: Text('$optionText $optionPrice'), // Display option with price
+              value: foodController.userResponses[question.text]?.contains(optionText) ?? false,
+              onChanged: (value) {
+                setState(() {
+                  final currentSelections = foodController.userResponses[question.text] ?? [];
+                  print("jkcacnlkadclka"+foodController.userResponses.toString());
+                  if (value == true) {
+                    if (question.selectionType == 'Select at least' &&
+                        currentSelections.length >= question.selectionNumber!) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Please select at least ${question.selectionNumber} options.')),
+                      );
+                    } else if (question.selectionType == 'Select at most' &&
+                        currentSelections.length >= question.selectionNumber!) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('You can select a maximum of ${question.selectionNumber} options.')),
+                      );
+                    } else if (question.selectionType == 'Select exactly' &&
+                        currentSelections.length == question.selectionNumber!) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('You can select exactly ${question.selectionNumber} options.')),
+                      );
+                    } else {
+                      foodController.userResponses[question.text] = [...currentSelections, optionText];
+                    }
+                  } else {
+                    foodController.userResponses[question.text]?.remove(optionText);
+                  }
+                  question.toggleChecked();
+                  foodController.getTotalPriceCustomAdditives(); // Ensure you call this after updating selections
+                });
+              },
+
+            );
+          }).toList(),
+        );
+      case 'Short Answer':
+        return TextField(
+          onChanged: (value) {
+            foodController.userResponses[question.text] = value;
+          },
+        );
+      case 'Paragraph':
+        return TextField(
+          maxLines: 3,
+          onChanged: (value) {
+            foodController.userResponses[question.text] = value;
+          },
+        );
+      case 'Linear Scale':
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(
+                question.maxScale!.toInt() - question.minScale!.toInt() + 1,
+                    (index) => Text(
+                  '${question.minScale!.toInt() + index}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+            Slider(
+              value: foodController.userResponses[question.text] ?? question.minScale ?? 1.0,
+              min: question.minScale ?? 1.0,
+              max: question.maxScale ?? 10.0,
+              divisions: (question.maxScale! - question.minScale!).toInt(),
+              label: (foodController.userResponses[question.text]?.toInt()).toString(),
+              onChanged: (value) {
+                setState(() {
+                  foodController.userResponses[question.text] = value;
+                });
+              },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(question.minScaleLabel ?? ''),
+                Text(question.maxScaleLabel ?? ''),
+              ],
+            ),
+          ],
+        );
+      default:
+        return SizedBox.shrink();
+    }
+  }
+
 }

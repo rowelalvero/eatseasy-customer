@@ -102,7 +102,9 @@ class _DirectionsPageState extends State<DirectionsPage> {
     var currentLocation = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
     setState(() {
-      _center = LatLng(currentLocation.latitude, currentLocation.longitude);
+      //_center = LatLng(currentLocation.latitude, currentLocation.longitude);
+      _center = LatLng(controller.defaultAddress!.latitude,
+          controller.defaultAddress!.longitude);
       mapController.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(
           target: _center,
@@ -162,7 +164,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
   }
   Future<void> _fetchDistance() async {
     Distance distanceCalculator = Distance();
-    distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
+    distanceTime = distanceCalculator.calculateDistanceTimePrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         widget.restaurant.coords.latitude,

@@ -57,7 +57,7 @@ class OrderTile extends StatelessWidget {
                           height: 16,
                           width: width,
                           child: RatingBarIndicator(
-                            rating: 5,
+                            rating: double.tryParse(food.rating.toString()) ?? 0.0,
                             itemBuilder: (context, index) => const Icon(
                               Icons.star,
                               color: Colors.amber,
@@ -89,7 +89,7 @@ class OrderTile extends StatelessWidget {
                   const SizedBox(
                     height: 5,
                   ),
-                  SizedBox(
+                  /*SizedBox(
                     height: 18,
                     width: width * 0.67,
                     child: ListView.builder(
@@ -114,7 +114,7 @@ class OrderTile extends StatelessWidget {
                             ),
                           );
                         }),
-                  ),
+                  ),*/
                 ],
               )
             ],

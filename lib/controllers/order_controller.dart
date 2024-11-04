@@ -11,8 +11,10 @@ import 'package:eatseasy/models/order_response.dart';
 import 'package:eatseasy/models/payment_request.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/order_details.dart';
 import '../views/orders/payments/successful.dart';
 import 'cart_controller.dart';
 
@@ -21,49 +23,52 @@ class OrderController extends GetxController {
   final controller = Get.put(CartController());
 
   Order? order;
+  GetOrder? getOrder;
 
-  void set setOrder(Order newValue) {
+  set setOrder(Order newValue) {
     order = newValue;
   }
 
   final RxString _paymentId = ''.obs;
-
   String get paymentId => _paymentId.value;
-
   set paymentId(String newValue) {
     _paymentId.value = newValue;
   }
 
   final RxString _paymentUrl = ''.obs;
-
   String get paymentUrl => _paymentUrl.value;
-
   set paymentUrl(String newValue) {
     _paymentUrl.value = newValue;
   }
 
   final RxString _orderId = ''.obs;
-
   String get orderId => _orderId.value;
-
   set orderId(String newValue) {
     _orderId.value = newValue;
   }
 
   RxBool _isLoading = false.obs;
-
   bool get isLoading => _isLoading.value;
-
   set setLoading(bool newValue) {
     _isLoading.value = newValue;
   }
 
   RxBool _iconChanger = false.obs;
-
   bool get iconChanger => _iconChanger.value;
-
   set setIcon(bool newValue) {
     _iconChanger.value = newValue;
+  }
+
+  Rx<LatLng> _currentLocation = LatLng(0.0, 0.0).obs;
+  LatLng get currentLocation => _currentLocation.value;
+  void updateLocation(LatLng newLocation) {
+    _currentLocation.value = newLocation;
+  }
+
+  RxString _orderStatus = ''.obs;
+  String get orderStatus => _orderStatus.value;
+  void updateOrderStatus(String newStatus) {
+    _orderStatus.value = newStatus;
   }
 
   void createOrder(String order, Order item) async {
@@ -112,8 +117,6 @@ class OrderController extends GetxController {
           Get.to(const Successful());
         }
 
-
-
       } else {
         var data = apiErrorFromJson(response.body);
 
@@ -160,6 +163,37 @@ class OrderController extends GetxController {
       setLoading = false;
     } finally {
       setLoading = false;
+    }
+  }
+
+  Future<void> getOrderDetails(String orderId) async {
+    String accessToken =  box.read('token');
+    setLoading = true;
+    var url = Uri.parse('${Environment.appBaseUrl}/api/orders/$orderId');
+    try {
+      var response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        getOrder = getOrderFromJson(response.body);
+        print("The order status! ${_orderStatus.value}");
+        setLoading = false;
+      } else {
+        var data = apiErrorFromJson(response.body);
+        setLoading = false;
+        Get.snackbar(data.message, "Failed to login, please try again",
+            colorText: kLightWhite,
+            backgroundColor: kRed,
+            icon: const Icon(Icons.error));
+      }
+    } catch (e) {
+      setLoading = false;
+      debugPrint(e.toString());
     }
   }
 }

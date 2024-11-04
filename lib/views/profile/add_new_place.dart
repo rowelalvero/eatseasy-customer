@@ -18,6 +18,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'saved_places.dart';
 
@@ -30,17 +31,17 @@ class AddNewPlace extends StatefulWidget {
 
 class _AddNewPlaceState extends State<AddNewPlace> {
   final TextEditingController _searchController = TextEditingController();
-  final location = Get.put(UserLocationController());
-  final controller = Get.put(UserLocationController());
-  final addressController = Get.put(AddressController());
   late PageController _pageController = PageController(initialPage: 0);
   GoogleMapController? _mapController;
   final box = GetStorage();
+  final location = Get.put(UserLocationController());
+  final controller = Get.put(UserLocationController());
+  final addressController = Get.put(AddressController());
 
   @override
   void initState() {
     super.initState();
-    getCurrentLocation();
+    _determinePosition();
     controller.currentIndex = 0;
     _pageController.addListener(() {
       setState(() {
@@ -63,7 +64,37 @@ class _AddNewPlaceState extends State<AddNewPlace> {
 
   LatLng? _selectedLocation;
 
-  Future<void> getCurrentLocation() async {
+  Future<void> _determinePosition() async {
+    if (!await _checkLocationServices()) return;
+
+    await _showLocationPermission();
+  }
+
+  Future<bool> _checkLocationServices() async {
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return false; // Location services are disabled.
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    return permission != LocationPermission.deniedForever; // Location permissions are permanently denied.
+  }
+
+  Future<void> _showLocationPermission() async {
+    // Request location permission
+    var status = await Permission.location.request();
+
+    if (status.isGranted) {
+      await _getCurrentLocation();
+    } else if (status.isDenied) {
+      // Permission denied, show a message
+      print("Location permission denied. Unable to access location.");
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, open app settings
+      openAppSettings();
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
     var currentLocation = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
@@ -79,7 +110,7 @@ class _AddNewPlaceState extends State<AddNewPlace> {
           CameraUpdate.newCameraPosition(
             CameraPosition(
               target: _selectedLocation!,
-              zoom: 16.0, // You can adjust the zoom level
+              zoom: 16.0,
             ),
           ),
         );
@@ -311,25 +342,35 @@ class _AddNewPlaceState extends State<AddNewPlace> {
                       _mapController = controller;
                     },
                     initialCameraPosition: CameraPosition(
-                      target: _selectedLocation ??
-                          const LatLng(
-                              37.77483, -122.41942), // Default location
+                      target: _selectedLocation ?? const LatLng(37.77483, -122.41942), // Default location
                       zoom: 15.0,
                     ),
                     markers: _selectedLocation == null
-                        // ignore: prefer_collection_literals
                         ? Set.of([])
-                        // ignore: prefer_collection_literals
-                        : Set.of([
-                            Marker(
-                              markerId: const MarkerId('Your Location'),
-                              position: _selectedLocation!,
-                              draggable: true,
-                              onDragEnd: (newPosition) {
-                                _onMarkerDragEnd(newPosition);
-                              },
-                            )
-                          ]),
+                        : {
+                      /*Marker(
+                        markerId: const MarkerId('Your Location'),
+                        position: _selectedLocation!,
+                        draggable: false,
+                      )*/
+                    },
+                    onCameraMove: (position) {
+                      setState(() {
+                        _selectedLocation = position.target;
+                      });
+                    },
+                    onCameraIdle: () {
+                      if (_selectedLocation != null) {
+                        _onMarkerDragEnd(_selectedLocation!);
+                      }
+                    },
+                  ),
+                  const Center(
+                    child: Icon(
+                      Icons.location_pin,
+                      color: Colors.red,
+                      size: 40,
+                    ),
                   ),
                   Column(
                     children: [
@@ -428,6 +469,7 @@ class _AddNewPlaceState extends State<AddNewPlace> {
           ],
         ),
       ),
+
       bottomSheet: buildBottomSheet(context),
       /*bottomNavigationBar: BottomAppBar(
         color: Colors.white,
@@ -494,7 +536,7 @@ class _AddNewPlaceState extends State<AddNewPlace> {
                   leading: const Icon(Icons.location_on, color: kPrimary),
                   title: Text(location.city),
                   subtitle: Text(_searchController.text),
-                  trailing: const Icon(Icons.more_vert),
+                  trailing: IconButton(onPressed: () {_determinePosition();}, icon: const Icon(Icons.gps_fixed_rounded)),
                 ),
               ),
           const SizedBox(height: 14),

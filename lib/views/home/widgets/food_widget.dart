@@ -37,9 +37,13 @@ class FoodWidget extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  child: CachedImageLoader(image: image, imageHeight: 114.h,imageWidth: width*0.8,),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(12)),
+                      child: CachedImageLoader(image: image, imageHeight: 114.h,imageWidth: width*0.8,),
+                    ),
+                  ],
                 ),
               ),
               Padding(

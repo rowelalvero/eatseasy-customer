@@ -37,6 +37,7 @@ Future<void> main() async {
     name: 'eatseasy-food-apps',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
   await GetStorage.init();
   Get.put(CartController());
   Get.put(ContactController());

@@ -23,7 +23,7 @@ class CartTile extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(CartController());
-    
+
     return GestureDetector(
       /*onTap: () {
         Get.to(() => FoodPage(food: food)
@@ -108,27 +108,41 @@ class CartTile extends HookWidget {
                           height: 18,
                           width: width * 0.67,
                           child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: item.additives.length,
-                              itemBuilder: (context, i) {
-                                final additive = item.additives[i];
-                                return Container(
-                                  margin: const EdgeInsets.only(right: 5),
-                                  decoration: const BoxDecoration(
-                                      color: kSecondaryLight,
-                                      borderRadius:
-                                      BorderRadius.all(Radius.circular(9))),
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: ReusableText(
-                                          text: additive,
-                                          style:
-                                          appStyle(8, kGray, FontWeight.w400)),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: item.customAdditives.length,
+                            itemBuilder: (context, i) {
+                              // Get the key from the map
+                              String key = item.customAdditives.keys.elementAt(i); // Access the key by index
+                              var additive = item.customAdditives[key];
+
+                              // Handle case for Toppings which might be a list
+                              if (additive is List) {
+                                additive = additive.join(', '); // Join list items into a string
+                              } else if (additive == null) {
+                                additive = "Unknown"; // Default to "Unknown" if null
+                              }
+
+                              // Format the display text as "Key: Additive"
+                              String displayText = "$key: $additive";
+
+                              return Container(
+                                margin: const EdgeInsets.only(right: 5),
+                                decoration: const BoxDecoration(
+                                  color: kSecondaryLight,
+                                  borderRadius: BorderRadius.all(Radius.circular(9)),
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: ReusableText(
+                                      text: displayText, // Use the formatted display text
+                                      style: appStyle(8, kGray, FontWeight.w400),
                                     ),
                                   ),
-                                );
-                              }),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),

@@ -16,6 +16,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../common/divida.dart';
@@ -70,6 +71,12 @@ class ItemCartPage extends HookWidget {
     final distanceTime = useState<DistanceTime?>(null);
     final standardDeliveryTime = useState<double>(0); // Initialize with base time
     final totalDeliveryOptionTime = useState<double>(0);
+
+    final orderForLaterDelivery = useState<String>('Today');
+    String deliveryDate = orderForLaterDelivery.value;
+    /*final orderForLaterDeliveryDate = useState<String>('');
+    final orderForLaterDeliveryTime = useState<String>('');*/
+
     final orderSubTotal = useState<num>(0);
     final totalDeliveryOptionPrice = useState<double>(0);
     final standardDeliveryPrice = useState<double>(0);
@@ -88,12 +95,17 @@ class ItemCartPage extends HookWidget {
         totalDeliveryOptionTime.value = standardDeliveryTime.value; // Standard, no change
         totalDeliveryOptionPrice.value = standardDeliveryPrice.value;
         total.value = orderSubTotal.value.toDouble() + totalDeliveryOptionPrice.value;
+      } else {
+        //totalDeliveryOptionTime.value = standardDeliveryTime.value + 15; // Saver adds 15 mins
+        //orderForLaterDelivery.value = "${orderForLaterDeliveryDate.value}, ${orderForLaterDeliveryTime.value}";
+        totalDeliveryOptionPrice.value = standardDeliveryPrice.value - 6;
+        total.value = orderSubTotal.value.toDouble() + totalDeliveryOptionPrice.value;
       }
     }
 
     Future<void> fetchDistance() async {
       Distance distanceCalculator = Distance();
-      distanceTime.value = await distanceCalculator.calculateDistanceDurationPrice(
+      distanceTime.value = distanceCalculator.calculateDistanceTimePrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         restaurant.coords.latitude,
@@ -102,17 +114,6 @@ class ItemCartPage extends HookWidget {
         pricePkm,
       );
     }
-
-    /*LatLng _center = const LatLng(37.78792117665919, -122.41325651079953);
-    Future<void> getCurrentLocation() async {
-      location.setUserLocation(_center);
-      var currentLocation = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-
-      _center = LatLng(currentLocation.latitude, currentLocation.longitude);
-      location.getAddressFromLatLng(_center);
-
-    }*/
 
     useEffect(() {
       num orderTotalAmount = 0;
@@ -355,18 +356,107 @@ class ItemCartPage extends HookWidget {
                           // Standard Option
                           RadioListTile(
                             activeColor: kPrimary,
-                            title: const Row(
+                            title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Order for later'),
+                                const Text('Order for later'),
+                                Text('₱${(standardDeliveryPrice.value + 6).toStringAsFixed(2)}'),
                               ],
                             ),
-                            value: 'Later',
+                            value: 'Order for later',
                             groupValue: selectedDeliveryOption.value,
-                            onChanged: (value) {
-                              selectDeliveryOption(value!);
-                              selectedDeliveryOption.value = value;
+                            onChanged: (value) async {
+                              // Show the bottom sheet and wait for result
+                              String? result = await showModalBottomSheet<String>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  DateTime selectedDate = DateTime.now();
+                                  TimeOfDay selectedTime = TimeOfDay.now();
+
+                                  return StatefulBuilder(
+                                    builder: (BuildContext context, StateSetter setState) {
+                                      return Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(16),
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 20,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            const Text(
+                                              "Select delivery day and time",
+                                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            // Date Picker
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                final DateTime? pickedDate = await showDatePicker(
+                                                  context: context,
+                                                  initialDate: selectedDate,
+                                                  firstDate: DateTime.now(),  // Prevents past dates
+                                                  lastDate: DateTime(2100),
+                                                );
+                                                if (pickedDate != null) {
+                                                  setState(() {
+                                                    selectedDate = pickedDate;
+                                                  });
+                                                }
+                                              },
+                                              child: Text(
+                                                "Selected Date: ${DateFormat('EEE, M/ d/ y').format(selectedDate)}",
+                                              ),
+                                            ),
+                                            const SizedBox(height: 20),
+                                            // Time Picker
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                final TimeOfDay? pickedTime = await showTimePicker(
+                                                  context: context,
+                                                  initialTime: selectedTime,
+                                                );
+                                                if (pickedTime != null) {
+                                                  setState(() {
+                                                    selectedTime = pickedTime;
+                                                  });
+                                                }
+                                              },
+                                              child: Text("Selected Time: ${selectedTime.format(context)}"),
+                                            ),
+                                            const Spacer(),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                // Return the selected date and time as a result
+                                                String selectedDateTime = '${DateFormat('EEE, M/ d').format(selectedDate)}, ${selectedTime.format(context)}';
+                                                Navigator.pop(context, selectedDateTime);  // Pop with result
+                                              },
+                                              child: const Text('Save'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+
+                              // Once the modal is closed, process the returned result
+                              if (result != null) {
+                                orderForLaterDelivery.value = result;  // Store the result
+                                selectedDeliveryOption.value = value!;
+                              }
                             },
+
                           ),
                         ),
                       ),
@@ -407,6 +497,7 @@ class ItemCartPage extends HookWidget {
                           : Container(
                         decoration: const BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(9))),
+
                         child: ListView.builder(
                           shrinkWrap: true, // Adjust height based on content
                           physics: const NeverScrollableScrollPhysics(), // Disable scrolling to avoid nested scroll issues
@@ -414,7 +505,7 @@ class ItemCartPage extends HookWidget {
                           itemCount: items.length,
                           itemBuilder: (context, i) {
                             UserCart cart = items[i];
-
+                            print(cart.customAdditives);
                             if (cart.restaurant == restaurant.id) {
                               OrderItem orderItem = OrderItem(
                                 foodId: cart.productId.id,
@@ -423,6 +514,7 @@ class ItemCartPage extends HookWidget {
                                 price: cart.totalPrice.toStringAsFixed(2),
                                 instructions: cart.instructions,
                                 cartItemId: cart.id,
+                                customAdditives: cart.customAdditives
                               );
 
                               matchingCarts.add(orderItem);
@@ -439,7 +531,10 @@ class ItemCartPage extends HookWidget {
                         children: [
                           RowText(
                             first: "Estimated delivery time",
-                            second: distanceTime.value != null
+                            second:
+                            orderForLaterDelivery.value != 'Today'
+                          ? orderForLaterDelivery.value
+                          : distanceTime.value != null
                                 ? "${"${totalDeliveryOptionTime.value.toStringAsFixed(0)} - ${(totalDeliveryOptionTime.value + distanceTime.value!.time).toStringAsFixed(0)}" } mins."
                                 : "Loading...",
                           ),
@@ -706,6 +801,7 @@ class ItemCartPage extends HookWidget {
                                 controller.defaultAddress!.longitude,
                               ],
                               deliveryFee: totalDeliveryOptionPrice.value.toStringAsFixed(2),
+                              deliveryDate: deliveryDate,
                               grandTotal: total.value.toStringAsFixed(0),
                               deliveryAddress: controller.defaultAddress!.id,
                               paymentMethod: paymentMethod,

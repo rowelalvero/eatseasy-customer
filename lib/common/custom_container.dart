@@ -18,9 +18,9 @@ class CustomContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      /*borderRadius: BorderRadius.only(
+      borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30.r),
-          bottomRight: Radius.circular(30.r)),*/
+          bottomRight: Radius.circular(30.r)),
       child: Container(
         width: width,
         height: ScreenUtil().screenHeight,

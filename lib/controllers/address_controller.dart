@@ -22,19 +22,15 @@ class AddressController extends GetxController {
 
   // Reactive state
   var _address = false.obs;
-
   // Getter
   bool get address => _address.value;
-
   // Setter
   set setAddress(bool newValue) {
     _address.value = newValue;
   }
 
   RxBool _isLoading = false.obs;
-
   bool get isLoading => _isLoading.value;
-
   set setLoading(bool newValue) {
     _isLoading.value = newValue;
   }
@@ -151,8 +147,8 @@ class AddressController extends GetxController {
 
       if (response.statusCode == 200) {
 
-        Get.snackbar("Address successfully deleted",
-            "Please reload this page",
+        Get.snackbar("Address deleted",
+            "Address has been successfully deleted.",
             colorText: kDark,
             backgroundColor: kOffWhite,
             icon: const Icon(Icons.delete));
@@ -199,7 +195,7 @@ class AddressController extends GetxController {
       if (response.statusCode == 200) {
 
         Get.snackbar("Address Updated",
-            "Please reload this page",
+            "Address has been successfully saved.",
             colorText: kDark,
             backgroundColor: kOffWhite,
             icon: const Icon(Icons.update));
@@ -227,20 +223,13 @@ class AddressController extends GetxController {
   }
 
   var _index = 0.obs;
-  // Getter
   int get getIndex => _index.value;
-
-  // Setter
   set setIndex(int newValue) {
     _index.value = newValue;
   }
   
   var _dfSwitch = false;
-
-  // Getter
   bool get dfSwitch => _dfSwitch;
-
-  // Setter
   set setDfSwitch(bool newValue) {
     _dfSwitch = newValue;
   }

@@ -13,6 +13,7 @@ import 'package:eatseasy/views/auth/widgets/login_redirect.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../hooks/fetchAllNearbyRestaurants.dart';
+import '../../hooks/fetchDefaultAddress.dart';
 import '../../models/restaurants.dart';
 
 class RestaurantCartPage extends HookWidget {
@@ -21,6 +22,7 @@ class RestaurantCartPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final box = GetStorage();
+    String? accessToken = box.read("token");
     String? token = box.read('token');
 
     final hookResult = useFetchCart();
@@ -31,6 +33,9 @@ class RestaurantCartPage extends HookWidget {
     final restaurantHookResult = useFetchAllRestaurants("1400");
     final restaurants = restaurantHookResult.data ?? [];
 
+    if (accessToken != null) {
+      useFetchDefault(context, false);
+    }
     useEffect(() {
       // Call refetch when the page is built
       refetch();
@@ -74,21 +79,23 @@ class RestaurantCartPage extends HookWidget {
                     itemBuilder: (context, i) {
                       Restaurants restaurant = restaurants[i];
 
-                      // Check if any cart item matches the current restaurant
-                      List<UserCart> matchingCarts = items.where(
-                            (cart) => cart.restaurant == restaurant.id,
-                      ).toList();
+                      List<UserCart> matchingCarts = items.where((cart) => cart.restaurant == restaurant.id).toList();
 
-                      // If a match is found, display the cart for the restaurant
                       if (matchingCarts.isNotEmpty) {
                         return RestaurantCartTile(restaurant: restaurant);
                       }
 
                       if (items.isEmpty) {
-                        return const Center(
-                          child: Text("Try to add food in the cart"),
+                        return Center(
+                          child: Image.asset(
+                            'assets/images/no_content.png',
+                            height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+                            width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
+                            fit: BoxFit.contain,
+                          ),
                         );
                       }
+
 
                       return const SizedBox(); // Return empty widget if no match
                     },

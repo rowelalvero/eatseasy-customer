@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/src/foundation/change_notifier.dart';
-
 Order orderFromJson(String str) => Order.fromJson(json.decode(str));
-
 String orderToJson(Order data) => json.encode(data.toJson());
 
 class Order {
@@ -13,6 +10,7 @@ class Order {
     final String restaurantAddress;
     final List<double> restaurantCoords;
     final List<double> recipientCoords;
+    final String deliveryDate;
     final String deliveryFee;
     final String grandTotal;
     final String deliveryAddress;
@@ -27,6 +25,7 @@ class Order {
         required this.restaurantAddress,
         required this.restaurantCoords,
         required this.recipientCoords,
+        required this.deliveryDate,
         required this.deliveryFee,
         required this.grandTotal,
         required this.deliveryAddress,
@@ -42,6 +41,7 @@ class Order {
         restaurantAddress: json["restaurantAddress"],
         restaurantCoords: List<double>.from(json["restaurantCoords"].map((x) => x?.toDouble())),
         recipientCoords: List<double>.from(json["recipientCoords"].map((x) => x?.toDouble())),
+        deliveryDate: json["deliveryDate"],
         deliveryFee: json["deliveryFee"],
         grandTotal: json["grandTotal"],
         deliveryAddress: json["deliveryAddress"],
@@ -57,6 +57,7 @@ class Order {
         "restaurantAddress": restaurantAddress,
         "restaurantCoords": List<dynamic>.from(restaurantCoords.map((x) => x)),
         "recipientCoords": List<dynamic>.from(recipientCoords.map((x) => x)),
+        "deliveryDate": deliveryDate,
         "deliveryFee": deliveryFee,
         "grandTotal": grandTotal,
         "deliveryAddress": deliveryAddress,
@@ -73,6 +74,7 @@ class OrderItem {
     final String price;
     final String instructions;
     final String? cartItemId;
+    final Map<String, dynamic> customAdditives;
 
     OrderItem({
         required this.foodId,
@@ -81,6 +83,7 @@ class OrderItem {
         required this.price,
         required this.instructions,
         this.cartItemId,
+        required this.customAdditives,
     });
 
     factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
@@ -90,7 +93,9 @@ class OrderItem {
         price: json["price"],
         instructions: json["instructions"],
         cartItemId: json["cartItemId"],
+        customAdditives: Map<String, dynamic>.from(json["customAdditives"]),
     );
+
 
     Map<String, dynamic> toJson() => {
         "foodId": foodId,
@@ -98,6 +103,8 @@ class OrderItem {
         "quantity": quantity,
         "price": price,
         "instructions": instructions,
-        "cartItemId": cartItemId
+        "cartItemId": cartItemId,
+        "customAdditives": customAdditives, // Include customAdditives in the output
     };
+
 }

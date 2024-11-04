@@ -29,8 +29,17 @@ class AddressTile extends StatelessWidget {
     final localContext = context;
 
     return GestureDetector(
-        onTap: () {
-          Get.to(() => UpdateAddressPage(address: address));
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UpdateAddressPage(address: address), // Pass update if needed
+            ),
+          );
+          // Check if a result was returned
+          if (result != null) {
+            refetch();
+          }
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),

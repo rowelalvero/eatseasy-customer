@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'cached_image_loader.dart';
 class CustomAppBar extends StatefulHookWidget {
   const CustomAppBar({
     super.key,
@@ -27,19 +28,21 @@ class CustomAppBar extends StatefulHookWidget {
 class _CustomAppBarState extends State<CustomAppBar> {
   final box = GetStorage();
   @override
-  @override
   void initState() {
+    // _determinePosition();
     super.initState();
-    final location = Get.put(UserLocationController());
-    final controller = Get.put(AddressController());
-    //_determinePosition();
   }
-
   @override
   void didChangeDependencies() {
     _determinePosition();
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+  }
+  @override
+  void dispose() {
+    print("disposed....");
+    // TODO: implement dispose
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -66,10 +69,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
               children: [
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: kTertiary,
-                      backgroundImage: NetworkImage(profile),
+                    CachedImageLoader(
+                      imageWidth: 50,
+                      imageHeight:50,
+                      image: profile,
                     ),
                     Positioned(
                         child: userId != null
@@ -86,10 +89,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                       ReusableText(
                           text: "Delivering to",
                           style: appStyle(13, kSecondary, FontWeight.w600)),
-                    Obx(() {
-                      print("Default Address: ${controller.defaultAddress}");
-                      print("Location Address: ${location.address}");
-                      return SizedBox(
+                      Obx(() => SizedBox(
                         width: width * 0.65,
                         child: Text(
                             location.address.isNotEmpty
@@ -99,9 +99,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                 : "Philippines",
                             overflow: TextOverflow.ellipsis,
                             style: appStyle(11, kGray, FontWeight.normal)),
-                      );
-                    })
-
+                      ))
                     ],
                   ),
                 ),
@@ -130,7 +128,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
     }
   }
 
-  String profile = 'https://dbestech-code.oss-ap-southeast-1.aliyuncs.com/foodly_flutter/icons/profile.png?OSSAccessKeyId=LTAI5t8cUzUwGV1jf4n5JVfD&Expires=36001719669835&Signature=7Uq1tIBihBaJBBEBt1bMDLjU3Vs%3D';
+  String profile =
+      'https://dbestech-code.oss-ap-southeast-1.aliyuncs.com/foodly_flutter/icons/profile.png?OSSAccessKeyId=LTAI5t8cUzUwGV1jf4n5JVfD&Expires=36001719669835&Signature=7Uq1tIBihBaJBBEBt1bMDLjU3Vs%3D';
   LatLng _center = const LatLng(37.78792117665919, -122.41325651079953);
   Placemark? currentLocation;
 
@@ -140,6 +139,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
     location.setUserLocation(_center);
     var currentLocation = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
+    if (!mounted) return;
     setState(() {
       _center = LatLng(currentLocation.latitude, currentLocation.longitude);
       location.getAddressFromLatLng(_center);
@@ -183,3 +183,4 @@ class _CustomAppBarState extends State<CustomAppBar> {
     _getCurrentLocation();
   }
 }
+

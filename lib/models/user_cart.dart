@@ -18,8 +18,9 @@ class UserCart {
     final int quantity;
     final String prepTime;
     final String restaurant;
+    final Map<String, dynamic> customAdditives; // Added customAdditives field
 
-    UserCart( {
+    UserCart({
         required this.id,
         required this.userId,
         required this.productId,
@@ -29,6 +30,7 @@ class UserCart {
         required this.quantity,
         required this.prepTime,
         required this.restaurant,
+        required this.customAdditives, // Added to constructor
     });
 
     factory UserCart.fromJson(Map<String, dynamic> json) => UserCart(
@@ -41,6 +43,7 @@ class UserCart {
         quantity: json["quantity"],
         prepTime: json["prepTime"],
         restaurant: json["restaurant"],
+        customAdditives: Map<String, dynamic>.from(json["customAdditives"]), // Added customAdditives parsing
     );
 
     Map<String, dynamic> toJson() => {
@@ -52,7 +55,8 @@ class UserCart {
         "totalPrice": totalPrice,
         "quantity": quantity,
         "prepTime": prepTime,
-        "restaurant": restaurant
+        "restaurant": restaurant,
+        "customAdditives": customAdditives, // Added customAdditives serialization
     };
 }
 

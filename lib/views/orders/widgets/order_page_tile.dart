@@ -40,7 +40,7 @@ class OrderPageTile extends StatelessWidget {
                           height: 75.h,
                           width: 80.h,
                           child: Image.network(
-                            food.foodId.imageUrl[0],
+                            food.foodId!.imageUrl![0],
                             fit: BoxFit.cover,
                           )),
                       Positioned(
@@ -75,10 +75,10 @@ class OrderPageTile extends StatelessWidget {
                       height: 5,
                     ),
                     ReusableText(
-                        text: food.foodId.title,
+                        text: food.foodId!.title!,
                         style: appStyle(11, kDark, FontWeight.w400)),
                     ReusableText(
-                        text: "Delivery time: ${food.foodId.time}",
+                        text: "Delivery time: ${food.foodId?.time}",
                         style: appStyle(9, kGray, FontWeight.w400)),
                     const SizedBox(
                       height: 5,
@@ -88,9 +88,9 @@ class OrderPageTile extends StatelessWidget {
                       width: width * 0.67,
                       child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: food.additives.length,
+                          itemCount: food.additives?.length,
                           itemBuilder: (context, i) {
-                            final addittives = food.additives[i];
+                            final addittives = food.additives?[i];
                             return Container(
                               margin: const EdgeInsets.only(right: 5),
                               decoration: const BoxDecoration(
@@ -101,7 +101,7 @@ class OrderPageTile extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.all(2.0),
                                   child: ReusableText(
-                                      text: addittives,
+                                      text: addittives!,
                                       style:
                                           appStyle(8, kGray, FontWeight.w400)),
                                 ),

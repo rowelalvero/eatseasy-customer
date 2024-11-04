@@ -62,7 +62,7 @@ class FoodTile extends StatelessWidget {
                               height: 16,
                               width: width,
                               child: RatingBarIndicator(
-                                rating: 5,
+                                rating: double.tryParse(food.rating.toString()) ?? 0.0,
                                 itemBuilder: (context, index) => const Icon(
                                   Icons.star,
                                   color: Colors.amber,
@@ -71,6 +71,7 @@ class FoodTile extends StatelessWidget {
                                 itemSize: 15.0,
                                 direction: Axis.horizontal,
                               ),
+
                             ))
                       ],
                     ),
@@ -89,12 +90,12 @@ class FoodTile extends StatelessWidget {
                           text: food.title,
                           style: appStyle(11, kDark, FontWeight.w400)),
                       ReusableText(
-                          text: "Delivery time: ${food.time}",
+                          text: "Delivery time: ${food.time} mins",
                           style: appStyle(9, kGray, FontWeight.w400)),
                       const SizedBox(
                         height: 5,
                       ),
-                      SizedBox(
+                      /*SizedBox(
                         height: 18,
                         width: width * 0.5,
                         child: ListView.builder(
@@ -119,7 +120,7 @@ class FoodTile extends StatelessWidget {
                                 ),
                               );
                             }),
-                      ),
+                      ),*/
                     ],
                   )
                 ],

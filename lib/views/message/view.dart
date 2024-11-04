@@ -17,7 +17,7 @@ class MessagePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
           backgroundColor: kPrimary,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.white
           ),
           title: Text(

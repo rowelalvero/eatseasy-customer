@@ -13,25 +13,17 @@ import '../constants/constants.dart';
 class CartController extends GetxController {
   final box = GetStorage();
 
-  // Reactive state
-  var _address = false.obs;
-
-  // Getter
+  final _address = false.obs;
   bool get address => _address.value;
-
-  // Setter
   set setAddress(bool newValue) {
     _address.value = newValue;
   }
 
-  RxBool _isLoading = false.obs;
-
+  final RxBool _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
-
   set setLoading(bool newValue) {
     _isLoading.value = newValue;
   }
-
 
   Future<void> addToCart(String item) async {
     String token = box.read('token');

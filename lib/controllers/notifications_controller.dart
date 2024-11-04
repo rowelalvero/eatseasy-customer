@@ -10,17 +10,66 @@ import 'package:eatseasy/models/order_details.dart';
 import 'package:eatseasy/models/sucess_model.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationsController extends GetxController {
   final box = GetStorage();
+  GetOrder? order;
+
 
   RxString _fcmToken = ''.obs;
-
   String get fcmToken => _fcmToken.value;
-
   set setFcm(String newValue) {
     _fcmToken.value = newValue;
+  }
+
+  RxBool _loading = false.obs;
+  bool get loading => _loading.value;
+  set setLoader(bool newLoader) {
+    _loading.value = newLoader;
+  }
+
+  Rx<LatLng> _currentLocation = LatLng(0.0, 0.0).obs;
+  LatLng get currentLocation => _currentLocation.value;
+  void updateLocation(LatLng newLocation) {
+    _currentLocation.value = newLocation;
+  }
+
+  RxString _orderStatus = ''.obs;
+  String get orderStatus => _orderStatus.value;
+  void updateOrderStatus(String newStatus) {
+    _orderStatus.value = newStatus;
+  }
+
+  // Function to fetch order and observe the driver’s location and status
+  Future<void> getOrder(String orderId) async {
+    setLoader = true;
+    var url = Uri.parse('${Environment.appBaseUrl}/api/orders/$orderId');
+
+    try {
+      var response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        order = getOrderFromJson(response.body);
+        setLoader = false;
+      } else {
+        var data = apiErrorFromJson(response.body);
+        setLoader = false;
+        Get.snackbar(data.message, "Failed to login, please try again",
+            colorText: kLightWhite,
+            backgroundColor: kRed,
+            icon: const Icon(Icons.error));
+      }
+    } catch (e) {
+      setLoader = false;
+      debugPrint(e.toString());
+    }
   }
 
   String extractOrderNumber(String input) {
@@ -72,42 +121,4 @@ class NotificationsController extends GetxController {
     }
   }
 
-  RxBool _loading = false.obs;
-
-  bool get loading => _loading.value;
-
-  void set setLoader(bool newLoader) {
-    _loading.value = newLoader;
-  }
-
-  GetOrder? order;
-  void getOrder(String orderNumber) async {
-    setLoader = true;
-    var url = Uri.parse('${Environment.appBaseUrl}/api/orders/$orderNumber');
-
-    try {
-      var response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
-
-
-      if (response.statusCode == 200) {
-        order = getOrderFromJson(response.body);
-        setLoader = false;
-      } else {
-        var data = apiErrorFromJson(response.body);
-        setLoader = false;
-        Get.snackbar(data.message, "Failed to login, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
-            icon: const Icon(Icons.error));
-      }
-    } catch (e) {
-      setLoader = false;
-      debugPrint(e.toString());
-    }
-  }
 }

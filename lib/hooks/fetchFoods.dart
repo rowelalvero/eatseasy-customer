@@ -11,22 +11,30 @@ FetchHook useFetchFood() {
   final isLoading = useState(false);
   final error = useState<Exception?>(null);
 
+  // Mounted flag
+  final mounted = useIsMounted();
+
   // Fetch Data Function
   Future<void> fetchData() async {
+    if (!mounted()) return; // Prevent execution if unmounted
+
     isLoading.value = true;
     try {
       final response = await http.get(
-          Uri.parse('${Environment.appBaseUrl}/api/foods/recommendation/1400'));
+        Uri.parse('${Environment.appBaseUrl}/api/foods/recommendation/1400'),
+      );
 
       if (response.statusCode == 200) {
         foods.value = foodFromJson(response.body);
       } else {
-        throw Exception('Failed to load data');
+        error.value = Exception('Failed to load data');
       }
     } catch (e) {
       error.value = e as Exception?;
     } finally {
-      isLoading.value = false;
+      if (mounted()) {
+        isLoading.value = false;
+      }
     }
   }
 
@@ -38,8 +46,10 @@ FetchHook useFetchFood() {
 
   // Refetch Function
   void refetch() {
-    isLoading.value = true;
-    fetchData();
+    if (mounted()) {
+      isLoading.value = true;
+      fetchData();
+    }
   }
 
   // Return values

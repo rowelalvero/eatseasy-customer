@@ -8,6 +8,11 @@ import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/hooks/fetchAllNearbyRestaurants.dart';
 import 'package:eatseasy/models/restaurants.dart';
 import 'package:eatseasy/views/home/widgets/restaurant_tile.dart';
+import 'package:get/get.dart';
+
+import '../../controllers/address_controller.dart';
+import '../../models/distance_time.dart';
+import '../../services/distance.dart';
 
 class AllNearbyRestaurants extends HookWidget {
   const AllNearbyRestaurants({super.key});
@@ -15,6 +20,7 @@ class AllNearbyRestaurants extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final hookResult = useFetchAllRestaurants("");
+    final controller = Get.put(AddressController());
     final restaurants = hookResult.data;
     final isLoading = hookResult.isLoading;
     final error = hookResult.error;
@@ -26,12 +32,12 @@ class AllNearbyRestaurants extends HookWidget {
         elevation: .4,
         backgroundColor: kLightWhite,
         centerTitle: true,
-        actions: [
+        /*actions: [
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.grid_view),
           ),
-        ],
+        ],*/
         title: ReusableText(
           text: "Nearby Restaurants",
           style: appStyle(20, kDark, FontWeight.w400),
@@ -55,6 +61,20 @@ class AllNearbyRestaurants extends HookWidget {
           itemCount: restaurants.length,
           itemBuilder: (context, i) {
             Restaurants restaurant = restaurants[i];
+
+            Distance distanceCalculator = Distance();
+            DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
+              controller.defaultAddress!.latitude,
+              controller.defaultAddress!.longitude,
+              restaurant.coords.latitude,
+              restaurant.coords.longitude,
+              35,
+              pricePkm,
+            );
+
+            if (distanceTime.distance > 10.0) {
+              return SizedBox.shrink();
+            }
             return RestaurantTile(restaurant: restaurant);
           },
         ),

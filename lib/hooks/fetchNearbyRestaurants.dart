@@ -1,5 +1,3 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:eatseasy/models/api_error.dart';
@@ -13,9 +11,14 @@ FetchHook useFetchRestaurants() {
   final restaurants = useState<List<Restaurants>?>(null);
   final isLoading = useState(false);
   final error = useState<Exception?>(null);
-  
-// Fetch Data Function
+
+  // Mounted flag
+  final mounted = useIsMounted();
+
+  // Fetch Data Function
   Future<void> fetchData() async {
+    if (!mounted()) return;
+
     isLoading.value = true;
     try {
       var url = Uri.parse('${Environment.appBaseUrl}/api/restaurant/41007428');
@@ -23,19 +26,21 @@ FetchHook useFetchRestaurants() {
 
       if (response.statusCode == 200) {
         restaurants.value = restaurantsFromJson(response.body);
-        isLoading.value = false;
       } else {
-        var error = apiErrorFromJson(response.body);
-        isLoading.value = false;
+        var apiError = apiErrorFromJson(response.body);
+        throw Exception(apiError.message); // Improved exception handling
       }
     } catch (e) {
-      debugPrint(e.toString());
-      error.value = e as Exception?;
+      error.value = e is Exception ? e : Exception('Unknown error');
+      debugPrint(error.value.toString());
     } finally {
-      isLoading.value = false;
+      if (mounted()) {
+        isLoading.value = false;
+      }
     }
   }
-    // Side Effect
+
+  // Side Effect
   useEffect(() {
     fetchData();
     return null;
@@ -43,8 +48,10 @@ FetchHook useFetchRestaurants() {
 
   // Refetch Function
   void refetch() {
-    isLoading.value = true;
-    fetchData();
+    if (mounted()) {
+      isLoading.value = true;
+      fetchData();
+    }
   }
 
   // Return values

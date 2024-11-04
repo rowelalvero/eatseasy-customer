@@ -12,6 +12,7 @@ import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../constants/constants.dart';
 import '../../../controllers/address_controller.dart';
 import '../../../models/distance_time.dart';
 import '../../../services/distance.dart';
@@ -50,6 +51,19 @@ class NearbyRestaurants extends HookWidget {
         itemCount: restaurants.length,
         itemBuilder: (context, index) {
           Restaurants restaurant = restaurants[index];
+          Distance distanceCalculator = Distance();
+          DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
+            controller.defaultAddress!.latitude,
+            controller.defaultAddress!.longitude,
+            restaurant.coords.latitude,
+            restaurant.coords.longitude,
+            35,
+            pricePkm,
+          );
+
+          if (distanceTime.distance > 10.0) {
+            return SizedBox.shrink();
+          }
           return RestaurantWidget(
             image: restaurant.imageUrl!,
             title: restaurant.title!,

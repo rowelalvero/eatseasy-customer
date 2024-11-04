@@ -10,6 +10,7 @@ import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/views/food/food_page.dart';
 import 'package:get/get.dart';
 
+import '../../../constants/constants.dart';
 import '../../../constants/uidata.dart';
 import '../../../controllers/address_controller.dart';
 import '../../../hooks/fetchNearbyRestaurants.dart';
@@ -57,21 +58,29 @@ class FoodList extends HookWidget {
           Food food = foods[index];
 
           // You can uncomment and use the DistanceTime logic if needed
-          /*
           Restaurants restaurant = restaurants[index];
-          DistanceTime distanceTime = Distance().calculateDistanceTimePrice(
+          /*DistanceTime distanceTime = Distance().calculateDistanceTimePrice(
             controller.defaultAddress!.latitude,
             controller.defaultAddress!.longitude,
             restaurant.coords.latitude,
             restaurant.coords.longitude,
             10,
             2.00
+          );*/
+
+          Distance distanceCalculator = Distance();
+          DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
+            controller.defaultAddress!.latitude,
+            controller.defaultAddress!.longitude,
+            restaurant.coords.latitude,
+            restaurant.coords.longitude,
+            35,
+            pricePkm,
           );
 
           if (distanceTime.distance > 10.0) {
-            return Center(child: Text("No data"));
+            return SizedBox.shrink();
           }
-          */
 
           return FoodWidget(
             onTap: () {
@@ -80,7 +89,7 @@ class FoodList extends HookWidget {
             image: food.imageUrl[0],  // Assumes there's always at least one image
             title: food.title,
             price: food.price.toStringAsFixed(2),
-            time: food.time,
+            time: food.time!,
           );
         },
       ),

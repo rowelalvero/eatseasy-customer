@@ -20,9 +20,11 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final searchController = Get.put(FoodSearchController());
+
     return Obx(() => Scaffold(
           appBar: AppBar(
             toolbarHeight: 74.h,

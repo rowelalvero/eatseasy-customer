@@ -12,8 +12,10 @@ import 'package:eatseasy/models/all_addresses.dart';
 import 'package:eatseasy/views/profile/add_new_place.dart';
 import 'package:eatseasy/views/profile/widgets/addresses_list.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../../common/custom_container.dart';
+import '../../hooks/fetchDefaultAddress.dart';
 
 class SavedPlaces extends HookWidget {
   const SavedPlaces({super.key});
@@ -24,6 +26,12 @@ class SavedPlaces extends HookWidget {
     final List<AddressesList> addresses = hookResult.data ?? [];
     final isLoading = hookResult.isLoading;
     final refetch = hookResult.refetch;
+
+    final box = GetStorage();
+    String? accessToken = box.read("token");
+    if (accessToken != null) {
+      useFetchDefault(context, false);
+    }
 
     return Scaffold(
       appBar: AppBar(

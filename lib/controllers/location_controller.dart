@@ -10,9 +10,7 @@ import 'package:http/http.dart' as http;
 
 class UserLocationController extends GetxController {
   RxInt _currentIndex = 0.obs;
-
   int get currentIndex => _currentIndex.value;
-
   set currentIndex(int newIndex) {
     _currentIndex.value = newIndex;
   }
@@ -24,18 +22,14 @@ class UserLocationController extends GetxController {
   }
 
   var _restaurantLocation = const LatLng(0, 0).obs;
-
   LatLng get restaurantLocation => _restaurantLocation.value;
-
   void setLocation(LatLng newLocation) {
     _restaurantLocation.value = newLocation;
     update();
   }
 
   var _currentLocation = const LatLng(0, 0).obs;
-
   LatLng get currentLocation => _currentLocation.value;
-
   void setUserLocation(LatLng newLocation) {
     _currentLocation.value = newLocation;
     update();

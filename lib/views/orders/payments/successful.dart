@@ -39,7 +39,7 @@ class Successful extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0,0, 20, 10),
             child: GestureDetector(
                 onTap: () {
-                  Get.offAll(() => const MainScreen());
+                  Get.offAll(() => MainScreen());
                 },
                 child: const Icon(
                   AntDesign.closecircle,

@@ -63,7 +63,7 @@ class RestaurantTile extends StatelessWidget {
                               height: 16,
                               width: width,
                               child: RatingBarIndicator(
-                                rating: 5,
+                                rating: restaurant.rating,
                                 itemBuilder: (context, index) => const Icon(
                                   Icons.star,
                                   color: Colors.amber,

@@ -103,7 +103,7 @@ class LoginController extends GetxController {
         if (data.verification == false) {
           Get.offAll(() => const VerificationPage());
         } else {
-          Get.offAll(() => const MainScreen());
+          Get.offAll(() => MainScreen());
         }
       } else {
         var data = apiErrorFromJson(response.body);
@@ -127,7 +127,7 @@ class LoginController extends GetxController {
 
   void logout() {
     box.erase();
-    Get.offAll(() => const MainScreen());
+    Get.offAll(() => MainScreen());
   }
 
   LoginResponse? getUserData() {
@@ -158,7 +158,7 @@ class LoginController extends GetxController {
       if (response.statusCode == 200) {
         setLoading = false;
         box.erase();
-        Get.offAll(() => const MainScreen());
+        Get.offAll(() => MainScreen());
       } else {
         var data = apiErrorFromJson(response.body);
 

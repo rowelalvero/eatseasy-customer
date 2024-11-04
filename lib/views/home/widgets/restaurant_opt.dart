@@ -28,7 +28,7 @@ class RestaurantOptions extends StatelessWidget {
                 color: kLightWhite,
                 borderRadius: BorderRadius.all(Radius.circular(8.w))
                 ),
-                child: Center(
+                child: Expanded(
                   child: ReusableText(
                       text: options['name'].toString(),
                       style: appStyle(12, kGray, FontWeight.normal)),

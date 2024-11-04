@@ -191,7 +191,7 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
             CustomButton(
               onTap: () {
                 final updatedAddress = {
-                  "addressNameController": _addressNameController.text,
+                  "addressName": _addressNameController.text,
                   "addressLine1": _addressLine1Controller.text,
                   "postalCode": _postalCodeController.text,
                   "latitude": _selectedLocation?.latitude ?? widget.address.latitude,
@@ -201,6 +201,8 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
 
                 // Call update address function
                 controller.updateAddress(widget.address.id, jsonEncode(updatedAddress));
+                final result = true;
+                Navigator.pop(context, result);
               },
               radius: 9,
               color: kPrimary,
@@ -221,6 +223,8 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
                 : CustomButton(
               onTap: () {
                 controller.deleteAddress(widget.address.id);
+                final result = true;
+                Navigator.pop(context, result);
               },
               radius: 9,
               color: kRed,
