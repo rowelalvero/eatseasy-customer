@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:eatseasy/common/app_style.dart';
@@ -31,7 +32,7 @@ class PaymentFailed extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: Column(
+        child: BackGroundContainer(child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -43,7 +44,7 @@ class PaymentFailed extends StatelessWidget {
                 text: "Payment Failed",
                 style: appStyle(28, kDark, FontWeight.bold))
           ],
-        ),
+        )),
       ),
     );
   }

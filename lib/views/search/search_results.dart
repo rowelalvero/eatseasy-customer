@@ -7,6 +7,10 @@ import 'package:eatseasy/views/food/widgets/food_tile.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../hooks/fetchNearbyRestaurants.dart';
+import '../../models/restaurants.dart';
+
+
 class SearchResults extends StatelessWidget {
   const SearchResults({super.key});
 
@@ -22,12 +26,12 @@ class SearchResults extends StatelessWidget {
           padding: EdgeInsets.zero,
           itemCount: searchController.foodSearchResults!.length,
           itemBuilder: (context, index) {
-             Food food = searchController.foodSearchResults![index];
+            Food food = searchController.foodSearchResults![index];
             return FoodTile(food: food);
           }): Padding(
-            padding:  EdgeInsets.only(bottom:180.0.h),
-            child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: height/2,),
-          ),
+        padding:  EdgeInsets.only(bottom:180.0.h),
+        child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: height/2,),
+      ),
     );
   }
 }

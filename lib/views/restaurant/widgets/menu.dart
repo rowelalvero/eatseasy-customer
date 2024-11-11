@@ -6,17 +6,18 @@ import 'package:eatseasy/hooks/fetchResturantMenu.dart';
 import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/views/food/widgets/food_tile.dart';
 
+import '../../../models/restaurants.dart';
+
 class RestaurantMenu extends HookWidget {
   const RestaurantMenu({
     super.key,
-    required this.restaurantId,
+    required this.restaurant,
   });
 
-  final String restaurantId;
-
+  final Restaurants restaurant;
   @override
   Widget build(BuildContext context) {
-    final hookResult = useFetchMenu(restaurantId);
+    final hookResult = useFetchMenu(restaurant.id);
     final foods = hookResult.data??[];
     final isLoading = hookResult.isLoading;
    

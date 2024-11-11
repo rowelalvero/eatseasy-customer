@@ -609,14 +609,14 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 RowText(
                   first: "Delivery fee",
                   second: controller.getOrder != null
-                      ? "\$ ${controller.getOrder?.deliveryFee?.toStringAsFixed(2)}"
+                      ? "\Php ${controller.getOrder?.deliveryFee?.toStringAsFixed(2)}"
                       : "Loading...",
                 ),
                 SizedBox(height: 5.h),
                 RowText(
                   first: "Subtotal",
                   second: controller.getOrder != null
-                      ? "\$ ${controller.getOrder?.orderTotal.toStringAsFixed(2)}"
+                      ? "\Php ${controller.getOrder?.orderTotal.toStringAsFixed(2)}"
                       : "Loading...",
                 ),
                 const Divida(),
@@ -640,7 +640,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                           padding: const EdgeInsets.all(0),
                           child: Text(
                             controller.getOrder != null
-                                ? "\$ ${controller.getOrder?.grandTotal.toStringAsFixed(2)}"
+                                ? "\Php ${controller.getOrder?.grandTotal.toStringAsFixed(2)}"
                                 : "",
                             style: const TextStyle(
                               color: kDark,

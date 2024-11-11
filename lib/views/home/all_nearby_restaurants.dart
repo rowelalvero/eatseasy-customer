@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +26,7 @@ class AllNearbyRestaurants extends HookWidget {
     final isLoading = hookResult.isLoading;
     final error = hookResult.error;
     final refetch = hookResult.refetch;
-
+    DistanceTime? distanceTime;
     return Scaffold(
       backgroundColor: kLightWhite,
       appBar: AppBar(
@@ -43,42 +44,44 @@ class AllNearbyRestaurants extends HookWidget {
           style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
-      body: isLoading
-          ? const FoodsListShimmer()
-          : error != null
-          ? Center(child: Text('Error: ${error.toString()}'))
-          : (restaurants == null || restaurants.isEmpty)
-          ? const Center(child: Text('No nearby restaurants found'))
-          : RefreshIndicator(
+      body: Center(child: BackGroundContainer(child:  RefreshIndicator(
         color: kPrimary,
         onRefresh: () async {
-          // Trigger the refetch function to reload the restaurant list
           refetch();
         },
-        child: ListView.builder(
+        child: isLoading
+            ? const FoodsListShimmer()
+            : error != null
+            ? Center(child: Text('Error: ${error.toString()}'))
+            : (restaurants == null || restaurants.isEmpty)
+            ? const Center(child: Text('No nearby restaurants found'))
+            : ListView.builder(
           padding: EdgeInsets.symmetric(
               horizontal: 12.w, vertical: 10.h),
           itemCount: restaurants.length,
           itemBuilder: (context, i) {
             Restaurants restaurant = restaurants[i];
 
-            Distance distanceCalculator = Distance();
-            DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
-              controller.defaultAddress!.latitude,
-              controller.defaultAddress!.longitude,
-              restaurant.coords.latitude,
-              restaurant.coords.longitude,
-              35,
-              pricePkm,
-            );
-
-            if (distanceTime.distance > 10.0) {
-              return SizedBox.shrink();
+            if (controller.defaultAddress != null) {
+              Distance distanceCalculator = Distance();
+              distanceTime = distanceCalculator.calculateDistanceTimePrice(
+                controller.defaultAddress!.latitude,
+                controller.defaultAddress!.longitude,
+                restaurant.coords.latitude,
+                restaurant.coords.longitude,
+                35,
+                pricePkm,
+              );
             }
-            return RestaurantTile(restaurant: restaurant);
+
+            if (distanceTime != null && distanceTime!.distance <= 10.0) {
+              return RestaurantTile(restaurant: restaurant);
+            } else {
+              return RestaurantTile(restaurant: restaurant);
+            }
           },
         ),
-      ),
+      ),),)
     );
   }
 }

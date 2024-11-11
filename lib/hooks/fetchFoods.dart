@@ -21,7 +21,7 @@ FetchHook useFetchFood() {
     isLoading.value = true;
     try {
       final response = await http.get(
-        Uri.parse('${Environment.appBaseUrl}/api/foods/recommendation/1400'),
+        Uri.parse('${Environment.appBaseUrl}/api/foods/recommendation/3023'),
       );
 
       if (response.statusCode == 200) {

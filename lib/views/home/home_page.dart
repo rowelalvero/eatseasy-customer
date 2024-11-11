@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:eatseasy/views/home/widgets/restaurant_opt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,66 +24,67 @@ class HomePage extends StatelessWidget {
     final categoryController = Get.put(CategoryController());
 
     return Scaffold(
-      backgroundColor: kOffWhite,
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(130.h),
           child: const CustomAppBar()
       ),
-      body: RefreshIndicator(
-        color: kPrimary,
-        onRefresh: () async {
-          // Logic to refresh data
-          // await categoryController.fetchCategories(); // Example to refetch categories
-        },
-        child: ListView(
-          padding: EdgeInsets.zero, // Ensure no padding for ListView
-          children: [
-            const CategoriesWidget(),
-            Obx(
-                  () => categoryController.categoryValue == ''
-                  ? Column(
+      body: Center(
+        child: BackGroundContainer(
+            child: RefreshIndicator(
+              color: kPrimary,
+              onRefresh: () async {
+
+              },
+              child: ListView(
+                padding: EdgeInsets.zero, // Ensure no padding for ListView
                 children: [
-                  HomeHeading(
-                    heading: "Pick Restaurants",
-                    restaurant: true,
-                  ),
-                  const RestaurantOptions(),
-                  HomeHeading(
-                    heading: "Nearby Restaurants",
-                    onTap: () {
-                      Get.to(() => const AllNearbyRestaurants());
-                    },
-                  ),
-                  const NearbyRestaurants(),
-                  HomeHeading(
-                    heading: "Try Something New",
-                    onTap: () {
-                      Get.to(() => const Recommendations());
-                    },
-                  ),
-                  const FoodList(),
-                  HomeHeading(
-                    heading: "Fastest food closer to you",
-                    onTap: () {
-                      Get.to(() => const FastestFoods());
-                    },
-                  ),
-                  const FoodList(),
-                ],
-              )
-                  : CustomContainer(
-                containerContent: Column(
-                  children: [
-                    HomeHeading(
-                      heading: "Explore ${categoryController.titleValue} Category",
+                  const CategoriesWidget(),
+                  Obx(
+                        () => categoryController.categoryValue == ''
+                        ? Column(
+                      children: [
+                        /*HomeHeading(
+                      heading: "Pick Restaurants",
                       restaurant: true,
+                    ),*/
+                        const RestaurantOptions(),
+                        HomeHeading(
+                          heading: "Nearby Restaurants",
+                          onTap: () {
+                            Get.to(() => const AllNearbyRestaurants());
+                          },
+                        ),
+                        const NearbyRestaurants(),
+                        HomeHeading(
+                          heading: "Try Something New",
+                          onTap: () {
+                            Get.to(() => const Recommendations());
+                          },
+                        ),
+                        const FoodList(),
+                        HomeHeading(
+                          heading: "Fastest food closer to you",
+                          onTap: () {
+                            Get.to(() => const FastestFoods());
+                          },
+                        ),
+                        const FoodList(),
+                        SizedBox(height: 20,)
+                      ],
+                    )
+                        : Column(
+                      children: [
+                        HomeHeading(
+                          heading: "Explore ${categoryController.titleValue} Category",
+                          restaurant: true,
+                        ),
+                        const CategoryFoodList(),
+                      ],
                     ),
-                    const CategoryFoodList(),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            )
         ),
       ),
     );

@@ -35,7 +35,6 @@ class CartTile extends HookWidget {
           Container(
             margin: const EdgeInsets.only(bottom: 8),
             height: 80,
-            width: width,
             decoration: const BoxDecoration(
                 color: kLightWhite,
                 borderRadius: BorderRadius.all(Radius.circular(9))),
@@ -152,11 +151,11 @@ class CartTile extends HookWidget {
             ),
           ),
           Positioned(
-            right: 10.w,
-            top: 6.h,
+            right: 10,
+            top: 6,
             child: Container(
-              width: 60.h,
-              height: 19.h,
+              width: 60,
+              height: 19,
               decoration: const BoxDecoration(
                   color: kPrimary,
                   borderRadius: BorderRadius.all(
@@ -164,15 +163,15 @@ class CartTile extends HookWidget {
                   )),
               child: Center(
                 child: ReusableText(
-                  text: "\$ ${item.totalPrice.toStringAsFixed(2)}",
+                  text: "Php ${item.totalPrice.toStringAsFixed(2)}",
                   style: appStyle(12, kLightWhite, FontWeight.bold),
                 ),
               ),
             ),
           ),
           Positioned(
-              right: 75.h,
-              top: 6.h,
+              right: 75,
+              top: 6,
               child: Container(
                 width: 19.h,
                 height: 19.h,

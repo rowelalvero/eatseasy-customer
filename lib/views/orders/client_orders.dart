@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,12 +34,11 @@ class _ClientOrderPageState extends State<ClientOrderPage>
     return DefaultTabController(
       length: 6,
       child: Scaffold(
-        backgroundColor: kPrimary,
         appBar: AppBar(
           backgroundColor: kLightWhite,
           elevation: 0,
           title: ReusableText(
-            text: "Orders",
+            text: "My orders",
             style: appStyle(20, kDark, FontWeight.w400),
           ),
           bottom: PreferredSize(
@@ -127,9 +127,9 @@ class _ClientOrderPageState extends State<ClientOrderPage>
             ),
           ),
         ),
-        body: SafeArea(
-          child: CustomContainer(
-            containerContent: SizedBox(
+        body: Center(
+          child: BackGroundContainer(
+            child: SizedBox(
               height: height,
               child: TabBarView(controller: _tabController, children: const [
                 PendingOrders(),

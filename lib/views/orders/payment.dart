@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:eatseasy/controllers/order_controller.dart';
 import 'package:eatseasy/views/orders/payments/failed.dart';
@@ -97,6 +98,11 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         toolbarHeight: 5,
         leading: Container()
       ),
-      body: WebViewWidget(controller: _controller));
+      body: Center(
+        child: BackGroundContainer(
+            child: WebViewWidget(controller: _controller)
+        ),
+      )
+    );
   }
 }

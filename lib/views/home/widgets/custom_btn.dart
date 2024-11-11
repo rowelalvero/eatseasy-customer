@@ -16,20 +16,20 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: btnWidth ?? width,
-        height: btnHieght??28,
-        decoration:  BoxDecoration(
-            color: color?? kPrimary,
-            borderRadius:  BorderRadius.all(Radius.circular(radius??24))),
-        child: Center(
-          child: ReusableText(
-              text: text,
-              style: appStyle(14,  kLightWhite, FontWeight.w600)),
+    return SizedBox(
+      width: btnWidth ?? width,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 36.0, vertical: 16.0),
+          backgroundColor: color ?? kSecondary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius??12),
+          ),
+          elevation: 2.0,
         ),
-      )
+        child: Text(text, style: appStyle(14,  kLightWhite, FontWeight.w500)),),
     );
   }
 }

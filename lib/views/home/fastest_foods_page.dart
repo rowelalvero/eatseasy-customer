@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +23,7 @@ class FastestFoods extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hookResult = useFetchRecommendations("1400", true);
+    final hookResult = useFetchRecommendations("3023", true);
     final controller = Get.put(AddressController());
 
     final foods = hookResult.data;
@@ -49,27 +51,26 @@ class FastestFoods extends HookWidget {
           style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
-      body: isLoading
-          ? const FoodsListShimmer()
-          : error != null
-          ? Center(child: Text('Error: ${error.toString()}')) // Display error message
-          : (foods == null || foods.isEmpty)
-          ? const Center(child: Text('No fastest foods available')) // Display no data message
-          : RefreshIndicator(
+      body:  RefreshIndicator(
         color: kPrimary,
         onRefresh: () async {
-          refetch(); // Trigger refetch on pull down
+          refetch();
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           height: height,
-          child: ListView.builder(
+          child: isLoading
+              ? const FoodsListShimmer()
+              : error != null
+              ? Center(child: Text('Error: ${error.toString()}'))
+              : (foods == null || foods.isEmpty)
+              ? const Center(child: Text('No fastest foods available'))
+              : ListView.builder(
             padding: EdgeInsets.zero,
-            itemCount: foods.length,
+            itemCount: foods.length, // Use the smaller length
             itemBuilder: (context, i) {
               Food food = foods[i];
-
-              Restaurants restaurant = restaurants[i];
+              /*Restaurants restaurant = restaurants[i];
 
               Distance distanceCalculator = Distance();
               DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
@@ -82,8 +83,8 @@ class FastestFoods extends HookWidget {
               );
 
               if (distanceTime.distance > 10.0) {
-                return SizedBox.shrink();
-              }
+                return const SizedBox.shrink();
+              }*/
               return FoodTile(food: food);
             },
           ),

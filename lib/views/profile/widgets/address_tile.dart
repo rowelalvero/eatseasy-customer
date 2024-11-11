@@ -21,205 +21,179 @@ class AddressTile extends StatelessWidget {
 
   final AddressesList address;
   final VoidCallback refetch; // Define refetch as a callback
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(AddressController());
-
-    // Store a local reference to the context
     final localContext = context;
-
     return GestureDetector(
-        onTap: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UpdateAddressPage(address: address), // Pass update if needed
-            ),
-          );
-          // Check if a result was returned
-          if (result != null) {
-            refetch();
-          }
-        },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          height: height * .08,
-          width: width,
-          decoration: const BoxDecoration(
-              color: kLightWhite,
-              borderRadius: BorderRadius.all(Radius.circular(9))),
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 0.0.r),
-                  child: Icon(
-                    SimpleLineIcons.location_pin,
-                    color: kPrimary,
-                    size: 28.h,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                SizedBox(
-                  width: width * 0.53,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      ReusableText(
-                        text: address.addressName,
-                        style: appStyle(13, kGray, FontWeight.w600),
-                      ),
-                      ReusableText(
-                        text: address.addressLine1,
-                        style: appStyle(11, kGray, FontWeight.w500),
-                      ),
-                      ReusableText(
-                        text: address.postalCode,
-                        style: appStyle(11, kGray, FontWeight.normal),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                    ],
-                  ),
-                ),
-                Switch.adaptive(
-                  value: address.addressesListDefault,
-                  onChanged: (bool value) {
-                    // Show confirmation dialog before setting the default address
-                    showDialog(
-                      context: localContext, // Use localContext here
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Set Default Address'),
-                          content: const Text('Are you sure you want to set this as your default address?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(localContext).pop(); // Close the dialog if the user cancels
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                Navigator.of(localContext).pop(); // Close the confirmation dialog
-
-                                // Show a loading indicator while setting the default address
-                                showDialog(
-                                  context: localContext, // Use localContext here
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return Center(
-                                      child: LoadingAnimationWidget.threeArchedCircle(
-                                        color: kPrimary,
-                                        size: 35
-                                      ),
-                                    );
-                                  },
-                                );
-
-                                try {
-                                  // Set the default address
-                                  await controller.setDefaultAddress(address.id);
-
-                                  // Wait for refetch to complete
-                                  refetch();
-                                } catch (error) {
-                                  // Handle any error during the process
-                                  print("Error: $error");
-                                } finally {
-                                  // Close the loading dialog after refetch completes
-                                  Navigator.of(localContext).pop();
-                                }
-                              },
-                              child: const Text('Set Default', style: TextStyle(color: Colors.blue)),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  thumbColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return kPrimary.withOpacity(.48);
-                    }
-                    return kPrimary;
-                  }),
-                  activeColor: kCupertinoModalBarrierColor,
-                ),
-                IconButton(
-                  onPressed: () async {
-                    // Show confirmation dialog before deleting
-                    final confirmed = await showDialog<bool>(
-                      context: localContext, // Use localContext here
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Delete Address'),
-                          content: const Text('Are you sure you want to delete this address?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(localContext).pop(false); // Close the dialog with false
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(localContext).pop(true); // Close the dialog with true
-                              },
-                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-
-                    if (confirmed == true) {
-                      // Show loading indicator while deleting
-                      showDialog(
-                        context: localContext, // Use localContext here
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return Center(
-                            child: LoadingAnimationWidget.threeArchedCircle(
-                              color: kPrimary,
-                              size: 35
-                            ),
-                          );
-                        },
-                      );
-
-                      try {
-                        // Proceed with deleting the address
-                        await controller.deleteAddress(address.id);
-
-                        // Wait for refetch to complete
-                        refetch();
-                      } catch (error) {
-                        // Handle error if something goes wrong
-                        print("Error: $error");
-                      } finally {
-                        // Close the loading dialog after refetch completes
-                        Navigator.of(localContext).pop();
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.delete_outline_rounded),
-                ),
-              ],
-            ),
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UpdateAddressPage(address: address), // Pass update if needed
           ),
-        )
+        );
+        if (result != null) {
+          refetch();
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        height: height * .08,
+        width: width,
+        decoration: const BoxDecoration(
+          color: kLightWhite,
+          borderRadius: BorderRadius.all(Radius.circular(9)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 0.0.r),
+                child: Icon(
+                  SimpleLineIcons.location_pin,
+                  color: kPrimary,
+                  size: 28.h,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 5),
+                    ReusableText(
+                      text: address.addressName,
+                      style: appStyle(13, kGray, FontWeight.w600),
+                    ),
+                    ReusableText(
+                      text: address.addressLine1,
+                      style: appStyle(11, kGray, FontWeight.w500),
+                    ),
+                    ReusableText(
+                      text: address.postalCode,
+                      style: appStyle(11, kGray, FontWeight.normal),
+                    ),
+                    const SizedBox(height: 5),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  Switch.adaptive(
+                    value: address.addressesListDefault,
+                    onChanged: (bool value) {
+                      _showSetDefaultDialog(context, localContext, controller, address, refetch);
+                    },
+                    thumbColor: WidgetStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? kPrimary.withOpacity(.48)
+                          : kPrimary;
+                    }),
+                    activeColor: kCupertinoModalBarrierColor,
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      await _handleDelete(context, localContext, controller, address, refetch);
+                    },
+                    icon: const Icon(Icons.delete_outline_rounded),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
-}
 
+  void _showSetDefaultDialog(BuildContext context, BuildContext localContext, AddressController controller, AddressesList address, VoidCallback refetch) {
+    showDialog(
+      context: localContext,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Set Default Address'),
+          content: const Text('Are you sure you want to set this as your default address?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(localContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(localContext).pop();
+                showDialog(
+                  context: localContext,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return Center(
+                      child: LoadingAnimationWidget.threeArchedCircle(
+                        color: kPrimary,
+                        size: 35,
+                      ),
+                    );
+                  },
+                );
+                try {
+                  await controller.setDefaultAddress(address.id);
+                  refetch();
+                } finally {
+                  Navigator.of(localContext).pop();
+                }
+              },
+              child: const Text('Set Default', style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDelete(BuildContext context, BuildContext localContext, AddressController controller, AddressesList address, VoidCallback refetch) async {
+    final confirmed = await showDialog<bool>(
+      context: localContext,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Address'),
+          content: const Text('Are you sure you want to delete this address?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(localContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(localContext).pop(true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      showDialog(
+        context: localContext,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+            child: LoadingAnimationWidget.threeArchedCircle(
+              color: kPrimary,
+              size: 35,
+            ),
+          );
+        },
+      );
+      try {
+        await controller.deleteAddress(address.id);
+        refetch();
+      } finally {
+        Navigator.of(localContext).pop();
+      }
+    }
+  }
+}

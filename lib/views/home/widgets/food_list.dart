@@ -49,24 +49,28 @@ class FoodList extends HookWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.only(left: 12, top: 10),
-      height: 180.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: foods.length,
-        itemBuilder: (context, index) {
-          Food food = foods[index];
-
-          // You can uncomment and use the DistanceTime logic if needed
-          Restaurants restaurant = restaurants[index];
-          /*DistanceTime distanceTime = Distance().calculateDistanceTimePrice(
-            controller.defaultAddress!.latitude,
-            controller.defaultAddress!.longitude,
-            restaurant.coords.latitude,
-            restaurant.coords.longitude,
-            10,
-            2.00
-          );*/
+        padding: const EdgeInsets.only(left: 12, top: 10),
+        height: 180.h,
+        child: ShaderMask(shaderCallback: (Rect bounds) {
+          return const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              Colors.transparent,
+              Colors.black,
+              Colors.black,
+              Colors.transparent,
+            ],
+            stops: [0.0, 0.1, 1.0, 1.0],
+          ).createShader(bounds);
+        },
+            blendMode: BlendMode.dstIn,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: foods.length,
+              itemBuilder: (context, index) {
+                Food food = foods[index];
+                /*Restaurants restaurant = restaurants[index];
 
           Distance distanceCalculator = Distance();
           DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
@@ -80,19 +84,28 @@ class FoodList extends HookWidget {
 
           if (distanceTime.distance > 10.0) {
             return SizedBox.shrink();
-          }
+          }*/
 
-          return FoodWidget(
-            onTap: () {
-              Get.to(() => FoodPage(food: food));
-            },
-            image: food.imageUrl[0],  // Assumes there's always at least one image
-            title: food.title,
-            price: food.price.toStringAsFixed(2),
-            time: food.time!,
-          );
-        },
-      ),
+                return FoodWidget(
+                  onTap: () {
+                    if(food.isAvailable == true) {
+                      Get.to(() => FoodPage(food: food));
+                    } else {
+                      Get.snackbar("Item unavailable",
+                          "Please come and check later",
+                          colorText: kDark,
+                          backgroundColor: kOffWhite,
+                          icon: const Icon(Icons.add_alert));
+                    }
+                  },
+                  image: food.imageUrl[0],  // Assumes there's always at least one image
+                  title: food.title,
+                  price: food.price.toStringAsFixed(2),
+                  time: food.time!,
+                );
+              },
+            )
+        )
     );
   }
 }

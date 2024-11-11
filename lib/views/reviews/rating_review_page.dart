@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:eatseasy/common/app_style.dart';
 import 'package:eatseasy/common/reusable_text.dart';
@@ -10,7 +11,7 @@ class RatingReview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kOffWhite,
       appBar: AppBar(
           backgroundColor: kLightWhite,
           elevation: 0,
@@ -18,7 +19,9 @@ class RatingReview extends StatelessWidget {
             text: "Reviews and Ratings",
             style: appStyle(20, kDark, FontWeight.w400),
           ),),
-      body: const RateOrders(),
+      body: Center(
+        child: BackGroundContainer(child: RateOrders()),
+      ),
     );
   }
 }

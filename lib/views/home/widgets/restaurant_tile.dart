@@ -23,10 +23,15 @@ class RestaurantTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(
-            () => RestaurantPage(
-                  restaurant: restaurant,
-                ));
+        if (restaurant.isAvailable == true) {
+          Get.to(() => RestaurantPage(restaurant: restaurant));
+        } else {
+          Get.snackbar("Restaurant is closed for now",
+              "Please come back later",
+              colorText: kDark,
+              backgroundColor: kOffWhite,
+              icon: const Icon(Icons.add_alert));
+        }
       },
       child: Stack(
         clipBehavior: Clip.hardEdge,
@@ -121,7 +126,7 @@ class RestaurantTile extends StatelessWidget {
                   color: restaurant.isAvailable == true ||
                           restaurant.isAvailable == null
                       ? kPrimary
-                      : kSecondaryLight,
+                      : kGray,
                   borderRadius: const BorderRadius.all(
                     Radius.circular(10),
                   )),

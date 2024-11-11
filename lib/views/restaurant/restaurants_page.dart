@@ -55,7 +55,7 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
 
   Future<void> _fetchDistance() async {
     Distance distanceCalculator = Distance();
-    distanceTime = distanceCalculator.calculateDistanceTimePrice(
+    distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         widget.restaurant.coords.latitude,
@@ -160,7 +160,7 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                     RowText(
                         first: "Distance To Restaurant",
                         second: distanceTime != null
-                            ? "${distanceTime!.distance.toStringAsFixed(2)} km"
+                            ? "${distanceTime!.distance.toStringAsFixed(1)} km"
                             : "Loading..."),
                     SizedBox(
                       height: 10.h,
@@ -168,7 +168,7 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                     RowText(
                         first: "Delivery Price From Current Location",
                         second: distanceTime != null
-                            ? "\$ ${distanceTime!.price.toStringAsFixed(2)} km"
+                            ? "Php ${distanceTime!.price.toStringAsFixed(2)}"
                             : "Loading..."),
 
                     SizedBox(
@@ -232,9 +232,9 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                   height: height / 1.3,
                   child: TabBarView(controller: _tabController, children: [
                     RestaurantMenu(
-                      restaurantId: widget.restaurant.id!,
+                      restaurant: widget.restaurant,
                     ),
-                    const Explore()
+                    Explore(restaurant: widget.restaurant)
                   ]))
             ],
           )

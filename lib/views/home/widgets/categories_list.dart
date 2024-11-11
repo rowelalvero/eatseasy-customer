@@ -65,7 +65,7 @@ class CategoriesWidget extends HookWidget {
                             children: [
                               SizedBox(
                                 height: 35,
-                                child: CachedImageLoader(image: category.imageUrl, imageHeight: 35.w, imageWidth: 35.w,)
+                                child: CachedImageLoader(fit: BoxFit.cover, image: category.imageUrl, imageHeight: 35, imageWidth: 35,)
                               ),
                               ReusableText(
                                   text: category.title,
@@ -73,7 +73,8 @@ class CategoriesWidget extends HookWidget {
                                       appStyle(12, kDark, FontWeight.normal)),
                             ],
                           ),
-                        )),
+                        )
+                    ),
                   );
                 }),
           );

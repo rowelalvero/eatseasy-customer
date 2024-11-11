@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:eatseasy/common/app_style.dart';
@@ -19,33 +20,35 @@ class LoginRedirection extends StatelessWidget {
         backgroundColor: kLightWhite,
         elevation: 0.3,
         title: ReusableText(
-            text: "Please login to access this page", style: appStyle(20, kDark, FontWeight.w400),),
+          text: "Please login to access this page", style: appStyle(20, kDark, FontWeight.w400),),
       ),
-      body: SafeArea(
-        child: CustomContainer(
-            containerHieght: MediaQuery.of(context).size.height*0.76,
-            containerContent: Column(
-          children: [
-            Container(
-              width: width,
-              height: height / 2,
-              color: Colors.white,
-              child: LottieBuilder.asset(
-                "assets/anime/delivery.json",
-                width: width,
-                height: height / 2,
-              ),
+      body: Center(
+        child: BackGroundContainer(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: width,
+                  height: height / 2,
+                  color: Colors.white,
+                  child: LottieBuilder.asset(
+                    "assets/anime/delivery.json",
+                    width: width,
+                    height: height / 2,
+                  ),
+                ),
+                CustomButton(
+                    onTap: () {
+                      Get.to(() => const Login());
+                    },
+                    color: kPrimary,
+                    btnHieght: 40.h,
+                    btnWidth: width - 20.w,
+                    text: "L O G I N")
+              ],
             ),
-            CustomButton(
-                onTap: () {
-                  Get.to(() => const Login());
-                },
-                color: kPrimary,
-                btnHieght: 40.h,
-                btnWidth: width - 20.w,
-                text: "L O G I N")
-          ],
-        )),
+          ),
+        ),
       ),
     );
   }

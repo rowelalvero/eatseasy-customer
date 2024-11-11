@@ -49,191 +49,193 @@ class _UpdateAddressPageState extends State<UpdateAddressPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kPrimary,
       appBar: AppBar(
-        backgroundColor: kPrimary,
+        backgroundColor: kWhite,
         elevation: 0,
+        centerTitle: true,
         title: ReusableText(
           text: "Update Address",
-          style: appStyle(20, kWhite, FontWeight.w400),
+          style: appStyle(20, Colors.black, FontWeight.w400),
         ),
       ),
-      body: BackGroundContainer(
-        color: kLightWhite,
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 10.w),
-          children: [
-            SizedBox(height: 35.h),
+      body: Center(
+        child: BackGroundContainer(
+          color: kLightWhite,
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            children: [
+              SizedBox(height: 35.h),
 
-            //Address name
-            TextField(
-              controller: _addressNameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
+              //Address name
+              TextField(
+                controller: _addressNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
+              SizedBox(height: 8.h),
 
-        GestureDetector(
-          onTap: () async {
-            // Push the AddNewPlace page and wait for the result
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddNewPlace(update: true), // Pass update if needed
-              ),
-            );
+              GestureDetector(
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddNewPlace(update: true),
+                    ),
+                  );
 
-            // Check if a result was returned
-            if (result != null) {
-              setState(() {
-                // Update the address with the new data returned from AddNewPlace
-                _addressLine1Controller.text = result["address"];
-                _selectedLocation = LatLng(result["latitude"], result["longitude"]);
-              });
-            }
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            height: height*.08,
-            width: width,
-            decoration: const BoxDecoration(
-                color: kOffWhite,
-                borderRadius: BorderRadius.all(Radius.circular(9))),
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  if (result != null) {
+                    setState(() {
+                      _addressLine1Controller.text = result["address"];
+                      _selectedLocation = LatLng(result["latitude"], result["longitude"]);
+                    });
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  height: height * .08,
+                  width: width,
+                  decoration: const BoxDecoration(
+                    color: kOffWhite,
+                    borderRadius: BorderRadius.all(Radius.circular(9)),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(9),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ReusableText(
-                          text: "Address:",
-                          style: appStyle(11, kDark, FontWeight.w400),
-                        ),
-                        SizedBox(
-                          height: 5.h,
-                        ),
-                        ReusableText(
-                          text: _addressLine1Controller.text,
-                          style: appStyle(13, kDark, FontWeight.w400,
-
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ReusableText(
+                                text: "Address:",
+                                style: appStyle(11, kDark, FontWeight.w400),
+                              ),
+                              SizedBox(
+                                height: 5.h,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  _addressLine1Controller.text,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: appStyle(13, kDark, FontWeight.w400),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5.h,
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(
-                          height: 5.h,
+                        IconButton(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddNewPlace(update: true),
+                              ),
+                            );
+
+                            if (result != null) {
+                              setState(() {
+                                _addressLine1Controller.text = result["address"];
+                                _selectedLocation = LatLng(result["latitude"], result["longitude"]);
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.keyboard_arrow_right_rounded),
                         ),
                       ],
                     ),
                   ),
-
-                  IconButton(
-                      onPressed: () async {
-
-
-                      },
-
-                      icon: const Icon(Icons.keyboard_arrow_right_rounded)
-                  ),
-                ],
+                ),
               ),
-            ),
+
+              SizedBox(height: 10.h),
+              // Postal Code
+              TextField(
+                controller: _postalCodeController,
+                decoration: const InputDecoration(
+                  labelText: 'Postal Code',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 15.h),
+
+              // Delivery Instructions
+              TextField(
+                controller: _deliveryInstructionsController,
+                minLines: 1, // Minimum number of lines
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintMaxLines:3,
+                  labelText: 'Delivery Instructions',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 15.h),
+
+              // Update Address Button
+              controller.isLoading ?
+              Center(
+                child: LoadingAnimationWidget.waveDots(
+                  color: kPrimary,
+                  size: 35
+                ),
+              )
+                  :
+              CustomButton(
+                onTap: () {
+                  final updatedAddress = {
+                    "addressName": _addressNameController.text,
+                    "addressLine1": _addressLine1Controller.text,
+                    "postalCode": _postalCodeController.text,
+                    "latitude": _selectedLocation?.latitude ?? widget.address.latitude,
+                    "longitude": _selectedLocation?.longitude ?? widget.address.longitude,
+                    "deliveryInstructions": _deliveryInstructionsController.text,
+                  };
+
+                  // Call update address function
+                  controller.updateAddress(widget.address.id, jsonEncode(updatedAddress));
+                  final result = true;
+                  Navigator.pop(context, result);
+                },
+                radius: 9,
+                color: kPrimary,
+                btnWidth: width * 0.95,
+                btnHieght: 34.h,
+                text: "U P D A T E  A D D R E S S",
+              ),
+              SizedBox(height: 15.h),
+
+              controller.isLoading
+                  ? Center(
+                child: LoadingAnimationWidget.waveDots(
+                  color: kPrimary,
+                  size: 35
+                ),
+              )
+
+                  : CustomButton(
+                onTap: () {
+                  controller.deleteAddress(widget.address.id);
+                  final result = true;
+                  Navigator.pop(context, result);
+                },
+                radius: 9,
+                color: kRed,
+                btnWidth: width * 0.95,
+                btnHieght: 34.h,
+                text: "D E L E T E  A D D R E S S",
+              ),
+
+            ],
           ),
-        ),
-
-            // Address Line 1
-            TextField(
-              controller: _addressLine1Controller,
-              decoration: const InputDecoration(
-                labelText: 'Address',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 15.h),
-
-            // Postal Code
-            TextField(
-              controller: _postalCodeController,
-              decoration: const InputDecoration(
-                labelText: 'Postal Code',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 15.h),
-
-            // Delivery Instructions
-            TextField(
-              controller: _deliveryInstructionsController,
-              minLines: 1, // Minimum number of lines
-              maxLines: null,
-              decoration: const InputDecoration(
-                hintMaxLines:3,
-                labelText: 'Delivery Instructions',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 15.h),
-
-            // Update Address Button
-            controller.isLoading ?
-            Center(
-              child: LoadingAnimationWidget.waveDots(
-                color: kPrimary,
-                size: 35
-              ),
-            )
-                :
-            CustomButton(
-              onTap: () {
-                final updatedAddress = {
-                  "addressName": _addressNameController.text,
-                  "addressLine1": _addressLine1Controller.text,
-                  "postalCode": _postalCodeController.text,
-                  "latitude": _selectedLocation?.latitude ?? widget.address.latitude,
-                  "longitude": _selectedLocation?.longitude ?? widget.address.longitude,
-                  "deliveryInstructions": _deliveryInstructionsController.text,
-                };
-
-                // Call update address function
-                controller.updateAddress(widget.address.id, jsonEncode(updatedAddress));
-                final result = true;
-                Navigator.pop(context, result);
-              },
-              radius: 9,
-              color: kPrimary,
-              btnWidth: width * 0.95,
-              btnHieght: 34.h,
-              text: "U P D A T E  A D D R E S S",
-            ),
-            SizedBox(height: 15.h),
-
-            controller.isLoading
-                ? Center(
-              child: LoadingAnimationWidget.waveDots(
-                color: kPrimary,
-                size: 35
-              ),
-            )
-
-                : CustomButton(
-              onTap: () {
-                controller.deleteAddress(widget.address.id);
-                final result = true;
-                Navigator.pop(context, result);
-              },
-              radius: 9,
-              color: kRed,
-              btnWidth: width * 0.95,
-              btnHieght: 34.h,
-              text: "D E L E T E  A D D R E S S",
-            ),
-
-          ],
         ),
       ),
     );

@@ -43,129 +43,131 @@ class ReviewPage extends HookWidget {
             text: "Rate Restaurant and Food",
             style: appStyle(20, kGray, FontWeight.w400)),
       ),
-      body: BackGroundContainer(
-          child: isLoading || isFoodLoading
-              ? const LoadingWidget()
-              : Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      restaurantExistence!.status == false
-                          ? Column(
-                              children: [
-                                ReusableText(
-                                    text:
-                                        "Tap the stars to rate the restaurant and submit",
-                                    style:
-                                        appStyle(12, kGray, FontWeight.w600)),
-                                SizedBox(
-                                  height: 20.h,
-                                ),
-                                RatingBar.builder(
-                                  initialRating: 3,
-                                  minRating: 1,
-                                  itemSize: 55.r,
-                                  direction: Axis.horizontal,
-                                  allowHalfRating: false,
-                                  itemCount: 5,
-                                  itemPadding:
-                                      EdgeInsets.symmetric(horizontal: 4.0.h),
-                                  itemBuilder: (context, _) => const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
+      body: Center(
+        child: BackGroundContainer(
+            child: isLoading || isFoodLoading
+                ? const LoadingWidget()
+                : Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        restaurantExistence!.status == false
+                            ? Column(
+                                children: [
+                                  ReusableText(
+                                      text:
+                                          "Tap the stars to rate the restaurant and submit",
+                                      style:
+                                          appStyle(12, kGray, FontWeight.w600)),
+                                  SizedBox(
+                                    height: 20.h,
                                   ),
-                                  onRatingUpdate: (rating) {
-                                    controller.updateRating(rating);
-                                  },
-                                ),
-                                SizedBox(
-                                  height: 20.h,
-                                ),
-                                CustomButton(
-                                    onTap: () {
-                                      Rating data = Rating(
-                                          ratingType: "Restaurant",
-                                          product: order.restaurantId,
-                                          rating: controller.rating.toInt());
-
-                                      String rating = ratingToJson(data);
-
-                                      controller.addRating(rating, refetch);
+                                  RatingBar.builder(
+                                    initialRating: 3,
+                                    minRating: 1,
+                                    itemSize: 55.r,
+                                    direction: Axis.horizontal,
+                                    allowHalfRating: false,
+                                    itemCount: 5,
+                                    itemPadding:
+                                        EdgeInsets.symmetric(horizontal: 4.0.h),
+                                    itemBuilder: (context, _) => const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    onRatingUpdate: (rating) {
+                                      controller.updateRating(rating);
                                     },
-                                    radius: 6.r,
-                                    btnHieght: 30.h,
-                                    color:
-                                        controller.isLoading ? kGray : kPrimary,
-                                    text: controller.isLoading
-                                        ? "...submitting rating"
-                                        : "Rate Restaurant",
-                                    btnWidth: width - 80.w),
-                              ],
-                            )
-                          : const AlreadyRated(type: "restaurant"),
-                      foodExistence!.status == false
-                          ? Column(
-                              children: [
-                                SizedBox(
-                                  height: 20.h,
-                                ),
-                                ReusableText(
-                                    text:
-                                        "Tap the stars to rate the food and submit",
-                                    style:
-                                        appStyle(12, kGray, FontWeight.w600)),
-                                SizedBox(
-                                  height: 20.h,
-                                ),
-                                RatingBar.builder(
-                                  initialRating: 3,
-                                  minRating: 1,
-                                  itemSize: 55.r,
-                                  direction: Axis.horizontal,
-                                  allowHalfRating: false,
-                                  itemCount: 5,
-                                  itemPadding:
-                                      EdgeInsets.symmetric(horizontal: 4.0.h),
-                                  itemBuilder: (context, _) => const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
                                   ),
-                                  onRatingUpdate: (rating) {
-                                    controller.updateFood(rating);
-                                  },
-                                ),
-                                SizedBox(
-                                  height: 20.h,
-                                ),
-                                CustomButton(
-                                    onTap: () {
-                                      Rating data = Rating(
-                                          ratingType: "Food",
-                                          product:
-                                              order.orderItems[0].foodId.id,
-                                          rating:
-                                              controller.foodRating.toInt());
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  CustomButton(
+                                      onTap: () {
+                                        Rating data = Rating(
+                                            ratingType: "Restaurant",
+                                            product: order.restaurantId,
+                                            rating: controller.rating.toInt());
 
-                                      String rating = ratingToJson(data);
+                                        String rating = ratingToJson(data);
 
-                                      controller.addRating(rating, refetchFood);
+                                        controller.addRating(rating, refetch);
+                                      },
+                                      radius: 6.r,
+                                      btnHieght: 30.h,
+                                      color:
+                                          controller.isLoading ? kGray : kPrimary,
+                                      text: controller.isLoading
+                                          ? "...submitting rating"
+                                          : "Rate Restaurant",
+                                      btnWidth: width - 80.w),
+                                ],
+                              )
+                            : const AlreadyRated(type: "restaurant"),
+                        foodExistence!.status == false
+                            ? Column(
+                                children: [
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  ReusableText(
+                                      text:
+                                          "Tap the stars to rate the food and submit",
+                                      style:
+                                          appStyle(12, kGray, FontWeight.w600)),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  RatingBar.builder(
+                                    initialRating: 3,
+                                    minRating: 1,
+                                    itemSize: 55.r,
+                                    direction: Axis.horizontal,
+                                    allowHalfRating: false,
+                                    itemCount: 5,
+                                    itemPadding:
+                                        EdgeInsets.symmetric(horizontal: 4.0.h),
+                                    itemBuilder: (context, _) => const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    onRatingUpdate: (rating) {
+                                      controller.updateFood(rating);
                                     },
-                                    radius: 6.r,
-                                    btnHieght: 30.h,
-                                    color:
-                                        controller.isLoading ? kGray : kPrimary,
-                                    text: controller.isLoading
-                                        ? "...submitting rating"
-                                        : "Rate Food",
-                                    btnWidth: width - 80.w),
-                              ],
-                            )
-                          : const AlreadyRated(type: "food")
-                    ],
-                  ),
-                )),
+                                  ),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  CustomButton(
+                                      onTap: () {
+                                        Rating data = Rating(
+                                            ratingType: "Food",
+                                            product:
+                                                order.orderItems[0].foodId.id,
+                                            rating:
+                                                controller.foodRating.toInt());
+
+                                        String rating = ratingToJson(data);
+
+                                        controller.addRating(rating, refetchFood);
+                                      },
+                                      radius: 6.r,
+                                      btnHieght: 30.h,
+                                      color:
+                                          controller.isLoading ? kGray : kPrimary,
+                                      text: controller.isLoading
+                                          ? "...submitting rating"
+                                          : "Rate Food",
+                                      btnWidth: width - 80.w),
+                                ],
+                              )
+                            : const AlreadyRated(type: "food")
+                      ],
+                    ),
+                  )),
+      ),
     );
   }
 }

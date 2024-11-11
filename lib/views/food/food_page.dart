@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -29,6 +30,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../hooks/fetchCart.dart';
 import '../../models/obs_custom_additives.dart';
+import '../../models/restaurants.dart';
 
 class FoodPage extends StatefulHookWidget {
   const FoodPage({
@@ -78,8 +80,9 @@ class _FoodPageState extends State<FoodPage> {
     //foodController.loadAdditives(widget.food.additives);
     foodController.loadCustomAdditives(widget.food.customAdditives);
     final hookResult = useFetchRestaurant(widget.food.restaurant);
-    var restaurantData ;//= hookResult.data;
+    var restaurantData = hookResult.data;
     final load = hookResult.isLoading;
+    late Restaurants? restaurant = restaurantData;
 
     final cartHookResult = useFetchCart();
     final items = cartHookResult.data ?? [];
@@ -114,103 +117,108 @@ class _FoodPageState extends State<FoodPage> {
     String? token = box.read('token');
     return load
         ? Center(
-            child: SizedBox(
-              width: 150,
-              height: 150,
-              child: LoadingAnimationWidget.threeArchedCircle(
-                color: kSecondary,
-                size: 35
-              )
-            ),
+      child: SizedBox(
+          width: 150,
+          height: 150,
+          child: LoadingAnimationWidget.threeArchedCircle(
+              color: kSecondary,
+              size: 35
           )
+      ),
+    )
         : Scaffold(
-            backgroundColor: kLightWhite,
-            body: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(25)),
-                      child: Stack(
+      backgroundColor: kLightWhite,
+      body: Center(
+          child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: height * 0.1) ,
+              child: BackGroundContainer(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      Stack(
                         children: [
-                          SizedBox(
-                            height: 230.h,
-                            child: PageView.builder(
-                                itemCount: widget.food.imageUrl.length,
-                                controller: _pageController,
-                                onPageChanged: (i) {
-                                  foodController.currentPage(i);
-                                },
-                                itemBuilder: (context, i) {
-                                  return Container(
-                                    height: 230.h,
-                                    width: width,
-                                    color: kLightWhite,
-                                    child: CachedNetworkImage(
-                                      fit: BoxFit.cover,
-                                      imageUrl: widget.food.imageUrl[i],
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                                bottomRight: Radius.circular(25)),
+                            child: Stack(
+                              children: [
+                                SizedBox(
+                                  height: 230.h,
+                                  child: PageView.builder(
+                                      itemCount: widget.food.imageUrl.length,
+                                      controller: _pageController,
+                                      onPageChanged: (i) {
+                                        foodController.currentPage(i);
+                                      },
+                                      itemBuilder: (context, i) {
+                                        return Container(
+                                          height: 230.h,
+                                          width: width,
+                                          color: kLightWhite,
+                                          child: CachedNetworkImage(
+                                            fit: BoxFit.cover,
+                                            imageUrl: widget.food.imageUrl[i],
+                                          ),
+                                        );
+                                      }),
+                                ),
+                                Positioned(
+                                  bottom: 10,
+                                  child: Obx(
+                                        () => Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: List.generate(
+                                        widget.food.imageUrl.length,
+                                            (index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(left: 8.0),
+                                            child: Container(
+                                              margin: EdgeInsets.all(4.h),
+                                              width:
+                                              foodController.currentPage == index
+                                                  ? 10
+                                                  : 8,
+                                              // ignore: unrelated_type_equality_checks
+                                              height:
+                                              foodController.currentPage == index
+                                                  ? 10
+                                                  : 8,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: foodController.currentPage ==
+                                                    index
+                                                    ? kSecondary
+                                                    : kGrayLight,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ),
-                                  );
-                                }),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           Positioned(
-                            bottom: 10,
-                            child: Obx(
-                              () => Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                  widget.food.imageUrl.length,
-                                  (index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: Container(
-                                        margin: EdgeInsets.all(4.h),
-                                        width:
-                                            foodController.currentPage == index
-                                                ? 10
-                                                : 8,
-                                        // ignore: unrelated_type_equality_checks
-                                        height:
-                                            foodController.currentPage == index
-                                                ? 10
-                                                : 8,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: foodController.currentPage ==
-                                                  index
-                                              ? kSecondary
-                                              : kGrayLight,
-                                        ),
-                                      ),
-                                    );
+                            top: 40.h,
+                            left: 12,
+                            right: 12,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Get.back();
                                   },
+                                  child: const Icon(
+                                    Ionicons.chevron_back_circle,
+                                    color: kPrimary,
+                                    size: 38,
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      top: 40.h,
-                      left: 12,
-                      right: 12,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Get.back();
-                            },
-                            child: const Icon(
-                              Ionicons.chevron_back_circle,
-                              color: kPrimary,
-                              size: 38,
-                            ),
-                          ),
-                          /*GestureDetector(
+                                /*GestureDetector(
                             onTap: () {},
                             child: const Icon(
                               Entypo.share,
@@ -218,291 +226,269 @@ class _FoodPageState extends State<FoodPage> {
                               size: 38,
                             ),
                           )*/
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                        bottom: 10,
-                        right: 15,
-                        child: CustomButton(
-                            btnWidth: width / 7.5,
-                            radius: 30,
-                            color: kPrimary,
-                            onTap: () async {
-                              if(restaurantData==null){
-                                Get.to(
-                                        () =>  const NotFoundPage(
-                                      text: "Can not open restaurant page",
-                                    ),
-                                    arguments: {});
-                              }else{
-                               ResponseModel status = await _controller.goChat(restaurantData);
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                              bottom: 10,
+                              right: 15,
+                              child: CustomButton(
+                                  btnWidth: 110,
+                                  radius: 30,
+                                  color: kSecondary,
+                                  onTap: () async {
+                                    if(restaurantData==null){
+                                      Get.to(
+                                              () =>  const NotFoundPage(
+                                            text: "Can not open restaurant page",
+                                          ),
+                                          arguments: {});
+                                    }else{
+                                      ResponseModel status = await _controller.goChat(restaurantData);
 
-                               if(status.isSuccess==false){
-                                 showCustomSnackBar(status.message!, title: status.title!);
-                               }
-                              }
+                                      if(status.isSuccess==false){
+                                        showCustomSnackBar(status.message!, title: status.title!);
+                                      }
+                                    }
 
-                            },
-                            text: "Chat")
-                    ),
-                    Positioned(
-                        bottom: 10,
-                        right: 75,
-                        child: CustomButton(
-                            btnWidth: width / 2.9,
-                            radius: 30,
-                            color: kPrimary,
-                            onTap: () {
-                              if(token==null){
-                                showCustomSnackBar("You are not logged in. Your distance measure is not correct", title: "Distance alert",);
-                              }
-                              Get.to(
-                                  () => restaurantData == null
-                                      ? const NotFoundPage(
+                                  },
+                                  text: "Chat")
+                          ),
+                          Positioned(
+                              bottom: 10,
+                              right: 130,
+                              child: CustomButton(
+                                  btnWidth: 190,
+                                  radius: 30,
+                                  color: kPrimary,
+                                  onTap: () {
+                                    if(token==null){
+                                      showCustomSnackBar("You are not logged in. Your distance measure is not correct", title: "Distance alert",);
+                                    }
+                                    Get.to(
+                                            () => restaurantData == null
+                                            ? const NotFoundPage(
                                           text: "Can not open restaurant page",
                                         )
-                                      : RestaurantPage(
-                                          restaurant: restaurantData));
-                            },
-                            text: "Open Restaurant"))
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ReusableText(
-                              text: widget.food.title,
-                              style: appStyle(18, kDark, FontWeight.w600)),
-                          Obx(() => ReusableText(
-                              text: "\$ ${((widget.food.price + foodController.additiveTotalCustom) * counterController.count.toDouble()).toStringAsFixed(2)}",
-                              style: appStyle(18, kPrimary, FontWeight.w600)),),
-
+                                            : RestaurantPage(
+                                            restaurant: restaurantData));
+                                  },
+                                  text: "Open Restaurant"))
                         ],
                       ),
-                      SizedBox(
-                        height: 5.h,
-                      ),
-                      Text(
-                        widget.food.description,
-                        maxLines: 8,
-                        style: appStyle(10, kGray, FontWeight.w400),
-                      ),
-                      SizedBox(
-                        height: 5.h,
-                      ),
-                      Row(
-                        children: [
-                          RatingBarIndicator(
-                            rating: widget.food.rating!,
-                            itemBuilder: (context, index) => const Icon(
-                              Icons.star,
-                              color: kPrimary,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ReusableText(
+                                    text: widget.food.title,
+                                    style: appStyle(18, kDark, FontWeight.w600)),
+                                Obx(() => ReusableText(
+                                    text: "Php ${((widget.food.price + foodController.additiveTotalCustom) * counterController.count.toDouble()).toStringAsFixed(2)}",
+                                    style: appStyle(18, kPrimary, FontWeight.w600)),),
+
+                              ],
                             ),
-                            itemCount: 5,
-                            itemSize: 15.0,
-                            direction: Axis.horizontal,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          ReusableText(
-                              text: "${widget.food.ratingCount} reviews and ratings",
-                              style: appStyle(9, kGray, FontWeight.w500)),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 5.h,
-                      ),
-                      SizedBox(
-                        height: 15.h,
-                        child: ListView.builder(
-                            itemCount: widget.food.foodTags.length,
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, i) {
-                              final tag = widget.food.foodTags[i];
-                              return Container(
-                                margin: EdgeInsets.only(right: 5.h),
-                                decoration: BoxDecoration(
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            Text(
+                              widget.food.description,
+                              maxLines: 8,
+                              style: appStyle(10, kGray, FontWeight.w400),
+                            ),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            Row(
+                              children: [
+                                RatingBarIndicator(
+                                  rating: widget.food.rating!,
+                                  itemBuilder: (context, index) => const Icon(
+                                    Icons.star,
                                     color: kPrimary,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(15.r))),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4.0),
-                                    child: ReusableText(
-                                        text: tag,
-                                        style: appStyle(
-                                            8, kLightWhite, FontWeight.w400)),
                                   ),
+                                  itemCount: 5,
+                                  itemSize: 15.0,
+                                  direction: Axis.horizontal,
                                 ),
-                              );
-                            }),
-                      ),
-                      SizedBox(
-                        height: 15.h,
-                      ),
-
-                      // Adding a SizedBox with reduced height
-                      ReusableText(
-                        text: "Additives and Toppings",
-                        style: appStyle(18, kDark, FontWeight.w600),
-                      ),
-
-                      Column(
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: foodController.customAdditivesList.length,
-                            itemBuilder: (context, index) {
-                              final question = foodController.customAdditivesList[index];
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(
-                                    color: Colors.grey, // Set the color of the border
-                                    width: 0.4, // Set the width of the border
-                                  ),
+                                const SizedBox(
+                                  width: 10,
                                 ),
-                                child: ListTile(
-                                  title: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      ReusableText(
-                                        text: question.text,
-                                        style: appStyle(16, kDark, FontWeight.w600),
+                                ReusableText(
+                                    text: "${widget.food.ratingCount} reviews and ratings",
+                                    style: appStyle(9, kGray, FontWeight.w500)),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            SizedBox(
+                              height: 15.h,
+                              child: ListView.builder(
+                                  itemCount: widget.food.foodTags.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, i) {
+                                    final tag = widget.food.foodTags[i];
+                                    return Container(
+                                      margin: EdgeInsets.only(right: 5.h),
+                                      decoration: BoxDecoration(
+                                          color: kPrimary,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(15.r))),
+                                      child: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0),
+                                          child: ReusableText(
+                                              text: tag,
+                                              style: appStyle(
+                                                  8, kLightWhite, FontWeight.w400)),
+                                        ),
                                       ),
-                                      if (question.selectionType == "Select at least" ||
-                                          question.selectionType == "Select at most" ||
-                                          question.selectionType == "Select exactly") ...[
-                                        Text(
-                                          '${question.selectionType} ${question.selectionNumber} options.',
-                                          style: const TextStyle(fontSize: 16),
+                                    );
+                                  }),
+                            ),
+                            SizedBox(
+                              height: 15.h,
+                            ),
+
+                            // Adding a SizedBox with reduced height
+                            ReusableText(
+                              text: "Additives and Toppings",
+                              style: appStyle(18, kDark, FontWeight.w600),
+                            ),
+
+                            Column(
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: foodController.customAdditivesList.length,
+                                  itemBuilder: (context, index) {
+                                    final question = foodController.customAdditivesList[index];
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        border: Border.all(
+                                          color: Colors.grey, // Set the color of the border
+                                          width: 0.4, // Set the width of the border
                                         ),
-                                      ],
-                                      if (question.required) ...[
-                                        const Text(
-                                          "Required",
-                                          style: TextStyle(
-                                            color: Colors.redAccent,
-                                            fontSize: 16,
-                                            fontFamily: "Poppins",
-                                          ),
+                                      ),
+                                      child: ListTile(
+                                        title: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            ReusableText(
+                                              text: question.text,
+                                              style: appStyle(16, kDark, FontWeight.w600),
+                                            ),
+                                            if (question.selectionType == "Select at least" ||
+                                                question.selectionType == "Select at most" ||
+                                                question.selectionType == "Select exactly") ...[
+                                              Text(
+                                                '${question.selectionType} ${question.selectionNumber} options.',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                            ],
+                                            if (question.required) ...[
+                                              const Text(
+                                                "Required",
+                                                style: TextStyle(
+                                                  color: Colors.redAccent,
+                                                  fontSize: 16,
+                                                  fontFamily: "Poppins",
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
-                                      ],
-                                    ],
-                                  ),
-                                  subtitle: _buildQuestionInput(question),
+                                        subtitle: _buildQuestionInput(question),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-
-
-                      /*Column(
-                        children: List.generate(
-                            foodController.additivesList.length, (i) {
-                          final additive = foodController.additivesList[i];
-                          return Obx(() => CheckboxListTile(
-                                title: RowText(
-                                    first: additive.title,
-                                    second: "\$ ${additive.price}"),
-                                contentPadding: EdgeInsets.zero,
-                                value: additive.isChecked.value,
-                                dense: true,
-                                visualDensity: VisualDensity.compact,
-                                onChanged: (bool? newValue) {
-                                  additive.toggleChecked();
-                                  foodController.getTotalPrice();
-                                  foodController.getList();
-                                },
-                                activeColor: kPrimary,
-                                checkColor: Colors.white,
-                                controlAffinity: ListTileControlAffinity.leading,
-                                tristate: false,
-                              ));
-                        }),
-                      ),*/
-                      ReusableText(
-                          text: "Preferences",
-                          style: appStyle(18, kDark, FontWeight.w600)),
-                      SizedBox(
-                        height: 5.h,
-                      ),
-                      SizedBox(
-                        height: 64.h,
-                        child: CustomTextField(
-                            controller: _preferences,
-                            hintText: "Add a note",
-                            maxLines: 3,
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Please enter a note";
-                              }
-                              return null;
-                            }),
+                              ],
+                            ),
+                            ReusableText(
+                                text: "Preferences",
+                                style: appStyle(18, kDark, FontWeight.w600)),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            SizedBox(
+                              height: 64.h,
+                              child: CustomTextField(
+                                  controller: _preferences,
+                                  hintText: "Add a note",
+                                  maxLines: 3,
+                                  keyboardType: TextInputType.text,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return "Please enter a note";
+                                    }
+                                    return null;
+                                  }),
+                            ),
+                            SizedBox(
+                              height: 20.h,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ReusableText(
+                                    text: "Quantity",
+                                    style: appStyle(18, kDark, FontWeight.w600)),
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                        onTap: counterController.increment,
+                                        child: const Icon(
+                                          AntDesign.plussquareo,
+                                          color: kPrimary,
+                                        )),
+                                    SizedBox(
+                                      width: 6.w,
+                                    ),
+                                    Obx(
+                                          () => Padding(
+                                        padding: const EdgeInsets.only(top: 4.0),
+                                        child: ReusableText(
+                                            text: "${counterController.count}",
+                                            style:
+                                            appStyle(16, kDark, FontWeight.w500)),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 6.w,
+                                    ),
+                                    //TextButton(onPressed: () {_showVerificationSheet(context);}, child: Text("Verification")),
+                                    GestureDetector(
+                                        onTap: counterController.decrement,
+                                        child: const Icon(
+                                          AntDesign.minussquareo,
+                                          color: kPrimary,
+                                        ))
+                                  ],
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       SizedBox(
                         height: 20.h,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ReusableText(
-                              text: "Quantity",
-                              style: appStyle(18, kDark, FontWeight.w600)),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                  onTap: counterController.increment,
-                                  child: const Icon(
-                                    AntDesign.plussquareo,
-                                    color: kPrimary,
-                                  )),
-                              SizedBox(
-                                width: 6.w,
-                              ),
-                              Obx(
-                                () => Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: ReusableText(
-                                      text: "${counterController.count}",
-                                      style:
-                                          appStyle(16, kDark, FontWeight.w500)),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 6.w,
-                              ),
-                              GestureDetector(
-                                  onTap: counterController.decrement,
-                                  child: const Icon(
-                                    AntDesign.minussquareo,
-                                    color: kPrimary,
-                                  ))
-                            ],
-                          )
-                        ],
-                      ),
                     ],
-                  ),
-                ),
-                SizedBox(
-                  height: 20.h,
-                ),
-              ],
-            ),
+                  )
+              )
+          )
+      ),
       bottomSheet: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: const BoxDecoration(
@@ -554,26 +540,43 @@ class _FoodPageState extends State<FoodPage> {
                             if (token == null) {
                               Get.to(() => const Login());
                             } else {
-                              double totalPrice = (widget.food.price +
-                                  foodController.additiveTotalCustom) *
-                                  counterController.count.toDouble();
 
-                              ToCart item = ToCart(
-                                productId: widget.food.id,
-                                instructions: _preferences.text,
-                                //additives: foodController.getList(),
-                                quantity: counterController.count.toInt(),
-                                totalPrice: totalPrice,
-                                prepTime: widget.food.time!,
-                                restaurant: widget.food.restaurant!,
-                                customAdditives: foodController.userResponses,
-                              );
+                              if (restaurant!.isAvailable) {
+                                if (widget.food.isAvailable == true || restaurant.isAvailable) {
+                                  double totalPrice = (widget.food.price +
+                                      foodController.additiveTotalCustom) *
+                                      counterController.count.toDouble();
 
-                              String cart = toCartToJson(item);
+                                  ToCart item = ToCart(
+                                    productId: widget.food.id,
+                                    instructions: _preferences.text,
+                                    //additives: foodController.getList(),
+                                    quantity: counterController.count.toInt(),
+                                    totalPrice: totalPrice,
+                                    prepTime: widget.food.time!,
+                                    restaurant: widget.food.restaurant!,
+                                    customAdditives: foodController.userResponses,
+                                  );
 
-                              await cartController.addToCart(cart);
-                              print(cart);
-                              cartHookResult.refetch();
+                                  String cart = toCartToJson(item);
+
+                                  await cartController.addToCart(cart);
+                                  print(cart);
+                                  cartHookResult.refetch();
+                                } else {
+                                  Get.snackbar("Item unavailable",
+                                      "Please come and check later",
+                                      colorText: kDark,
+                                      backgroundColor: kOffWhite,
+                                      icon: const Icon(Icons.add_alert));
+                                }
+                              } else {
+                                Get.snackbar("Restaurant is closed for now",
+                                    "Please come and check later",
+                                    colorText: kDark,
+                                    backgroundColor: kOffWhite,
+                                    icon: const Icon(Icons.add_alert));
+                              }
                             }
 
                             cartController.setLoading = false; // Can be reactive, if needed
@@ -601,7 +604,7 @@ class _FoodPageState extends State<FoodPage> {
                               ),
                               Row(
                                 children: [
-                                  Text("\$ ${foodPriceList.first.toStringAsFixed(2)}", style: const TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
+                                  Text("Php ${foodPriceList.first.toStringAsFixed(2)}", style: const TextStyle(color: kWhite, fontSize: 16, fontWeight: FontWeight.w600)),
                                 ],
                               ),
                             ],
@@ -661,7 +664,7 @@ class _FoodPageState extends State<FoodPage> {
                                 verificationReasons[index],
                                 textAlign: TextAlign.justify,
                                 style:
-                                    appStyle(11, kGrayLight, FontWeight.normal),
+                                appStyle(11, kGrayLight, FontWeight.normal),
                               ),
                               leading: const Icon(
                                 Icons.check_circle_outline,
@@ -691,7 +694,7 @@ class _FoodPageState extends State<FoodPage> {
           children: question.options!.map((option) {
             // Access the 'optionName' and 'price' fields within the Map
             final optionText = option['optionName'] as String;
-            final optionPrice = option['price'] != null ? '(\$${option['price']})' : '';
+            final optionPrice = option['price'] != null ? '(Php ${option['price']})' : '';
 
             return RadioListTile<String>(
               activeColor: kPrimary,
@@ -716,7 +719,7 @@ class _FoodPageState extends State<FoodPage> {
         return Column(
           children: question.options!.map((option) {
             final optionText = option['optionName'] as String;
-            final optionPrice = option['price'] != null ? '(\$${option['price']})' : '';
+            final optionPrice = option['price'] != null ? '(Php ${option['price']})' : '';
 
             return CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -812,5 +815,4 @@ class _FoodPageState extends State<FoodPage> {
         return SizedBox.shrink();
     }
   }
-
 }

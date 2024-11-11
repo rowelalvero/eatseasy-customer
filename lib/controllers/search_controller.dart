@@ -6,18 +6,15 @@ import 'package:http/http.dart' as http;
 import '../models/restaurants.dart';
 
 class FoodSearchController extends GetxController {
+
   final _searchQuery = 'initial value'.obs;
-
   String get searchQuery => _searchQuery.value;
-
   set setSearchQuery(String newValue) {
     _searchQuery.value = newValue;
   }
 
   RxBool _isLoading = false.obs;
-
   bool get isLoading => _isLoading.value;
-
   set setLoading(bool newValue) {
     _isLoading.value = newValue;
   }

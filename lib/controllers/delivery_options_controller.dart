@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 
-class CategoryController extends GetxController {
-  
-  RxString category = ''.obs;
-  String get categoryValue => category.value;
+class DeliveryOptionsController extends GetxController {
+
+  RxString option = ''.obs;
+  String get optionValue => option.value;
   set updateCategory(String newValue) {
-    category.value = newValue;
+    option.value = newValue;
   }
 
   RxString title = ''.obs;

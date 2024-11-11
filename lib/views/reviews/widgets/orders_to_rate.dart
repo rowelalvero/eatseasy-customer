@@ -9,6 +9,9 @@ import 'package:eatseasy/models/client_orders.dart';
 import 'package:eatseasy/views/orders/widgets/client_order_tile.dart';
 import 'package:get/get.dart';
 
+import '../../../common/app_style.dart';
+import '../../../common/reusable_text.dart';
+
 class RateOrders extends HookWidget {
   const RateOrders({Key? key}) : super(key: key);
 
@@ -22,7 +25,26 @@ class RateOrders extends HookWidget {
 
     controller.setOnStatusChangeCallback(refetch);
     
-    return Container(
+    return orders!.isEmpty
+        ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/no_content.png',
+              height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+              width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
+              fit: BoxFit.contain,
+            ),
+            ReusableText(
+              text:
+              "Try to look for some awesome treats!",
+              style: appStyle(14, kGray, FontWeight.normal),
+            ),
+          ],
+        )
+    )
+        : Container(
       height: height / 1.3,
       width: width,
       color: kLightWhite,

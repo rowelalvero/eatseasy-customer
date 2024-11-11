@@ -16,7 +16,8 @@ class RestaurantWidget extends StatelessWidget {
       required this.time,
       this.onTap,
       required this.rating,
-      required this.ratingBarCount});
+      required this.ratingBarCount,
+      required this.isAvailable});
 
   final String image;
   final String logo;
@@ -24,6 +25,7 @@ class RestaurantWidget extends StatelessWidget {
   final String time;
   final String rating;
   final double ratingBarCount;
+  final bool isAvailable;
   final void Function()? onTap;
 
   @override
@@ -50,29 +52,64 @@ class RestaurantWidget extends StatelessWidget {
                       child: CachedImageLoader(image: image, imageHeight: 120.h,imageWidth: width*0.8,)
                     ),
                     Positioned(
-                      right: 10,
-                      top: 10,
-                      child: ClipRRect(
-                        borderRadius:
-                             BorderRadius.all(Radius.circular(50.r)),
-                        child: Container(
-                          color: kLightWhite,
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(50.r)),
-                              child: Image.network(
-                                logo,
-                                fit: BoxFit.cover,
-                                height: 20.h,
-                                width: 20.w,
+                        right: 10,
+                        top: 10,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: 60.h,
+                              height: 19.h,
+                              decoration: BoxDecoration(
+                                  color: isAvailable == true
+                                      ? kPrimary
+                                      : kLightWhite,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  )),
+                              child: Center(
+                                child: ReusableText(
+                                  text: isAvailable == true
+                                      ? "OPEN"
+                                      : "CLOSED",
+                                  style: appStyle(12, kWhite, FontWeight.bold),
+                                ),
                               ),
                             ),
-                          ),
+                            SizedBox(width: 10.w,),
+
+                            ClipRRect(
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(50.r)),
+                              child: Container(
+                                color: kLightWhite,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ClipRRect(
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(50.r)),
+                                    child: Image.network(
+                                      logo,
+                                      fit: BoxFit.cover,
+                                      height: 20.h,
+                                      width: 20.w,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    )
+                    ),
+
+
+                    Container(
+                      width: width*0.8,
+                      height: 120.h,
+                      decoration: const BoxDecoration(
+                          color: Colors.black12,
+                          borderRadius: BorderRadius.all(Radius.circular(12))),
+                    ),
                   ],
                 ),
               ),

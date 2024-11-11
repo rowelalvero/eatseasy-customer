@@ -18,6 +18,7 @@ FetchHook useFetchRecommendations(code, all) {
       if(all == true){
        url = Uri.parse('${Environment.appBaseUrl}/api/foods/recommendation/$code?all=true');
       }else{
+
        url = Uri.parse('${Environment.appBaseUrl}/api/foods/recommendation/$code');
       }
       final response = await http.get(url);

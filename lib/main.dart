@@ -32,11 +32,13 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: Environment.fileName);
+  print("Firing up Firebase");
   await Firebase.initializeApp(
-    name: 'eatseasy-food-apps',
+    // name: 'eatseasy-food-apps',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  print("Firebase Initialized");
+  await dotenv.load(fileName: Environment.fileName);
   FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
   await GetStorage.init();
   Get.put(CartController());

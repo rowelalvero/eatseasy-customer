@@ -20,9 +20,8 @@ class BackGroundContainer extends StatelessWidget {
 
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20.r),
-          topRight: Radius.circular(20.r),
+        borderRadius: BorderRadius.all(
+          Radius.circular(20.r),
         ),
         image: const DecorationImage(
             image: AssetImage('assets/images/restaurant_bk.png'),

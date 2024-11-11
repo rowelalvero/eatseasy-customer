@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:eatseasy/common/app_style.dart';
@@ -22,7 +23,7 @@ class VerificationPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
+      body: Center(child: BackGroundContainer(child: ListView(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         children: [
           SizedBox(
@@ -41,7 +42,7 @@ class VerificationPage extends StatelessWidget {
           SizedBox(
             height: 20.h,
           ),
-          
+
           OtpTextField(
             numberOfFields: 6,
             borderColor: kPrimary,
@@ -50,7 +51,7 @@ class VerificationPage extends StatelessWidget {
             textStyle: appStyle(17, kDark, FontWeight.bold),
             showFieldAsBox: false,
             borderWidth: 2.0,
-          
+
             onSubmit: (String verificationCode) {
               controller.code = verificationCode;
             },
@@ -86,18 +87,18 @@ class VerificationPage extends StatelessWidget {
                   child: ReusableText(
                       text: "Logout",
                       style: appStyle(12, kSecondary, FontWeight.w600))),
-              GestureDetector(
+              /*GestureDetector(
                 onTap: () {
                   userController.deleteAccount();
                 },
                 child: ReusableText(
                     text: "Delete account",
                     style: appStyle(12, kRed, FontWeight.w600)),
-              ),
+              ),*/
             ],
           )
         ],
-      ),
+      )),),
     );
   }
 }

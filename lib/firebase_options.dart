@@ -47,11 +47,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCDIsUWeG9zchh69KbUKdfih4N88ZMG1dA',
-    appId: '1:789801624091:android:5f4912aef56209c4a94ebe',
-    messagingSenderId: '789801624091',
-    projectId: 'eatseasy-food-apps',
-    storageBucket: 'eatseasy-food-apps.appspot.com',
+    apiKey: 'AIzaSyCFe-p5sps_1wuSI-bbxk9a3Z3pyjyRTW4',
+    appId: '1:1054069052055:android:89ba1dd785b27fc0e38fd2',
+    messagingSenderId: '1054069052055',
+    projectId: 'eatseasy-49a0d',
+    storageBucket: 'eatseasy-49a0d.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

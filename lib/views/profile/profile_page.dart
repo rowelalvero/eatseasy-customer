@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -22,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../controllers/location_controller.dart';
+import 'about_us.dart';
 
 class ProfilePage extends HookWidget {
   const ProfilePage({super.key});
@@ -39,192 +41,183 @@ class ProfilePage extends HookWidget {
     if (token != null) {
       user = controller.getUserData();
     }
-
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
     return token == null
         ? const LoginRedirection()
         : Scaffold(
-            appBar: AppBar(
-              backgroundColor: const Color(0xFFFFFFFF),
-              elevation: 0,
-              title: Container(
-                height: height * 0.06,
-                decoration: const BoxDecoration(color: Colors.white),
-                child: Column(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFFFFFF),
+        elevation: 0,
+        toolbarHeight: screenHeight * 0.1, // Dynamic toolbar height
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.grey.shade100,
+                  backgroundImage: NetworkImage(user!.profile),
+                  radius: 20, // Dynamic radius based on screen width
+                ),
+                SizedBox(width: screenWidth * 0.02),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              height: 35,
-                              width: 35,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.grey.shade100,
-                                backgroundImage:
-                                NetworkImage(user!.profile),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.username,
-                                    style: appStyle(
-                                        12, kGray, FontWeight.w600),
-                                  ),
-                                  Text(
-                                    user.email,
-                                    style: appStyle(
-                                        11, kGray, FontWeight.normal),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                            onTap: () {},
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 12.0.h),
-                              child: const Icon(Feather.settings, size: 18),
-                            )
-                        )
-                      ],
+                    Text(
+                      user.username,
+                      style: appStyle(16, kGray, FontWeight.w600),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      user.email,
+                      style: appStyle(16, kGray, FontWeight.normal),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
+              ],
+            ),
+            GestureDetector(
+              onTap: () {
+               /* Get.to(() => ProfileScreen(
+                    user: user, driverController: driverController.driver));*/
+              },
+              child: Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: const Icon(
+                  Feather.settings,
+                  size: 20, // Dynamic icon size
+                ),
               ),
             ),
-            body: SafeArea(
-              child: CustomContainer(
-                  containerContent: Column(
+          ],
+        ),
+      ),
+      body: Center(
+        child: BackGroundContainer(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              child: Column(
                 children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: 100.h,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        TilesWidget(
-                          onTap: () {
-                            Get.to(() => const ClientOrderPage());
-                          },
-                          title: "My Orders",
-                          leading: Feather.shopping_cart,
-                        ),
-                        TilesWidget(
-                          onTap: () {
-                            Get.to(() => const RatingReview());
-                          },
-                          title: "Reviews and rating",
-                          leading: Feather.message_circle,
-                        ),
-                      ],
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      Get.to(() => const ClientOrderPage());
+                    },
+                    child: const TilesWidget(
+                      title: "My orders",
+                      leading: MaterialCommunityIcons.pin_outline,
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: 150.h,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        TilesWidget(
-                          onTap: () {
-                            Get.to(() => SavedPlaces());
-                          },
-                          title: "Shipping addresses",
-                          leading: Feather.map_pin,
-                        ),
-                        TilesWidget(
-                          onTap: () {
-                            customerService(context, serviceNumber);
-                          },
-                          title: "Service Center",
-                          leading: AntDesign.customerservice,
-                        ),
-                        TilesWidget(
-                          title: "App Feedback",
-                          leading: Feather.pen_tool,
-                          onTap: () {
-                            BetterFeedback.of(context)
-                                .show((UserFeedback feedback) async {
-                              var url = feedback.screenshot;
-                              upload.feedbackFile.value = await upload
-                                  .writeBytesToFile(url, "feedback");
-
-                              String message = feedback.text;
-                              upload.uploadImageToFirebase(message);
-                            });
-                          },
-                        ),
-
-                      ],
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      Get.to(() => const RatingReview());
+                    },
+                    child: const TilesWidget(
+                      title: "Reviews and rating",
+                      leading: Feather.message_circle,
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: 45.h,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        TilesWidget(
-                          onTap: () {
-                            Get.to(() => const MessagePage());
-                          },
-                          title: "Chats",
-                          leading: Feather.message_square,
-                        ),
-
-
-                      ],
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      Get.to(() => const SavedPlaces());
+                    },
+                    child: const TilesWidget(
+                      title: "Saved places",
+                      leading: Feather.map_pin,
                     ),
                   ),
-
-                  const SizedBox(
-                    height: 10,
+                  SizedBox(height: screenHeight * 0.02),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      customerService(context, serviceNumber);
+                    },
+                    child: const TilesWidget(
+                      title: "Service Center",
+                      leading: AntDesign.customerservice,
+                    ),
                   ),
-                  Container(
-                    height: 45.h,
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        TilesWidget(
-                          onTap: () {
-                            controller.logout();
-                          },
-                          title: "Log out",
-                          leading: Feather.log_out,
-                        ),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      BetterFeedback.of(context)
+                          .show((UserFeedback feedback) async {
+                        var url = feedback.screenshot;
+                        upload.feedbackFile.value =
+                        await upload.writeBytesToFile(url, "feedback");
 
-
-                      ],
+                        String message = feedback.text;
+                        upload.uploadImageToFirebase(message);
+                      });
+                    },
+                    child: const TilesWidget(
+                      title: "App Feedback",
+                      leading: Feather.pen_tool,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      Get.to(() => const MessagePage());
+                    },
+                    child: const TilesWidget(
+                      title: "Chats",
+                      leading: Feather.message_square,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      Get.to(() => AboutUsScreen());
+                    },
+                    child: const TilesWidget(
+                      title: "About us",
+                      leading: Feather.message_square,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kRed, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
+                    onPressed: () {
+                      controller.logout();
+                    },
+                    child: const TilesWidget(
+                      title: "Log out",
+                      leading: Feather.log_out,
                     ),
                   ),
                 ],
-              )),
+              ),
             ),
-          );
+          ),
+        ),
+      ),
+    );
+
   }
 }

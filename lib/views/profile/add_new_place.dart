@@ -279,229 +279,163 @@ class _AddNewPlaceState extends State<AddNewPlace> {
           ),
         ),
       ),
-      /*appBar: AppBar(
-        automaticallyImplyLeading: false, // Disable default back button
-        backgroundColor: Colors.white, // Set background to white
-        elevation: 0, // Remove the shadow
-        title: Row(
-          children: [
-            // Back button
-            IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                Navigator.pop(context);
+      body: Center(
+        child: BackGroundContainer(
+          child: SizedBox(
+            height: height,
+            width: width,
+            child: PageView(
+              controller: _pageController,
+              pageSnapping: false,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                _pageController.jumpToPage(index);
               },
-            ),
-            // Spacer between back button and text field
-            Expanded(
-              child: Container(
-                height: 50, // Adjust the height as necessary
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Light grey background for text field
-                  borderRadius: BorderRadius.circular(30), // Rounded corners
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Enter a location",
-                    border: InputBorder.none, // Remove default borders
-                    contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                  ),
-                ),
-              ),
-            ),
-            // Right-side flag icon
-            Padding(
-              padding: const EdgeInsets.only(left: 10.0),
-              child: CircleAvatar(
-                backgroundImage: AssetImage('assets/images/philippines_flag.png'), // Replace with your image
-                radius: 15, // Adjust size as needed
-              ),
-            ),
-          ],
-        ),
-      ),*/
-      body: SizedBox(
-        height: height,
-        width: width,
-        child: PageView(
-          controller: _pageController,
-          pageSnapping: false,
-          physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (index) {
-            _pageController.jumpToPage(index);
-          },
-          children: [
-            Container(
-              color: kGrayLight,
-              width: width,
-              height: height,
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    onMapCreated: (GoogleMapController controller) {
-                      _mapController = controller;
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: _selectedLocation ?? const LatLng(37.77483, -122.41942), // Default location
-                      zoom: 15.0,
-                    ),
-                    markers: _selectedLocation == null
-                        ? Set.of([])
-                        : {
-                      /*Marker(
-                        markerId: const MarkerId('Your Location'),
-                        position: _selectedLocation!,
-                        draggable: false,
-                      )*/
-                    },
-                    onCameraMove: (position) {
-                      setState(() {
-                        _selectedLocation = position.target;
-                      });
-                    },
-                    onCameraIdle: () {
-                      if (_selectedLocation != null) {
-                        _onMarkerDragEnd(_selectedLocation!);
-                      }
-                    },
-                  ),
-                  const Center(
-                    child: Icon(
-                      Icons.location_pin,
-                      color: Colors.red,
-                      size: 40,
-                    ),
-                  ),
-                  Column(
+              children: [
+                Container(
+                  color: kGrayLight,
+                  width: width,
+                  height: height,
+                  child: Stack(
                     children: [
-                      _placeList.isEmpty
-                          ? const SizedBox.shrink()
-                          : Expanded(
-                              child: ListView(
-                                children: List.generate(
-                                  _placeList.length,
-                                  (index) {
-                                    return Container(
-                                      color: Colors.white,
-                                      child: ListTile(
-                                        visualDensity: VisualDensity.compact,
-                                        title: Text(
-                                            _placeList[index]['description']),
-                                        onTap: () {
-                                          _getPlaceDetail(
-                                              _placeList[index]['place_id']);
-                                          _selectedPlace.add(_placeList[index]);
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            )
+                      GoogleMap(
+                        onMapCreated: (GoogleMapController controller) {
+                          _mapController = controller;
+                        },
+                        initialCameraPosition: CameraPosition(
+                          target: _selectedLocation ?? const LatLng(37.77483, -122.41942), // Default location
+                          zoom: 15.0,
+                        ),
+                        markers: _selectedLocation == null
+                            ? Set.of([])
+                            : {
+                          /*Marker(
+                            markerId: const MarkerId('Your Location'),
+                            position: _selectedLocation!,
+                            draggable: false,
+                          )*/
+                        },
+                        onCameraMove: (position) {
+                          setState(() {
+                            _selectedLocation = position.target;
+                          });
+                        },
+                        onCameraIdle: () {
+                          if (_selectedLocation != null) {
+                            _onMarkerDragEnd(_selectedLocation!);
+                          }
+                        },
+                      ),
+                      const Center(
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.red,
+                          size: 40,
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          _placeList.isEmpty
+                              ? const SizedBox.shrink()
+                              : Expanded(
+                                  child: ListView(
+                                    children: List.generate(
+                                      _placeList.length,
+                                      (index) {
+                                        return Container(
+                                          color: Colors.white,
+                                          child: ListTile(
+                                            visualDensity: VisualDensity.compact,
+                                            title: Text(
+                                                _placeList[index]['description']),
+                                            onTap: () {
+                                              _getPlaceDetail(
+                                                  _placeList[index]['place_id']);
+                                              _selectedPlace.add(_placeList[index]);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                )
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            BackGroundContainer(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                children: [
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  _buildtextfield(
-                    hintText: "Name",
-                    controller: _name,
-                    onSubmitted: (value) {},
-                  ),
-                  _buildtextfield(
-                    hintText: "Postal Code",
-                    controller: _postalCodeRes,
-                    onSubmitted: (value) {},
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  _buildtextfield(
-                    hintText: "Address",
-                    controller: _searchController,
-                    onSubmitted: (value) {},
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  _buildtextfield(
-                    hintText: "Delivery Instructions",
-                    controller: _instructions,
-                    onSubmitted: (value) {},
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Set this address as default",
-                              style:
-                                  appStyle(12, kDark, FontWeight.w500)),
-                          Obx(() => Switch.adaptive(
-                            value: controller.defaultAddress,
-                            onChanged: (value) {
-                              controller.defaultAddress = value;
-                            },
-                            thumbColor: MaterialStateProperty. resolveWith<Color>((Set<MaterialState> states) {
-                              if (states. contains(MaterialState. disabled)) {
-                                return kPrimary. withOpacity(.48);
-                              }
-                              return kPrimary;
-                            }),
-                            activeColor: kCupertinoModalBarrierColor,
-                          ),),
+                ),
+                Center(
+                  child: BackGroundContainer(
+                    child: ListView(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      children: [
+                        SizedBox(
+                          height: 20.h,
+                        ),
+                        _buildtextfield(
+                          hintText: "Name",
+                          controller: _name,
+                          onSubmitted: (value) {},
+                        ),
+                        _buildtextfield(
+                          hintText: "Postal Code",
+                          controller: _postalCodeRes,
+                          onSubmitted: (value) {},
+                        ),
+                        SizedBox(
+                          height: 20.h,
+                        ),
+                        _buildtextfield(
+                          hintText: "Address",
+                          controller: _searchController,
+                          onSubmitted: (value) {},
+                        ),
+                        SizedBox(
+                          height: 20.h,
+                        ),
+                        _buildtextfield(
+                          hintText: "Delivery Instructions",
+                          controller: _instructions,
+                          onSubmitted: (value) {},
+                        ),
+                        SizedBox(
+                          height: 20.h,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12.0),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Set this address as default",
+                                    style:
+                                        appStyle(12, kDark, FontWeight.w500)),
+                                Obx(() => Switch.adaptive(
+                                  value: controller.defaultAddress,
+                                  onChanged: (value) {
+                                    controller.defaultAddress = value;
+                                  },
+                                  thumbColor: MaterialStateProperty. resolveWith<Color>((Set<MaterialState> states) {
+                                    if (states. contains(MaterialState. disabled)) {
+                                      return kPrimary. withOpacity(.48);
+                                    }
+                                    return kPrimary;
+                                  }),
+                                  activeColor: kCupertinoModalBarrierColor,
+                                ),),
 
-                        ]),
+                              ]),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
 
       bottomSheet: buildBottomSheet(context),
-      /*bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        surfaceTintColor: Colors.white,
-        shape: const CircularNotchedRectangle(),
-        height: 50,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              onTap: () {
-                getCurrentLocation();
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  const Icon(
-                    Icons.gps_fixed_sharp,
-                    color: kDark,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 10,),
-                  ReusableText(
-                      text: "Get my current location",
-                      style: appStyle(15, kDark, FontWeight.w400)),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),*/
     );
   }
   Widget buildBottomSheet(BuildContext context) {

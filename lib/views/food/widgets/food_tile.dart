@@ -1,3 +1,4 @@
+import 'package:eatseasy/models/restaurants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,11 +21,23 @@ class FoodTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+
       onTap: () {
-        Get.to(
-            () => FoodPage(
-                  food: food,
-                ));
+        if(food.isAvailable == true) {
+          Get.to(() => FoodPage(food: food));
+        } else if (food.isAvailable != true) {
+          Get.snackbar("Item sold out...",
+              "Please come and check later",
+              colorText: kDark,
+              backgroundColor: kOffWhite,
+              icon: const Icon(Icons.add_alert));
+        } else {
+          Get.snackbar("Restaurant is closed for now",
+              "Please come back later",
+              colorText: kDark,
+              backgroundColor: kOffWhite,
+              icon: const Icon(Icons.add_alert));
+        }
       },
 
       child: Stack(
@@ -140,7 +153,7 @@ class FoodTile extends StatelessWidget {
                   )),
               child: Center(
                 child: ReusableText(
-                  text: "\$ ${food.price.toString()}",
+                  text: "Php ${food.price.toString()}",
                   style: appStyle(12, kLightWhite, FontWeight.bold),
                 ),
               ),

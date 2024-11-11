@@ -122,10 +122,10 @@ class CategoryFoodTile extends StatelessWidget {
           ),
           Positioned(
             right: 5,
-            top: 6.h,
+            top: 6,
             child: Container(
-              width: 60.h,
-              height: 19.h,
+              width: 60,
+              height: 19,
               decoration: const BoxDecoration(
                   color: kPrimary,
                   borderRadius: BorderRadius.all(
@@ -133,18 +133,18 @@ class CategoryFoodTile extends StatelessWidget {
                   )),
               child: Center(
                 child: ReusableText(
-                  text: "\$ ${food.price.toString()}",
+                  text: "Php ${food.price.toString()}",
                   style: appStyle(12, kLightWhite, FontWeight.bold),
                 ),
               ),
             ),
           ),
           Positioned(
-              right: 70.h,
-              top: 6.h,
+              right: 70,
+              top: 6,
               child: Container(
-                width: 19.h,
-                height: 19.h,
+                width: 19,
+                height: 19,
                 decoration: const BoxDecoration(
                     color: kSecondary,
                     borderRadius: BorderRadius.all(Radius.circular(10))),

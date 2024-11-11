@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:eatseasy/views/cart/widgets/restaurant_cart_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -22,29 +23,28 @@ class RestaurantCartPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final box = GetStorage();
-    String? accessToken = box.read("token");
-    String? token = box.read('token');
+    final token = box.read('token');
 
     final hookResult = useFetchCart();
     final items = hookResult.data ?? [];
     final isLoading = hookResult.isLoading;
     final refetch = hookResult.refetch;
 
-    final restaurantHookResult = useFetchAllRestaurants("1400");
+    final restaurantHookResult = useFetchAllRestaurants("");
     final restaurants = restaurantHookResult.data ?? [];
 
-    if (accessToken != null) {
+    if (token != null) {
       useFetchDefault(context, false);
     }
+
     useEffect(() {
-      // Call refetch when the page is built
       refetch();
-      return null; // No cleanup needed
+      return null;
     }, []);
 
     return token == null
         ? const LoginRedirection()
-        : Scaffold(
+        :  Scaffold(
       appBar: AppBar(
         backgroundColor: kLightWhite,
         elevation: 0.3,
@@ -55,55 +55,54 @@ class RestaurantCartPage extends HookWidget {
           ),
         ),
       ),
-      body: SafeArea(
-        child: CustomContainer(
-          containerContent: RefreshIndicator(
-            color: kPrimary,
-            onRefresh: () async {
-              // Trigger refetch when the user pulls down to refresh
-              refetch();
-            },
-            child: Column(
-              children: [
-                isLoading
-                    ? const FoodsListShimmer()
-                    : Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 12.w, vertical: 10.h),
-                  width: width,
-                  height: height,
-                  color: kLightWhite,
-                  child: ListView.builder(
+      body: Center(
+        child: BackGroundContainer(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: SingleChildScrollView(
+                child: RefreshIndicator(
+                  color:  kPrimary,
+                  onRefresh: () async {
+                    refetch();
+                  },
+                  child: isLoading
+                      ? const Center(child:FoodsListShimmer())
+                      : items.isEmpty
+                      ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/no_content.png',
+                          height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+                          width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
+                          fit: BoxFit.contain,
+                        ),
+                        ReusableText(
+                          text: "Cart is empty, try to look for some awesome treats!",
+                          style: appStyle(14, kGray, FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                  )
+                      : ListView.builder(
                     padding: EdgeInsets.zero,
                     itemCount: restaurants.length,
+                    shrinkWrap: true, // Important for SingleChildScrollView
+                    physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, i) {
                       Restaurants restaurant = restaurants[i];
-
                       List<UserCart> matchingCarts = items.where((cart) => cart.restaurant == restaurant.id).toList();
 
                       if (matchingCarts.isNotEmpty) {
                         return RestaurantCartTile(restaurant: restaurant);
                       }
-
-                      if (items.isEmpty) {
-                        return Center(
-                          child: Image.asset(
-                            'assets/images/no_content.png',
-                            height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
-                            width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
-                            fit: BoxFit.contain,
-                          ),
-                        );
-                      }
-
-
-                      return const SizedBox(); // Return empty widget if no match
+                      return const SizedBox.shrink(); // Return empty widget if no match
                     },
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            )
         ),
       ),
     );

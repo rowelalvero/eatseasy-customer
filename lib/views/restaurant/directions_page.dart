@@ -164,7 +164,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
   }
   Future<void> _fetchDistance() async {
     Distance distanceCalculator = Distance();
-    distanceTime = distanceCalculator.calculateDistanceTimePrice(
+    distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         widget.restaurant.coords.latitude,
@@ -266,7 +266,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
                     RowText(
                         first: "Delivery fee",
                         second: distanceTime != null
-                            ? "\$ ${distanceTime!.price.toStringAsFixed(2)} km"
+                            ? "\Php ${distanceTime!.price.toStringAsFixed(2)} km"
                             : "Loading..."),
                     SizedBox(
                       height: 5.h,

@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:eatseasy/views/profile/widgets/address_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,20 +49,42 @@ class SavedPlaces extends HookWidget {
           style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            // Trigger refetch when the user pulls down to refresh
-            refetch();
-          },
-          child: isLoading
-              ? const FoodsListShimmer()
-              : CustomContainer(
-            containerContent: Container(
+      body: isLoading
+          ? const Center(child: BackGroundContainer(child: FoodsListShimmer()),)
+          : addresses.isEmpty
+          ? Center(
+          child: BackGroundContainer(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/no_content.png',
+                  height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+                  width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
+                  fit: BoxFit.contain,
+                ),
+                ReusableText(
+                  text:
+                  "Address list is empty, try to add one.",
+                  style: appStyle(14, kGray, FontWeight.normal),
+                ),
+              ],
+            ),
+          )
+      )
+          : Center(
+        child: BackGroundContainer(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              // Trigger refetch when the user pulls down to refresh
+              refetch();
+            },
+            child: isLoading
+                ? const FoodsListShimmer()
+                : Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              width: width,
               decoration: const BoxDecoration(
-                color: kOffWhite,
+                color: kWhite,
                 borderRadius: BorderRadius.all(Radius.circular(9)),
               ),
               child: ListView.builder(
@@ -79,7 +102,7 @@ class SavedPlaces extends HookWidget {
               ),
             ),
           ),
-        ),
+      ),
       ),
 
       bottomNavigationBar: BottomAppBar(

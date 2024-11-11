@@ -57,7 +57,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
       height: 110,
-      color: kOffWhite,
+      color: kWhite,
       child: Container(
         margin: const EdgeInsets.only(top: 20.0),
         child: Row(

@@ -44,7 +44,7 @@ class Distance {
       double lat1, double lon1, double lat2, double lon2, double speedKmPerHr, double pricePkm) async {
     String origin = "$lat1,$lon1";
     String destination = "$lat2,$lon2";
-    String googleApiKey = "AIzaSyB9uB41yBJl1leHrJuqLyADxwajSqgloI4";
+    String googleApiKey = "AIzaSyCBrZpYQFIWHQfgX4wvjzY5cC4JWDvu9XI";
 
     final String url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$googleApiKey';

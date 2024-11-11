@@ -43,7 +43,7 @@ class OrderTile extends StatelessWidget {
                   children: [
                     SizedBox(
                         height: 75.h,
-                        width: 80.h,
+                        width: 75.h,
                         child: Image.network(
                           food.imageUrl[0],
                           fit: BoxFit.cover,

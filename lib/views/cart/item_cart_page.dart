@@ -1,3 +1,4 @@
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:eatseasy/models/restaurants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -105,7 +106,7 @@ class ItemCartPage extends HookWidget {
 
     Future<void> fetchDistance() async {
       Distance distanceCalculator = Distance();
-      distanceTime.value = distanceCalculator.calculateDistanceTimePrice(
+      distanceTime.value = await distanceCalculator.calculateDistanceDurationPrice(
         controller.defaultAddress!.latitude,
         controller.defaultAddress!.longitude,
         restaurant.coords.latitude,
@@ -164,19 +165,17 @@ class ItemCartPage extends HookWidget {
         ),
       ),
       body:isLoading ? const FoodsListShimmer()
-          :SafeArea(
-        child: CustomContainer(
-          containerContent: Column(
-            children: [
-              const SizedBox(height: 10),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                color: kLightWhite,
-                child: Container(
+          :Center(
+        child: Padding(padding: EdgeInsets.only(bottom: height * 0.2), child: BackGroundContainer(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                Container(
                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  width: width,
                   decoration: const BoxDecoration(
-                      color: kOffWhite,
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.all(Radius.circular(9))),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,10 +199,19 @@ class ItemCartPage extends HookWidget {
                           padding: EdgeInsets.symmetric(vertical: 10.h),
                           child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                              width: width,
-                              decoration: const BoxDecoration(
-                                  color: kWhite,
-                                  borderRadius: BorderRadius.all(Radius.circular(9))),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: const BorderRadius.all(Radius.circular(9)),
+                                border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                                /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
+                              ),
                               child: Column(
                                 children: [
                                   ClipRRect(
@@ -234,7 +242,7 @@ class ItemCartPage extends HookWidget {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(controller.userAddress ?? "Provide an address to proceed ordering",
+                                            Text(controller.defaultAddress!.addressLine1,
                                                 style: const TextStyle(
                                                     fontWeight: FontWeight.bold, fontSize: 16)),
                                           ],
@@ -247,7 +255,7 @@ class ItemCartPage extends HookWidget {
                                         child: const Text('Edit'),
                                       ),
                                     ],
-                                  ),
+                                  )
                                 ],)
                           )
                       ),
@@ -267,9 +275,20 @@ class ItemCartPage extends HookWidget {
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
-                          decoration: const BoxDecoration(
-                              color: kWhite,
-                              borderRadius: BorderRadius.all(Radius.circular(9))),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(Radius.circular(9)),
+                            border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                            /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
+                          ),
                           child: // Priority Option
                           RadioListTile(
                             activeColor: kPrimary,
@@ -278,7 +297,7 @@ class ItemCartPage extends HookWidget {
                               children: [
 
                                 Text('Priority < ${standardDeliveryTime.value.toStringAsFixed(0)} mins'),
-                                Text('₱${(standardDeliveryPrice.value + 20).toStringAsFixed(2)}'),
+                                Text('Php ${(standardDeliveryPrice.value + 20).toStringAsFixed(2)}'),
                               ],
                             ),
                             subtitle: const Text('Shortest waiting time to get your order.'),
@@ -294,10 +313,20 @@ class ItemCartPage extends HookWidget {
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
-                          width: width,
-                          decoration: const BoxDecoration(
-                              color: kWhite,
-                              borderRadius: BorderRadius.all(Radius.circular(9))),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(Radius.circular(9)),
+                            border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                            /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
+                          ),
                           child: // Priority Option
                           // Standard Option
                           RadioListTile(
@@ -306,7 +335,7 @@ class ItemCartPage extends HookWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('Standard • ${standardDeliveryTime.value.toStringAsFixed(0)} mins'),
-                                Text('₱${standardDeliveryPrice.value.toStringAsFixed(2)}'),
+                                Text('Php ${standardDeliveryPrice.value.toStringAsFixed(2)}'),
                               ],
                             ),
                             value: 'Standard',
@@ -318,13 +347,24 @@ class ItemCartPage extends HookWidget {
                           ),
                         ),
                       ),
+                      standardDeliveryPrice.value > baseDeliveryFee ?
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
-                          width: width,
-                          decoration: const BoxDecoration(
-                              color: kWhite,
-                              borderRadius: BorderRadius.all(Radius.circular(9))),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(Radius.circular(9)),
+                            border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                            /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
+                          ),
                           child: // Priority Option
                           // Standard Option
                           RadioListTile(
@@ -333,7 +373,7 @@ class ItemCartPage extends HookWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('Saver • ${(standardDeliveryTime.value + 15).toStringAsFixed(0)} mins'),
-                                Text('₱${(standardDeliveryPrice.value - 10).toStringAsFixed(2)}'),
+                                Text('Php ${(standardDeliveryPrice.value - 10).toStringAsFixed(2)}'),
                               ],
                             ),
                             value: 'Saver',
@@ -344,14 +384,24 @@ class ItemCartPage extends HookWidget {
                             },
                           ),
                         ),
-                      ),
+                      ) : const SizedBox.shrink(),
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
-                          width: width,
-                          decoration: const BoxDecoration(
-                              color: kWhite,
-                              borderRadius: BorderRadius.all(Radius.circular(9))),
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(Radius.circular(9)),
+                            border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                            /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
+                          ),
                           child: // Priority Option
                           // Standard Option
                           RadioListTile(
@@ -360,7 +410,7 @@ class ItemCartPage extends HookWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Order for later'),
-                                Text('₱${(standardDeliveryPrice.value + 6).toStringAsFixed(2)}'),
+                                Text('Php ${(standardDeliveryPrice.value + 6).toStringAsFixed(2)}'),
                               ],
                             ),
                             value: 'Order for later',
@@ -460,240 +510,317 @@ class ItemCartPage extends HookWidget {
                           ),
                         ),
                       ),
+                      restaurant.pickup == true ?
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(Radius.circular(9)),
+                            border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                            /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
+                          ),
+                          child: // Priority Option
+                          // Standard Option
+                          RadioListTile(
+                            activeColor: kPrimary,
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Pick up'),
+                                Text('Php ${(standardDeliveryPrice.value + 6 ).toStringAsFixed(2)}'),
+                              ],
+                            ),
+                            value: 'Pick up',
+                            groupValue: selectedDeliveryOption.value,
+                            onChanged: (value) {
+                              selectDeliveryOption(value!);
+                              selectedDeliveryOption.value = value;
+                            },
+                          ),
+                        ),
+                      ) : const SizedBox.shrink(),
                     ],
                   ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                color: kLightWhite,
-                child: Container(
+                Container(
                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  width: width,
                   decoration: const BoxDecoration(
-                    color: kOffWhite,
-                    borderRadius: BorderRadius.all(Radius.circular(9)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Entypo.list,
-                            color: kDark,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 10),
-                          ReusableText(
-                            text: "Order summary",
-                            style: appStyle(20, kDark, FontWeight.w400),
-                          ),
-                        ],
-                      ),
-
-                      isLoading
-                          ? const FoodsListShimmer()
-                          : Container(
-                        decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(9))),
-
-                        child: ListView.builder(
-                          shrinkWrap: true, // Adjust height based on content
-                          physics: const NeverScrollableScrollPhysics(), // Disable scrolling to avoid nested scroll issues
-                          padding: EdgeInsets.zero, // Remove unnecessary padding
-                          itemCount: items.length,
-                          itemBuilder: (context, i) {
-                            UserCart cart = items[i];
-                            print(cart.customAdditives);
-                            if (cart.restaurant == restaurant.id) {
-                              OrderItem orderItem = OrderItem(
-                                foodId: cart.productId.id,
-                                additives: cart.additives,
-                                quantity: cart.quantity.toString(),
-                                price: cart.totalPrice.toStringAsFixed(2),
-                                instructions: cart.instructions,
-                                cartItemId: cart.id,
-                                customAdditives: cart.customAdditives
-                              );
-
-                              matchingCarts.add(orderItem);
-
-                              return CartTile(item: cart);
-                            } else {
-                              return Container();
-                            }
-                          },
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.all(Radius.circular(9))),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(Radius.circular(9)),
+                      border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                      /*boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                      spreadRadius: 1,  // Control how far the shadow extends
+                                      blurRadius: 8,  // Control how blurry the shadow is
+                                      offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                    ),
+                                  ],*/
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Entypo.list,
+                              color: kDark,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            ReusableText(
+                              text: "Order summary",
+                              style: appStyle(20, kDark, FontWeight.w400),
+                            ),
+                          ],
                         ),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          RowText(
-                            first: "Estimated delivery time",
-                            second:
-                            orderForLaterDelivery.value != 'Today'
-                          ? orderForLaterDelivery.value
-                          : distanceTime.value != null
-                                ? "${"${totalDeliveryOptionTime.value.toStringAsFixed(0)} - ${(totalDeliveryOptionTime.value + distanceTime.value!.time).toStringAsFixed(0)}" } mins."
-                                : "Loading...",
+
+                        isLoading
+                            ? const FoodsListShimmer()
+                            : Container(
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(9))),
+
+                          child: ListView.builder(
+                            shrinkWrap: true, // Adjust height based on content
+                            physics: const NeverScrollableScrollPhysics(), // Disable scrolling to avoid nested scroll issues
+                            padding: EdgeInsets.zero, // Remove unnecessary padding
+                            itemCount: items.length,
+                            itemBuilder: (context, i) {
+                              UserCart cart = items[i];
+                              print(cart.customAdditives);
+                              if (cart.restaurant == restaurant.id) {
+                                OrderItem orderItem = OrderItem(
+                                    foodId: cart.productId.id,
+                                    additives: cart.additives,
+                                    quantity: cart.quantity.toString(),
+                                    price: cart.totalPrice.toStringAsFixed(2),
+                                    instructions: cart.instructions,
+                                    cartItemId: cart.id,
+                                    customAdditives: cart.customAdditives
+                                );
+
+                                matchingCarts.add(orderItem);
+
+                                return CartTile(item: cart);
+                              } else {
+                                return Container();
+                              }
+                            },
                           ),
-                          RowText(
-                            first: "Delivery fee",
-                            second: distanceTime.value != null
-                                ? "\$ ${totalDeliveryOptionPrice.value.toStringAsFixed(2)}"
-                                : "Loading...",
-                          ),
-                          SizedBox(height: 5.h),
-                          RowText(
-                            first: "Subtotal",
-                            second: distanceTime.value != null
-                                ? "\$ ${orderSubTotal.value.toStringAsFixed(2)}"
-                                : "Loading...",
-                          ),
-                          const Divida(),
-                          SizedBox(height: 5.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Total: ",
-                                style: TextStyle(
-                                  color: kDark,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RowText(
+                              first: "Estimated delivery time",
+                              second:
+                              orderForLaterDelivery.value != 'Today'
+                                  ? orderForLaterDelivery.value
+                                  : distanceTime.value != null
+                                  ? "${"${totalDeliveryOptionTime.value.toStringAsFixed(0)} - ${(totalDeliveryOptionTime.value + distanceTime.value!.time).toStringAsFixed(0)}" } mins."
+                                  : "Loading...",
+                            ),
+                            RowText(
+                              first: "Delivery fee",
+                              second: distanceTime.value != null
+                                  ? "\Php ${totalDeliveryOptionPrice.value.toStringAsFixed(2)}"
+                                  : "Loading...",
+                            ),
+                            SizedBox(height: 5.h),
+                            RowText(
+                              first: "Subtotal",
+                              second: distanceTime.value != null
+                                  ? "\Php ${orderSubTotal.value.toStringAsFixed(2)}"
+                                  : "Loading...",
+                            ),
+                            const Divida(),
+                            SizedBox(height: 5.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Total: ",
+                                  style: TextStyle(
+                                    color: kDark,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                children: [
-                                  isLoading
-                                      ? Container()
-                                      : Padding(
-                                    padding: const EdgeInsets.all(0),
-                                    child: Text(
-                                      total.value % 1 == 0
-                                          ? " \$${total.value.toStringAsFixed(0)}"
-                                          : " \$${total.value.toStringAsFixed(2)}",
-                                      style: const TextStyle(
-                                        color: kDark,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
+                                Row(
+                                  children: [
+                                    isLoading
+                                        ? Container()
+                                        : Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Text(
+                                        total.value % 1 == 0
+                                            ? " Php ${total.value.toStringAsFixed(0)}"
+                                            : " Php ${total.value.toStringAsFixed(2)}",
+                                        style: const TextStyle(
+                                          color: kDark,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        // Rest of your widgets
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  decoration: const BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.all(Radius.circular(9))),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(Radius.circular(9)),
+                      border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                      /*boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                      spreadRadius: 1,  // Control how far the shadow extends
+                                      blurRadius: 8,  // Control how blurry the shadow is
+                                      offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                    ),
+                                  ],*/
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Entypo.wallet,
+                              color: kDark,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            ReusableText(
+                              text: "Payment method",
+                              style: appStyle(20, kDark, FontWeight.w400),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.all(Radius.circular(9)),
+                              border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                              /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
                                   ),
+                                ],*/
+                            ),
+                            child: // Priority Option
+                            // Standard Option
+                            RadioListTile(
+                              activeColor: kPrimary,
+                              title: const Row(
+                                children: [
+                                  Icon(
+                                    Entypo.wallet,
+                                    color: kDark,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text('Stripe'),
                                 ],
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      // Rest of your widgets
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                color: kLightWhite,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  width: width,
-                  decoration: const BoxDecoration(
-                    color: kOffWhite,
-                    borderRadius: BorderRadius.all(Radius.circular(9)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Entypo.wallet,
-                            color: kDark,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 10),
-                          ReusableText(
-                            text: "Payment method",
-                            style: appStyle(20, kDark, FontWeight.w400),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 10),
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          width: width,
-                          decoration: const BoxDecoration(
-                              color: kWhite,
-                              borderRadius: BorderRadius.all(Radius.circular(9))),
-                          child: // Priority Option
-                          // Standard Option
-                          RadioListTile(
-                            activeColor: kPrimary,
-                            title: const Row(
-                              children: [
-                                Icon(
-                                  Entypo.wallet,
-                                  color: kDark,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 10),
-                                Text('Stripe'),
-                              ],
+                              value: 'STRIPE',
+                              groupValue: selectedPaymentMethod.value,
+                              onChanged: (value) {
+                                //selectDeliveryOption(value!);
+                                selectedPaymentMethod.value = value!;
+                              },
                             ),
-                            value: 'STRIPE',
-                            groupValue: selectedPaymentMethod.value,
-                            onChanged: (value) {
-                              selectDeliveryOption(value!);
-                              selectedPaymentMethod.value = value;
-                            },
                           ),
                         ),
-                      ),
 
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          width: width,
-                          decoration: const BoxDecoration(
-                              color: kWhite,
-                              borderRadius: BorderRadius.all(Radius.circular(9))),
-                          child: // Priority Option
-                          // Standard Option
-                          RadioListTile(
-                            activeColor: kPrimary,
-                            title: const Row(
-                              children: [
-                                Icon(
-                                  Icons.money_rounded,
-                                  color: kDark,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 10),
-                                Text('Cash on delivery'),
-                              ],
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.all(Radius.circular(9)),
+                              border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
+                              /*boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
+                                    spreadRadius: 1,  // Control how far the shadow extends
+                                    blurRadius: 8,  // Control how blurry the shadow is
+                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
+                                  ),
+                                ],*/
                             ),
-                            value: 'COD',
-                            groupValue: selectedPaymentMethod.value,
-                            onChanged: (value) {
-                              selectDeliveryOption(value!);
-                              selectedPaymentMethod.value = value;
-                            },
+                            child: // Priority Option
+                            // Standard Option
+                            RadioListTile(
+                              activeColor: kPrimary,
+                              title: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.money_rounded,
+                                    color: kDark,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text('Cash on delivery'),
+                                ],
+                              ),
+                              value: 'COD',
+                              groupValue: selectedPaymentMethod.value,
+                              onChanged: (value) {
+                                //selectDeliveryOption(value!);
+                                selectedPaymentMethod.value = value!;
+                              },
+                            ),
                           ),
                         ),
-                      ),
-
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              )
-            ],
+              ],
+            ),
           ),
-        ),
+        ),),
       ),
-      bottomNavigationBar: ClipRRect(
+      bottomSheet: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)), // Adjust the radius value as needed
         child: BottomAppBar(
           color: Colors.white,
@@ -731,15 +858,15 @@ class ItemCartPage extends HookWidget {
                           ? Center(
                         child: LoadingAnimationWidget.threeArchedCircle(
                           color: kPrimary,
-                          size: width - 390,
+                          size: 35,
                         ),
                       )
                           : Padding(
                         padding: const EdgeInsets.all(0),
                         child: Text(
                           total.value % 1 == 0
-                              ? " \$${total.value.toStringAsFixed(0)}"
-                              : " \$${total.value.toStringAsFixed(2)}",
+                              ? " Php ${total.value.toStringAsFixed(0)}"
+                              : " Php ${total.value.toStringAsFixed(2)}",
                           style: const TextStyle(
                             color: kDark,
                             fontSize: 18,
@@ -769,8 +896,8 @@ class ItemCartPage extends HookWidget {
                       : orderController.isLoading
                       ? Center(
                     child: LoadingAnimationWidget.waveDots(
-                      color: kPrimary,
-                      size: 35
+                        color: kPrimary,
+                        size: 35
                     ),
                   )
                       : Expanded(
@@ -818,7 +945,6 @@ class ItemCartPage extends HookWidget {
                       },
                       radius: 24,
                       color: kPrimary,
-                      btnWidth: width * 0.90,
                       btnHieght: 50.h,
                       text: "Proceed to payment",
                     ),

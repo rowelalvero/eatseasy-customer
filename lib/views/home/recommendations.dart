@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +24,7 @@ class Recommendations extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hookResult = useFetchRecommendations("1400", true);
+    final hookResult = useFetchRecommendations("3023", true);
     final controller = Get.put(AddressController());
     final foods = hookResult.data;
     final isLoading = hookResult.isLoading;
@@ -48,13 +51,7 @@ class Recommendations extends HookWidget {
           style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
-      body: isLoading
-          ? const FoodsListShimmer()
-          : error != null
-          ? Center(child: Text('Error: ${error.toString()}'))
-          : (foods == null || foods.isEmpty)
-          ? const Center(child: Text('No recommendations available'))
-          : RefreshIndicator(
+      body: Center(child: BackGroundContainer(child: RefreshIndicator(
         color: kPrimary,
         onRefresh: () async {
           // Trigger the refetch function to reload the recommendations
@@ -62,12 +59,18 @@ class Recommendations extends HookWidget {
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-          child: ListView.builder(
+          child: isLoading
+              ? const FoodsListShimmer()
+              : error != null
+              ? Center(child: Text('Error: ${error.toString()}'))
+              : (foods == null || foods.isEmpty)
+              ? const Center(child: Text('No recommendations available'))
+              : ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: foods.length,
             itemBuilder: (context, i) {
               Food food = foods[i];
-              Restaurants restaurant = restaurants[i];
+              /*Restaurants restaurant = restaurants[i];
 
               Distance distanceCalculator = Distance();
               DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
@@ -81,12 +84,12 @@ class Recommendations extends HookWidget {
 
               if (distanceTime.distance > 10.0) {
                 return SizedBox.shrink();
-              }
+              }*/
               return FoodTile(food: food);
             },
           ),
         ),
-      ),
+      )),),
     );
   }
 }

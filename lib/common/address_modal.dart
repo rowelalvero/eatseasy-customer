@@ -7,8 +7,12 @@ import 'package:eatseasy/views/home/widgets/custom_btn.dart';
 import 'package:eatseasy/views/profile/add_new_place.dart';
 import 'package:get/get.dart';
 
+import '../controllers/address_controller.dart';
+
 Future<dynamic> showAddressSheet(BuildContext context) {
+  final controller = Get.put(AddressController());
     return showModalBottomSheet(
+      enableDrag: controller.defaultAddress != null ? true : false,
         backgroundColor: Colors.transparent,
         showDragHandle: true,
         barrierColor: kGrayLight.withOpacity(0.2),
@@ -18,11 +22,11 @@ Future<dynamic> showAddressSheet(BuildContext context) {
             height: 700.h,
             width: width,
             decoration: const BoxDecoration(
-                image: DecorationImage(
+                /*image: DecorationImage(
                     image: AssetImage(
                       "assets/images/restaurant_bk.png",
                     ),
-                    fit: BoxFit.fill),
+                    fit: BoxFit.fill),*/
                 color: kOffWhite,
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(12),
@@ -51,7 +55,7 @@ Future<dynamic> showAddressSheet(BuildContext context) {
                                 reasonsToAddAddress[index],
                                 textAlign: TextAlign.justify,
                                 style:
-                                    appStyle(12, kGrayLight, FontWeight.normal),
+                                    appStyle(12, kGray, FontWeight.normal),
                               ),
                               leading: const Icon(
                                 Icons.check_circle_outline,

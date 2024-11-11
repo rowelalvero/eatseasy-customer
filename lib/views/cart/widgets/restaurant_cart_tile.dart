@@ -11,6 +11,8 @@ import 'package:eatseasy/models/restaurants.dart';
 import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:get/get.dart';
 
+import '../../../common/address_modal.dart';
+import '../../../controllers/address_controller.dart';
 import '../item_cart_page.dart';
 
 class RestaurantCartTile extends StatelessWidget {
@@ -23,10 +25,15 @@ class RestaurantCartTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(AddressController());
     return GestureDetector(
       onTap: () {
-        Get.to(
-                () => ItemCartPage(restaurant: restaurant));
+        if(controller.defaultAddress != null) {
+          Get.to(() => ItemCartPage(restaurant: restaurant));
+        } else {
+          showAddressSheet(context);
+        }
+
       },
       child: Stack(
         clipBehavior: Clip.hardEdge,
@@ -34,7 +41,6 @@ class RestaurantCartTile extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(bottom: 8),
             height: 70,
-            width: width,
             decoration: const BoxDecoration(
                 color: kOffWhite,
                 borderRadius: BorderRadius.all(Radius.circular(9))),
@@ -48,8 +54,8 @@ class RestaurantCartTile extends StatelessWidget {
                     child: Stack(
                       children: [
                         SizedBox(
-                            height: 70.h,
-                            width: 70.w,
+                            height: 70,
+                            width: 85,
                             child: Image.network(
                               restaurant.imageUrl!,
                               fit: BoxFit.cover,
@@ -79,34 +85,35 @@ class RestaurantCartTile extends StatelessWidget {
                   const SizedBox(
                     width: 10,
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      ReusableText(
-                          text: restaurant.title!,
-                          style: appStyle(11, kDark, FontWeight.w400)),
-                      ReusableText(
-                          text: "Open hours: ${restaurant.time}",
-                          style: appStyle(9, kGray, FontWeight.w400)),
-                      // const SizedBox(
-                      //   height: 5,
-                      // ),
-                      SizedBox(
-                        width: width * 0.7,
-                        child: Text(
-                            restaurant.coords.address,
-                            overflow: TextOverflow.ellipsis,
+                  Expanded( // Wrap the Column inside Expanded to make it take up the remaining space
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        ReusableText(
+                            text: restaurant.title!,
+                            style: appStyle(11, kDark, FontWeight.w400)),
+                        ReusableText(
+                            text: "Open hours: ${restaurant.time}",
                             style: appStyle(9, kGray, FontWeight.w400)),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                    ],
-                  )
+                        Flexible( // Wrap address text in Flexible to adjust based on remaining space
+                          child: Text(
+                            restaurant.coords.address,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: appStyle(9, kGray, FontWeight.w400),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+
                 ],
               ),
             ),
