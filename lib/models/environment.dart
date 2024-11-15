@@ -11,18 +11,18 @@ class Environment {
   }
 
   static String get googleApiKey {
-    return dotenv.env['GOOGLE_API_KEY'] ?? 'API_KEY not found';
+    return 'AIzaSyCBrZpYQFIWHQfgX4wvjzY5cC4JWDvu9XI';
   }
 
    static String get googleApiKey2 {
-    return dotenv.env['GOOGLE_API_KEY2'] ?? 'API_KEY not found';
+    return 'AIzaSyCBrZpYQFIWHQfgX4wvjzY5cC4JWDvu9XI';
   }
 
     static String get appBaseUrl {
-    return dotenv.env['API_BASE_URL'] ?? 'API_BASE_URL not found';
+    return 'https://eatseasy-customer-partner-rider-backend-28fd.vercel.app';
   }
 
    static String get paymentUrl {
-    return dotenv.env['PAYMENT_URL'] ?? 'API_BASE_URL not found';
+    return 'https://eatseasy-payment-backend.vercel.app';
   }
 }

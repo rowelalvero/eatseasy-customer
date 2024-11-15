@@ -1,4 +1,5 @@
 import 'package:eatseasy/common/back_ground_container.dart';
+import 'package:eatseasy/views/profile/profile_screen.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -82,8 +83,8 @@ class ProfilePage extends HookWidget {
             ),
             GestureDetector(
               onTap: () {
-               /* Get.to(() => ProfileScreen(
-                    user: user, driverController: driverController.driver));*/
+                Get.to(() => ProfileScreen(
+                    user: user));
               },
               child: Padding(
                 padding: EdgeInsets.only(top: 8.h),
@@ -123,7 +124,7 @@ class ProfilePage extends HookWidget {
                       Get.to(() => const RatingReview());
                     },
                     child: const TilesWidget(
-                      title: "Reviews and rating",
+                      title: "Ratings",
                       leading: Feather.message_circle,
                     ),
                   ),
@@ -182,7 +183,7 @@ class ProfilePage extends HookWidget {
                     },
                     child: const TilesWidget(
                       title: "Chats",
-                      leading: Feather.message_square,
+                      leading: Feather.message_circle,
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.02),
@@ -218,6 +219,5 @@ class ProfilePage extends HookWidget {
         ),
       ),
     );
-
   }
 }

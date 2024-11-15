@@ -49,7 +49,12 @@ FetchHook useFetchDefault(BuildContext context, bool trigger) {
         controller.defaultAddress = address.value;
 
         controller.userAddress = ad.addressLine1;
-      } else {
+      }
+      if (response.statusCode != 200) {
+        print('Failed to load data from backend. Status Code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+      else {
         throw Exception('Failed to load data');
       }
     } catch (e) {

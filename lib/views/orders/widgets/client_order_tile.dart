@@ -73,15 +73,7 @@ class ClientOrderTile extends HookWidget {
 
     return GestureDetector(
       onTap: () {
-
-        if (order.orderStatus == "Delivered") {
-          Get.to(
-                  () => ReviewPage(
-                order: order,
-              ));
-        } else {
-          Get.to(() => TrackOrderPage(orderId: order.id));
-        }
+        Get.to(() => TrackOrderPage(order: order));
       },
       child: Stack(
         clipBehavior: Clip.hardEdge,
@@ -144,12 +136,29 @@ class ClientOrderTile extends HookWidget {
                       ReusableText(
                           text: order.orderItems[0].foodId.title,
                           style: appStyle(11, kDark, FontWeight.w400)),
-                      ReusableText(
-                          text:
-                              "Delivery time: ${order.orderItems[0].foodId.time}",
-                          style: appStyle(9, kGray, FontWeight.w400)),
                       const SizedBox(
                         height: 5,
+                      ),
+                      ReusableText(
+                          text:
+                          "ID: ${order.id}",
+                          style: appStyle(9, kGray, FontWeight.w400)),
+                      const SizedBox(
+                        height: 3,
+                      ),
+                      ReusableText(
+                          text:
+                          "Date: ${order.orderDate}",
+                          style: appStyle(9, kGray, FontWeight.w400)),
+                      const SizedBox(
+                        height: 3,
+                      ),
+                      ReusableText(
+                          text:
+                          "Status: ${order.paymentStatus}",
+                          style: appStyle(9, kGray, FontWeight.w400)),
+                      const SizedBox(
+                        height: 3,
                       ),
 
                       /*SizedBox(
@@ -202,7 +211,7 @@ class ClientOrderTile extends HookWidget {
             right: 5,
             top: 6,
             child: Container(
-              width: 60,
+              width: 70,
               height: 19,
               decoration: const BoxDecoration(
                   color: kPrimary,
@@ -211,7 +220,7 @@ class ClientOrderTile extends HookWidget {
                   )),
               child: Center(
                 child: ReusableText(
-                  text: "\Php ${order.grandTotal}",
+                  text: "\Php ${order.grandTotal.toStringAsFixed(2)}",
                   style: appStyle(12, kLightWhite, FontWeight.bold),
                 ),
               ),
@@ -219,7 +228,7 @@ class ClientOrderTile extends HookWidget {
           ),
           Positioned(
             right: 5,
-            bottom: 10,
+            bottom: 20,
             child: Container(
               width: 60,
               height: 19,
@@ -244,8 +253,8 @@ class ClientOrderTile extends HookWidget {
               ),
             ),
           ),
-          Positioned(
-              right: 70,
+          /*Positioned(
+              right: 80,
               top: 6,
               child: Container(
                 width: 19,
@@ -254,7 +263,9 @@ class ClientOrderTile extends HookWidget {
                     color: kSecondary,
                     borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    
+                  },
                   child: const Center(
                     child: Icon(
                       MaterialCommunityIcons.cart_plus,
@@ -263,7 +274,8 @@ class ClientOrderTile extends HookWidget {
                     ),
                   ),
                 ),
-              ))
+              )
+          )*/
         ],
       ),
     );

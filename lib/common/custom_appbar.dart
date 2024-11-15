@@ -69,11 +69,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
               children: [
                 Stack(
                   children: [
-                    CachedImageLoader(
+                    /*CachedImageLoader(
                       imageWidth: 50,
                       imageHeight:50,
                       image: profile,
-                    ),
+                    ),*/
                     Positioned(
                         child: userId != null
                             ? UpdatesWidget(id: jsonDecode(userId.toString()))
@@ -88,7 +88,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     children: [
                       ReusableText(
                           text: "Delivering to",
-                          style: appStyle(13, kSecondary, FontWeight.w600)),
+                          style: appStyle(16, kSecondary, FontWeight.w600)),
                       Obx(() => SizedBox(
                         width: width * 0.65,
                         child: Text(

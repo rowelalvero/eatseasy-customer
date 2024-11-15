@@ -18,6 +18,8 @@ class LoginResponse {
     final String userType;
     final String profile;
     final String userToken;
+    final String? validIdUrl;
+    final String? proofOfResidenceUrl;
 
     LoginResponse({
         required this.id,
@@ -29,6 +31,8 @@ class LoginResponse {
         required this.userType,
         required this.profile,
         required this.userToken,
+        required this.validIdUrl,
+        required this.proofOfResidenceUrl,
     });
 
     factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
@@ -41,6 +45,8 @@ class LoginResponse {
         userType: json["userType"],
         profile: json["profile"],
         userToken: json["userToken"],
+        validIdUrl: json["validIdUrl"],
+        proofOfResidenceUrl: json["proofOfResidenceUrl"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -53,5 +59,7 @@ class LoginResponse {
         "userType": userType,
         "profile": profile,
         "userToken": userToken,
+        "validIdUrl": validIdUrl,
+        "proofOfResidenceUrl": proofOfResidenceUrl,
     };
 }

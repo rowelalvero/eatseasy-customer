@@ -182,10 +182,8 @@ class OrderController extends GetxController {
       if (response.statusCode == 200) {
         getOrder = getOrderFromJson(response.body);
         print("The order status! ${_orderStatus.value}");
-        setLoading = false;
       } else {
         var data = apiErrorFromJson(response.body);
-        setLoading = false;
         Get.snackbar(data.message, "Failed to login, please try again",
             colorText: kLightWhite,
             backgroundColor: kRed,
@@ -194,6 +192,8 @@ class OrderController extends GetxController {
     } catch (e) {
       setLoading = false;
       debugPrint(e.toString());
+    } finally {
+      setLoading = false;
     }
   }
 }

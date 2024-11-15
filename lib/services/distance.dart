@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:eatseasy/models/distance_time.dart';
 
 import '../constants/constants.dart';
+import '../models/environment.dart';
 
 class Distance {
   DistanceTime calculateDistanceTimePrice(double lat1, double lon1, double lat2,
@@ -39,39 +41,50 @@ class Distance {
     return degree * pi / 180;
   }
 
-
   Future<DistanceTime?> calculateDistanceDurationPrice(
       double lat1, double lon1, double lat2, double lon2, double speedKmPerHr, double pricePkm) async {
-    String origin = "$lat1,$lon1";
-    String destination = "$lat2,$lon2";
     String googleApiKey = "AIzaSyCBrZpYQFIWHQfgX4wvjzY5cC4JWDvu9XI";
+    final box = GetStorage();
+    String token = box.read('token');
+    String accessToken = jsonDecode(token);
 
-    final String url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$googleApiKey';
+    if (token != null) {
+      accessToken = jsonDecode(token);
+    }
+    final String url = '${Environment.appBaseUrl}/api/address/directions'; // Call your backend here
 
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json", // Ensure you're sending the correct content type
+          'Authorization': 'Bearer $accessToken', // Include the Authorization header with the token
+        },
+        body: json.encode({
+          'originLat': lat1,
+          'originLng': lon1,
+          'destinationLat': lat2,
+          'destinationLng': lon2,
+          'googleApiKey': googleApiKey,
+        }),
+      );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
-        if ((data['routes'] as List).isNotEmpty) {
-          final route = data['routes'][0];
-
-          final leg = route['legs'][0];
-
-          // Extracting the distance and duration
-          final distanceText = leg['distance']['value'] / 1000; // in kilometers
-          final durationText = leg['duration']['value'] / 60; // in minutes
+        if (data['status'] == true) {
+          final distance = data['distance'].toDouble(); // in kilometers
+          final duration = data['duration'].toDouble(); // in minutes
 
           // Calculate price (distance * rate per km)
-          final price = (distanceText * pricePkm) + baseDeliveryFee;
+          final price = (distance * pricePkm) + baseDeliveryFee;
 
-
-          return DistanceTime(distance: distanceText, time: durationText, price: price);
+          return DistanceTime(distance: distance, time: duration, price: price);
+        } else {
+          print('Error: ${data['message']}');
         }
       } else {
-        print('Failed to load data from Google API');
+        print('Failed to load data from backend. Status Code: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
     } catch (e) {
       print('Error occurred: $e');
@@ -79,5 +92,6 @@ class Distance {
 
     return null;
   }
+
 }
 

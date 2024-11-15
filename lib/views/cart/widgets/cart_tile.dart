@@ -16,10 +16,7 @@ class CartTile extends HookWidget {
     required this.item,
     
   });
-
   final UserCart item;
-
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(CartController());
@@ -49,8 +46,8 @@ class CartTile extends HookWidget {
                     child: Stack(
                       children: [
                         SizedBox(
-                            height: 75.h,
-                            width: 75.h,
+                            height: 75,
+                            width: 85,
                             child: Image.network(
                               item.productId.imageUrl[0],
                               fit: BoxFit.cover,

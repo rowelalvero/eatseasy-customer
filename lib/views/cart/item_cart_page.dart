@@ -1,10 +1,10 @@
 import 'package:eatseasy/common/back_ground_container.dart';
+import 'package:eatseasy/models/login_response.dart';
 import 'package:eatseasy/models/restaurants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:eatseasy/common/app_style.dart';
-import 'package:eatseasy/common/custom_container.dart';
 import 'package:eatseasy/common/reusable_text.dart';
 import 'package:eatseasy/common/shimmers/foodlist_shimmer.dart';
 import 'package:eatseasy/constants/constants.dart';
@@ -13,7 +13,6 @@ import 'package:eatseasy/models/user_cart.dart';
 import 'package:eatseasy/views/auth/widgets/login_redirect.dart';
 import 'package:eatseasy/views/cart/widgets/cart_tile.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -29,14 +28,15 @@ import '../../models/order_item.dart';
 import '../../services/distance.dart';
 import '../home/widgets/custom_btn.dart';
 import '../orders/payment.dart';
+import '../profile/profile_screen.dart';
 import '../profile/saved_places.dart';
 import '../profile/add_new_place.dart';
 import '../restaurant/restaurants_page.dart'; // Import for using min function
 
 class ItemCartPage extends HookWidget {
-  const ItemCartPage({super.key, required this.restaurant});
+  const ItemCartPage({super.key, required this.restaurant, required this.user});
   final Restaurants restaurant;
-
+  final LoginResponse user;
   @override
   Widget build(BuildContext context) {
     final TextEditingController phone = TextEditingController();
@@ -641,7 +641,6 @@ class ItemCartPage extends HookWidget {
                                   ? "\Php ${totalDeliveryOptionPrice.value.toStringAsFixed(2)}"
                                   : "Loading...",
                             ),
-                            SizedBox(height: 5.h),
                             RowText(
                               first: "Subtotal",
                               second: distanceTime.value != null
@@ -830,17 +829,6 @@ class ItemCartPage extends HookWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () {},
-                child: RowText(
-                  first: "Phone ",
-                  second: phone.text.isEmpty
-                      ? "Tap to add a phone number before ordering"
-                      : phone.text,
-                ),
-              ),
-              SizedBox(height: 5.h),
-              const Divida(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -903,49 +891,53 @@ class ItemCartPage extends HookWidget {
                       : Expanded(
                     child: CustomButton(
                       onTap: () {
-                        if (distanceTime.value!.distance > 10.0) {
-                          Get.snackbar(
-                            colorText: kDark,
-                            backgroundColor: kOffWhite,
-                            "Distance Alert",
-                            "You are too far from the restaurant, please order from a restaurant closer to you ",
-                          );
-                          return;
+                        if(user.phoneVerification == false) {
+                          _showVerificationSheet(context);
                         } else {
-                          print(paymentMethod);
+                          if (distanceTime.value!.distance > 10.0) {
+                            Get.snackbar(
+                              colorText: kDark,
+                              backgroundColor: kOffWhite,
+                              "Distance Alert",
+                              "You are too far from the restaurant, please order from a restaurant closer to you ",
+                            );
+                            return;
+                          } else {
+                            print(paymentMethod);
 
-                          Order order = Order(
-                              userId: controller.defaultAddress!.userId,
-                              orderItems: matchingCarts,
-                              orderTotal: orderSubTotal.value.toStringAsFixed(2),
-                              restaurantAddress: restaurant.coords.address,
-                              restaurantCoords: [
-                                restaurant.coords.latitude,
-                                restaurant.coords.longitude,
-                              ],
-                              recipientCoords: [
-                                controller.defaultAddress!.latitude,
-                                controller.defaultAddress!.longitude,
-                              ],
-                              deliveryFee: totalDeliveryOptionPrice.value.toStringAsFixed(2),
-                              deliveryDate: deliveryDate,
-                              grandTotal: total.value.toStringAsFixed(0),
-                              deliveryAddress: controller.defaultAddress!.id,
-                              paymentMethod: paymentMethod,
-                              restaurantId: restaurant.id!,
-                              deliveryOption: deliveryOption
-                          );
+                            Order order = Order(
+                                userId: controller.defaultAddress!.userId,
+                                orderItems: matchingCarts,
+                                orderTotal: orderSubTotal.value.toStringAsFixed(2),
+                                restaurantAddress: restaurant.coords.address,
+                                restaurantCoords: [
+                                  restaurant.coords.latitude,
+                                  restaurant.coords.longitude,
+                                ],
+                                recipientCoords: [
+                                  controller.defaultAddress!.latitude,
+                                  controller.defaultAddress!.longitude,
+                                ],
+                                deliveryFee: totalDeliveryOptionPrice.value.toStringAsFixed(2),
+                                deliveryDate: deliveryDate,
+                                grandTotal: total.value.toStringAsFixed(0),
+                                deliveryAddress: controller.defaultAddress!.id,
+                                paymentMethod: paymentMethod,
+                                restaurantId: restaurant.id!,
+                                deliveryOption: deliveryOption
+                            );
 
-                          String orderData = orderToJson(order);
+                            String orderData = orderToJson(order);
 
-                          orderController.order = order;
+                            orderController.order = order;
 
-                          orderController.createOrder(orderData, order);
+                            orderController.createOrder(orderData, order);
+                          }
                         }
                       },
                       radius: 24,
                       color: kPrimary,
-                      btnHieght: 50.h,
+                      btnHieght: 50,
                       text: "Proceed to payment",
                     ),
                   ),
@@ -957,6 +949,74 @@ class ItemCartPage extends HookWidget {
       ),
     ),
     );
+  }
+  Future<dynamic> _showVerificationSheet(BuildContext context) {
+    return showModalBottomSheet(
+        enableDrag: false,
+        backgroundColor: Colors.transparent,
+        showDragHandle: true,
+        barrierColor: kGrayLight.withOpacity(0.2),
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 700,
+            width: width,
+            decoration: const BoxDecoration(
+              /*image: DecorationImage(
+                    image: AssetImage(
+                      "assets/images/restaurant_bk.png",
+                    ),
+                    fit: BoxFit.fill),*/
+                color: kOffWhite,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12))),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ReusableText(
+                      text: "Add Default Address",
+                      style: appStyle(20, kPrimary, FontWeight.bold)),
+                  SizedBox(
+                      height: 300,
+                      child: ListView.builder(
+                          itemCount: reasonsToAddAddress.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              visualDensity: VisualDensity.compact,
+                              minVerticalPadding: 0,
+                              title: Text(
+                                reasonsToAddAddress[index],
+                                textAlign: TextAlign.justify,
+                                style:
+                                appStyle(12, kGray, FontWeight.normal),
+                              ),
+                              leading: const Icon(
+                                Icons.check_circle_outline,
+                                color: kPrimary,
+                              ),
+                            );
+                          })),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  CustomButton(
+                      onTap: () {
+                        Get.to(() => ProfileScreen(user: user));
+                      },
+                      btnHieght: 40,
+                      text: "Proceed profile page"),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
 

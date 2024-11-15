@@ -15,18 +15,14 @@ class RatingController extends GetxController {
     rating = value;
     update();
   }
-
   double foodRating = 0.0;
-
   void updateFood(double value) {
     foodRating = value;
     update();
   }
 
   RxBool _isLoading = false.obs;
-
   bool get isLoading => _isLoading.value;
-
   set setLoading(bool newValue) {
     _isLoading.value = newValue;
   }

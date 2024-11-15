@@ -35,7 +35,7 @@ class RestaurantWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(right: 12),
         child: Container(
-          width: width * 0.75,
+          width: width * 0.15,
           height: 198.h,
           decoration: const BoxDecoration(
               color: kLightWhite,
@@ -58,8 +58,8 @@ class RestaurantWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Container(
-                              width: 60.h,
-                              height: 19.h,
+                              width: 60,
+                              height: 19,
                               decoration: BoxDecoration(
                                   color: isAvailable == true
                                       ? kPrimary
@@ -80,14 +80,14 @@ class RestaurantWidget extends StatelessWidget {
 
                             ClipRRect(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(50.r)),
+                              BorderRadius.all(Radius.circular(50)),
                               child: Container(
                                 color: kLightWhite,
                                 child: Padding(
                                   padding: const EdgeInsets.all(2.0),
                                   child: ClipRRect(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(50.r)),
+                                    BorderRadius.all(Radius.circular(50)),
                                     child: Image.network(
                                       logo,
                                       fit: BoxFit.cover,

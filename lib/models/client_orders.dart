@@ -21,6 +21,7 @@ class ClientOrders {
     final String paymentStatus;
     final String orderStatus;
     final String restaurantId;
+    final String orderDate;
 
     ClientOrders({
         required this.id,
@@ -35,6 +36,7 @@ class ClientOrders {
         required this.paymentStatus,
         required this.orderStatus,
         required this.restaurantId,
+        required this.orderDate,
     });
 
     factory ClientOrders.fromJson(Map<String, dynamic> json) => ClientOrders(
@@ -50,6 +52,7 @@ class ClientOrders {
         paymentStatus: json["paymentStatus"],
         orderStatus: json["orderStatus"],
         restaurantId: json["restaurantId"],
+        orderDate: json["orderDate"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -65,6 +68,7 @@ class ClientOrders {
         "paymentStatus": paymentStatus,
         "orderStatus": orderStatus,
         "restaurantId": restaurantId,
+        "orderDate": orderDate,
     };
 }
 

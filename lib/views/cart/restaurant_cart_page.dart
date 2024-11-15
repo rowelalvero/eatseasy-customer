@@ -2,19 +2,20 @@ import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:eatseasy/views/cart/widgets/restaurant_cart_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:eatseasy/common/app_style.dart';
-import 'package:eatseasy/common/custom_container.dart';
 import 'package:eatseasy/common/reusable_text.dart';
 import 'package:eatseasy/common/shimmers/foodlist_shimmer.dart';
 import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/hooks/fetchCart.dart';
 import 'package:eatseasy/models/user_cart.dart';
 import 'package:eatseasy/views/auth/widgets/login_redirect.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../../controllers/login_controller.dart';
 import '../../hooks/fetchAllNearbyRestaurants.dart';
 import '../../hooks/fetchDefaultAddress.dart';
+import '../../models/login_response.dart';
 import '../../models/restaurants.dart';
 
 class RestaurantCartPage extends HookWidget {
@@ -24,6 +25,11 @@ class RestaurantCartPage extends HookWidget {
   Widget build(BuildContext context) {
     final box = GetStorage();
     final token = box.read('token');
+    final controller = Get.put(LoginController());
+    LoginResponse? user;
+    if (token != null) {
+      user = controller.getUserData();
+    }
 
     final hookResult = useFetchCart();
     final items = hookResult.data ?? [];
@@ -95,7 +101,7 @@ class RestaurantCartPage extends HookWidget {
                       List<UserCart> matchingCarts = items.where((cart) => cart.restaurant == restaurant.id).toList();
 
                       if (matchingCarts.isNotEmpty) {
-                        return RestaurantCartTile(restaurant: restaurant);
+                        return RestaurantCartTile(restaurant: restaurant, user: user!);
                       }
                       return const SizedBox.shrink(); // Return empty widget if no match
                     },

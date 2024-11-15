@@ -87,14 +87,15 @@ class VerificationPage extends StatelessWidget {
                   child: ReusableText(
                       text: "Logout",
                       style: appStyle(12, kSecondary, FontWeight.w600))),
-              /*GestureDetector(
+GestureDetector(
                 onTap: () {
                   userController.deleteAccount();
                 },
                 child: ReusableText(
                     text: "Delete account",
                     style: appStyle(12, kRed, FontWeight.w600)),
-              ),*/
+              ),
+
             ],
           )
         ],

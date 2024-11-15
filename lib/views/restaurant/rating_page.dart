@@ -21,8 +21,7 @@ class RatingPage extends HookWidget {
   final Restaurants restaurant;
   @override
   Widget build(BuildContext context) {
-    final hookResult =
-        useFetchRating("?product=${restaurant.id}&ratingType=Restaurant");
+    final hookResult = useFetchRating("?product=${restaurant.id}&ratingType=Restaurant");
     SuccessResponse? ratingExistence = hookResult.data;
     final isLoading = hookResult.isLoading;
     final refetch = hookResult.refetch;

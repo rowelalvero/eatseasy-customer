@@ -540,42 +540,45 @@ class _FoodPageState extends State<FoodPage> {
                             if (token == null) {
                               Get.to(() => const Login());
                             } else {
+                              if (isThisProductInCart.value) {
 
-                              if (restaurant!.isAvailable) {
-                                if (widget.food.isAvailable == true || restaurant.isAvailable) {
-                                  double totalPrice = (widget.food.price +
-                                      foodController.additiveTotalCustom) *
-                                      counterController.count.toDouble();
+                              } else {
+                                if (restaurant!.isAvailable) {
+                                  if (widget.food.isAvailable == true || restaurant.isAvailable) {
+                                    double totalPrice = (widget.food.price +
+                                        foodController.additiveTotalCustom) *
+                                        counterController.count.toDouble();
 
-                                  ToCart item = ToCart(
-                                    productId: widget.food.id,
-                                    instructions: _preferences.text,
-                                    //additives: foodController.getList(),
-                                    quantity: counterController.count.toInt(),
-                                    totalPrice: totalPrice,
-                                    prepTime: widget.food.time!,
-                                    restaurant: widget.food.restaurant!,
-                                    customAdditives: foodController.userResponses,
-                                  );
+                                    ToCart item = ToCart(
+                                      productId: widget.food.id,
+                                      instructions: _preferences.text,
+                                      //additives: foodController.getList(),
+                                      quantity: counterController.count.toInt(),
+                                      totalPrice: totalPrice,
+                                      prepTime: widget.food.time!,
+                                      restaurant: widget.food.restaurant!,
+                                      customAdditives: foodController.userResponses,
+                                    );
 
-                                  String cart = toCartToJson(item);
+                                    String cart = toCartToJson(item);
 
-                                  await cartController.addToCart(cart);
-                                  print(cart);
-                                  cartHookResult.refetch();
+                                    await cartController.addToCart(cart);
+                                    print(cart);
+                                    cartHookResult.refetch();
+                                  } else {
+                                    Get.snackbar("Item unavailable",
+                                        "Please come and check later",
+                                        colorText: kDark,
+                                        backgroundColor: kOffWhite,
+                                        icon: const Icon(Icons.add_alert));
+                                  }
                                 } else {
-                                  Get.snackbar("Item unavailable",
+                                  Get.snackbar("Restaurant is closed for now",
                                       "Please come and check later",
                                       colorText: kDark,
                                       backgroundColor: kOffWhite,
                                       icon: const Icon(Icons.add_alert));
                                 }
-                              } else {
-                                Get.snackbar("Restaurant is closed for now",
-                                    "Please come and check later",
-                                    colorText: kDark,
-                                    backgroundColor: kOffWhite,
-                                    icon: const Icon(Icons.add_alert));
                               }
                             }
 

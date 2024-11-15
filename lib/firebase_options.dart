@@ -64,12 +64,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAE7Qcw38zQuDhjQigWSyd-Qr1tDCwnDuE',
-    appId: '1:789801624091:web:4a7d4ad51df1866ea94ebe',
-    messagingSenderId: '789801624091',
-    projectId: 'eatseasy-food-apps',
-    authDomain: 'eatseasy-food-apps.firebaseapp.com',
-    storageBucket: 'eatseasy-food-apps.appspot.com',
+    apiKey: "AIzaSyD0qJ8g9xMPeYh-rFGmgYjBTCezWWwy6AY",
+    authDomain: "eatseasy-49a0d.firebaseapp.com",
+    projectId: "eatseasy-49a0d",
+    storageBucket: "eatseasy-49a0d.firebasestorage.app",
+    messagingSenderId: "1054069052055",
+    appId: "1:1054069052055:web:edf17a48746c5547e38fd2"
   );
 
 }

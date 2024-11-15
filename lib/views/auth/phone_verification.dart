@@ -23,6 +23,8 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => controller.isLoading == false
+
+
         ? _buildPhoneVerificationWidget()
         : _buildLoadingWidget(context));
   }

@@ -147,12 +147,12 @@ class OrderPage extends HookWidget {
                             ],
                           ),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           RowText(
                               first: "Business Hours", second: restaurant.time),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           const Divida(),
                           RowText(
@@ -162,7 +162,7 @@ class OrderPage extends HookWidget {
                                 : "Loading...",
                           ),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           RowText(
                             first: "Delivery fee",
@@ -171,7 +171,7 @@ class OrderPage extends HookWidget {
                                 : "Loading...",
                           ),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           RowText(
                               first: "Estimated Delivery Time",
@@ -180,22 +180,22 @@ class OrderPage extends HookWidget {
                                   : "Loading..."
                           ),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           RowText(
                               first: "Subtotal", second: "\$ ${item.price}"),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           RowText(
                               first: "Total",
                               second: "\$ ${grandPrice.value.toStringAsFixed(2)}"),
                           SizedBox(
-                            height: 10.h,
+                            height: 10,
                           ),
                           const Divida(),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -220,7 +220,7 @@ class OrderPage extends HookWidget {
                             ],
                           ),
                           SizedBox(
-                            height: 5.h,
+                            height: 5,
                           ),
                           GestureDetector(
                             onTap: () {
@@ -247,7 +247,7 @@ class OrderPage extends HookWidget {
                           radius: 9,
                           color: kPrimary,
                           btnWidth: width * 0.95,
-                          btnHieght: 34.h,
+                          btnHieght: 34,
                           text: "Add Default Address",
                         )
                       : orderController.isLoading
@@ -296,7 +296,7 @@ class OrderPage extends HookWidget {
                               radius: 9,
                               color: kPrimary,
                               btnWidth: width * 0.95,
-                              btnHieght: 44.h,
+                              btnHieght: 44,
                               text: "P R O C E E D  T O  P A Y M E N T",
                             ),
                 ],

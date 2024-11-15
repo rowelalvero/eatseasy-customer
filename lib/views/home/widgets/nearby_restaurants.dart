@@ -76,7 +76,7 @@ class NearbyRestaurants extends HookWidget {
                 time: restaurant.time,
                 logo: restaurant.logoUrl ?? 'default_logo_url',
                 ratingBarCount: restaurant.rating,
-                rating: "${restaurant.ratingCount ?? 0} reviews and ratings",
+                rating: "${restaurant.ratingCount ?? 0} ratings",
                 onTap: () {
                   if (restaurant.isAvailable == true) {
                     location.setLocation(LatLng(restaurant.coords.latitude, restaurant.coords.longitude));
@@ -114,7 +114,7 @@ class NearbyRestaurants extends HookWidget {
               time: restaurant.time,
               logo: restaurant.logoUrl ?? 'default_logo_url',
               ratingBarCount: restaurant.rating,
-              rating: "${restaurant.ratingCount ?? 0} reviews and ratings",
+              rating: "${restaurant.ratingCount ?? 0} ratings",
               onTap: () {
                 if (restaurant.isAvailable == true) {
                   location.setLocation(LatLng(restaurant.coords.latitude, restaurant.coords.longitude));

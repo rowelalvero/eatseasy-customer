@@ -18,6 +18,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../views/auth/phone_verification.dart';
+
 class LoginController extends GetxController {
   final controller = Get.put(NotificationsController());
   final box = GetStorage();
@@ -99,9 +101,9 @@ class LoginController extends GetxController {
         }else{
           print("docs---exist");
         }
-
+        Get.offAll(() => MainScreen());
         if (data.verification == false) {
-          Get.offAll(() => const VerificationPage());
+          Get.offAll(() => const PhoneVerificationPage());
         } else {
           Get.offAll(() => MainScreen());
         }

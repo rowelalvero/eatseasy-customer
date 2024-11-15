@@ -5,6 +5,7 @@ import 'package:eatseasy/constants/constants.dart';
 class EmailTextField extends StatelessWidget {
   const EmailTextField({
     Key? key,
+    this.isEnabled,
     this.prefixIcon,
     this.keyboardType,
     this.onEditingComplete,
@@ -13,6 +14,7 @@ class EmailTextField extends StatelessWidget {
     this.focusNode, this.initialValue,
   }) : super(key: key);
   final String? hintText;
+  final bool? isEnabled;
   final Widget? prefixIcon;
   final TextInputType? keyboardType;
   final void Function()? onEditingComplete;
@@ -24,6 +26,7 @@ class EmailTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
         cursorColor: kDark,
+        enabled: isEnabled,
         textInputAction: TextInputAction.next,
         onEditingComplete: onEditingComplete,
         keyboardType: keyboardType,
@@ -38,7 +41,7 @@ class EmailTextField extends StatelessWidget {
         },
         style: appStyle(12, kDark, FontWeight.normal),
         decoration: InputDecoration(
-          hintText: hintText,
+          labelText: hintText,
           prefixIcon: prefixIcon,
           isDense: true,
           contentPadding: const EdgeInsets.all(6),

@@ -21,6 +21,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 
 import '../../controllers/address_controller.dart';
 
@@ -38,12 +39,12 @@ class _DirectionsPageState extends State<DirectionsPage> {
   List<LatLng> polylineCoordinates = [];
   Map<PolylineId, Polyline> polylines = {};
   Placemark? place;
-  String googleApiKey = "AIzaSyB9uB41yBJl1leHrJuqLyADxwajSqgloI4";
-  late GoogleMapController mapController;
+  final Completer<GoogleMapController> _controller =
+  Completer<GoogleMapController>();
   LatLng _center = const LatLng(45.521563, -122.677433);
 
   final box =  GetStorage();
-  String accessToken = "";
+
   DistanceTime? distanceTime;
   final controller = Get.put(AddressController());
   double totalTime = 30;
@@ -55,10 +56,6 @@ class _DirectionsPageState extends State<DirectionsPage> {
     super.initState();
     _determinePosition();
     _fetchDistance();
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
   }
 
   Future<void> _determinePosition() async {
@@ -101,23 +98,21 @@ class _DirectionsPageState extends State<DirectionsPage> {
   Future<void> _getCurrentLocation() async {
     var currentLocation = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
-    setState(() {
+    setState(() async {
       //_center = LatLng(currentLocation.latitude, currentLocation.longitude);
       _center = LatLng(controller.defaultAddress!.latitude,
           controller.defaultAddress!.longitude);
-      mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: _center,
-          zoom: 15.0,
-        ),
-      ));
+      CameraPosition _kGooglePlex = CameraPosition(
+        target: LatLng(53, 10),
+        zoom: 14.4746,
+      );
 
       _addMarker(_center, "You", widget.restaurant.imageUrl);
       _addMarker(
           LatLng(widget.restaurant.coords.latitude,
               widget.restaurant.coords.longitude),
           widget.restaurant.title.toString(), widget.restaurant.imageUrl);
-      _getPolyline();
+      await _getPolyline();
     });
   }
 
@@ -133,34 +128,96 @@ class _DirectionsPageState extends State<DirectionsPage> {
     });
   }
 
-  _getPolyline() async {
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleApiKey: Environment.googleApiKey,
-      request: PolylineRequest(
-        origin: PointLatLng(_center.latitude, _center.longitude),
-        destination: PointLatLng(widget.restaurant.coords.latitude,
-            widget.restaurant.coords.longitude),
-        mode: TravelMode.driving,
-        optimizeWaypoints: true,
-      ),
-    );
-    if (result.points.isNotEmpty) {
-      for (var point in result.points) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+  Future<void> _getPolyline() async {
+    final String url = '${Environment.appBaseUrl}/api/address/getPolyline';
+    String token = box.read('token');
+    String accessToken = jsonDecode(token);
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          'originLat': _center.latitude.toString(),
+          'originLng': _center.longitude.toString(),
+          'destinationLat': widget.restaurant.coords.latitude.toString(),
+          'destinationLng': widget.restaurant.coords.longitude.toString(),
+          'googleApiKey': Environment.googleApiKey,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == true) {
+          final polyline = data['polyline']; // Assume this is an encoded polyline string
+          polylineCoordinates.clear();
+
+          // Decode the polyline string and add all points to the list
+          polylineCoordinates.addAll(decodePolyline(polyline));
+
+          _addPolyLine(); // Draws the polyline on the map
+        } else {
+          print('Error: ${data['message']}');
+        }
+      } else {
+        print('Failed to load polyline data from backend, status code: ${response.statusCode}');
       }
-    } else {
-      print(result.errorMessage);
+    } catch (e) {
+      print('Error occurred: $e');
     }
-    _addPolyLine();
   }
 
-  _addPolyLine() {
-    PolylineId id = const PolylineId("poly");
-    Polyline polyline = Polyline(
-        polylineId: id, color: Colors.lightGreen, points: polylineCoordinates, width: 6);
-    polylines[id] = polyline;
 
+// Function to decode polyline (assuming it's a string of encoded points)
+  List<LatLng> decodePolyline(String encodedPolyline) {
+    var points = <LatLng>[];
+    int index = 0, len = encodedPolyline.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int result = 0, shift = 0;
+      int b;
+      do {
+        b = encodedPolyline.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lat += dLat;
+
+      result = shift = 0;
+      do {
+        b = encodedPolyline.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lng += dLng;
+
+      points.add(LatLng(lat / 1e5, lng / 1e5));
+    }
+
+    return points;
+  }
+
+
+  _addPolyLine() {
+    PolylineId id = const PolylineId("route");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.blueAccent,
+      points: polylineCoordinates,
+      width: 5,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      patterns: [PatternItem.dash(20), PatternItem.gap(10)], // Optional styles
+    );
+    polylines[id] = polyline;
     setState(() {});
+
   }
   Future<void> _fetchDistance() async {
     Distance distanceCalculator = Distance();
@@ -207,13 +264,15 @@ class _DirectionsPageState extends State<DirectionsPage> {
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
               target: restaurant,
               zoom: 30.0,
             ),
             markers: Set<Marker>.of(markers.values),
             polylines: Set<Polyline>.of(polylines.values),
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
           ),
           Positioned(
             bottom: 0,

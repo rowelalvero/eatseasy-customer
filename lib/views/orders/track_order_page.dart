@@ -1,37 +1,53 @@
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:food_icons/food_icons.dart';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../common/app_style.dart';
 import '../../common/divida.dart';
 import '../../common/reusable_text.dart';
+import '../../common/show_snack_bar.dart';
 import '../../constants/constants.dart';
 import '../../controllers/driverId_controller.dart';
+import '../../controllers/driver_contact_controller.dart';
 import '../../controllers/order_controller.dart';
+import '../../hooks/fetchDriver.dart';
+import '../../hooks/fetchDriverId.dart';
+import '../../hooks/fetchRating.dart';
+import '../../models/client_orders.dart';
 import '../../models/distance_time.dart';
 import '../../models/environment.dart';
+import '../../models/order_details.dart';
+import '../../models/response_model.dart';
+import '../../models/sucess_model.dart';
 import '../../services/distance.dart';
 import '../home/widgets/custom_btn.dart';
+import '../restaurant/rating_page.dart';
 import '../restaurant/restaurants_page.dart';
+import '../reviews/review_page.dart';
 
-class TrackOrderPage extends StatefulWidget {
-  const TrackOrderPage({super.key, required this.orderId });
-  final String orderId;
+class TrackOrderPage extends StatefulHookWidget {
+  const TrackOrderPage({super.key, required this.order });
+  final ClientOrders order;
   @override
   State<TrackOrderPage> createState() => _TrackOrderPageState();
 }
 
 class _TrackOrderPageState extends State<TrackOrderPage> {
+  final box = GetStorage();
   final controller = Get.put(OrderController());
+  final DriverContactController driverContactController = Get.put(DriverContactController());
   //final driverController = Get.put(DriverController());
 
   GoogleMapController? mapController;
@@ -47,6 +63,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
   late LatLng _restaurant;
   late LatLng _client;
   late LatLng _rider;
+
 
   @override
   void initState() {
@@ -69,17 +86,12 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     await _trackRiderLocation();
   }
 
-  /*Future<void> _fetchDriverLocationAndOrderStatus() async {
-    //await driverController.fetchDriverData(widget.orderId);
-    await driverController.fetchOrderStatus(widget.orderId);
-  }*/
-
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
   Future<void> _getOrderData() async {
-    await controller.getOrderDetails(widget.orderId);
+    await controller.getOrderDetails(widget.order.id);
   }
 
   Future<void> _initializeCoordinates() async {
@@ -101,7 +113,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
   }
 
   Future<void> _trackRiderLocation() async {
-    _trackPositionStream = Stream.periodic(const Duration(seconds: 15)).asyncMap((_) async {
+    _trackPositionStream = Stream.periodic(const Duration(seconds: 5)).asyncMap((_) async {
       await _getOrderData();
       controller.updateOrderStatus(controller.getOrder!.orderStatus!);
 
@@ -130,6 +142,12 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               fetchDistance1();
             } else if (controller.getOrder!.driverId != null) {
               fetchDistance2();
+            }
+            if (controller.getOrder!.orderStatus == 'Delivered') {
+              final hookResult = useFetchRating("?product=${controller.getOrder!.driverId!.id}&ratingType=Driver");
+              SuccessResponse? ratingExistence = hookResult.data;
+              final isLoading = hookResult.isLoading;
+              final refetch = hookResult.refetch;
             }
           });
         }
@@ -251,9 +269,50 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     if (mounted) setState(() {});
   }
 
+  Future<ResponseModel> loadData() async {
+    //prepare the contact list for this user.
+    //get the restaurant info from the firebase
+    //get only one restaurant info
+    return driverContactController.asyncLoadSingleDriver();
+  }
+
+  void loadChatData ()async{
+    ResponseModel response = await loadData();
+    if(response.isSuccess==false){
+      showCustomSnackBar(response.message!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return controller.isLoading
+    var driverData;
+    final driverId = controller.getOrder?.driverId?.driver?.id;
+    if (driverId != null) {
+      final hookResult = useFetchDriver(driverId);
+      driverData = hookResult.data;
+      final load = hookResult.isLoading;
+
+      if (load == false) {
+        driverData = hookResult.data;
+
+        if (driverData != null) {
+          // Encoding to JSON string
+          String jsonString = jsonEncode(driverData);
+
+          // Decoding the JSON string back to Map
+          Map<String, dynamic> resData = jsonDecode(jsonString);
+
+          // Assigning the restaurant ID to the controller state
+          driverContactController.state.driverId.value = resData["_id"];
+
+          // Load chat data
+          loadChatData();
+        } else {
+          print("restaurantData is null");
+        }
+      }
+    }
+    return controller.isLoading || driverData == null
         ? Center(
       child: SizedBox(
           width: 150,
@@ -272,7 +331,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             elevation: 0.3,
             centerTitle: true,
             title: ReusableText(
-              text: widget.orderId,
+              text: widget.order.id,
               style: appStyle(20, kDark, FontWeight.w400),
             ),
           ),
@@ -324,6 +383,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                             ScrollController(),
                             MediaQuery.of(context).size.width,
                             controller,
+                              driverData
                           ),
                         );
                       },
@@ -340,7 +400,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             backgroundColor: kLightWhite,
             centerTitle: true,
             title: ReusableText(
-              text: widget.orderId,
+              text: widget.order.id,
               style: appStyle(20, kDark, FontWeight.w400),
             ),
           ),
@@ -354,9 +414,11 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               children: [
                 buildStatusContainer(width, controller),
                 if (!_isOrderInInitialStatus())
-                  buildDriverContainer(width, controller),
+                  buildDriverContainer(width, controller, driverData),
                 buildOrderSummaryContainer(width, controller),
                 buildLocationContainer(width, controller),
+                if (controller.getOrder?.orderStatus! == "Delivered")
+                  buildRateContainer(width),
               ],
             ),
           ),
@@ -365,7 +427,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     });
   }
 
-  Widget buildOrderContainer(BuildContext context, ScrollController scrollController, double width, OrderController controller) {
+  Widget buildOrderContainer(BuildContext context, ScrollController scrollController, double width, OrderController controller, Driver driverData) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: const BoxDecoration(
@@ -382,7 +444,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
           children: [
             buildStatusContainer(width, controller),
             if (!_isOrderInInitialStatus())
-              buildDriverContainer(width, controller),
+              buildDriverContainer(width, controller, driverData),
             buildOrderSummaryContainer(width, controller),
             buildLocationContainer(width, controller),
           ],
@@ -539,52 +601,92 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       ),
     );
   }
-  Widget buildDriverContainer(double width, OrderController controller) {
+  Widget buildDriverContainer(double width, OrderController controller, Driver driverData) {
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       color: kLightWhite,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        width: width,
-        decoration: const BoxDecoration(
-            color: kOffWhite,
-            borderRadius: BorderRadius.all(Radius.circular(9))),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: kTertiary,
-              backgroundImage: NetworkImage(controller.getOrder!.driverId!.driver!.profile!),
-            ),
-            SizedBox(width: 10.h),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: GestureDetector(
+        onTap: () async {
+          ResponseModel status = await Get.find<DriverContactController>().goChat(driverData);
+          if(status.isSuccess==false){
+            showCustomSnackBar(status.message!, title: status.title!);
+          }
+        },
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            width: width,
+            decoration: const BoxDecoration(
+                color: kOffWhite,
+                borderRadius: BorderRadius.all(Radius.circular(9))),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ReusableText(
-                    text: controller.getOrder!.driverId!.driver!.username!,
-                    style: appStyle(16, kDark, FontWeight.w600)),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ReusableText(
-                        text: controller.getOrder!.driverId!.vehicleNumber!,
-                        style: appStyle(11, kDark, FontWeight.w400)),
-                    SizedBox(width: 5.h),
-                    ReusableText(
-                        text: '•',
-                        style: appStyle(11, kDark, FontWeight.w400)),
-                    SizedBox(width: 5.h),
-                    ReusableText(
-                        text: controller.getOrder!.driverId!.driver!.id!,
-                        style: appStyle(11, kDark, FontWeight.w400))
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: kTertiary,
+                      backgroundImage: NetworkImage(controller.getOrder!.driverId!.profileImage!),
+                    ),
+                    SizedBox(width: 10.h),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ReusableText(
+                            text: controller.getOrder!.driverId!.driver!.username!,
+                            style: appStyle(16, kDark, FontWeight.w600)),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ReusableText(
+                                text: controller.getOrder!.driverId!.vehicleNumber!,
+                                style: appStyle(11, kDark, FontWeight.w400)),
+                            SizedBox(width: 5.h),
+                            ReusableText(
+                                text: '•',
+                                style: appStyle(11, kDark, FontWeight.w400)),
+                            SizedBox(width: 5.h),
+                            ReusableText(
+                                text: controller.getOrder!.driverId!.driver!.id!,
+                                style: appStyle(11, kDark, FontWeight.w400))
+                          ],
+                        )
+                      ],
+                    ),
                   ],
-                )
+                ),
+                Positioned(
+                  right: 5,
+                  bottom: 10,
+                  child: Container(
+                    width: 60,
+                    height: 19,
+                    decoration: const BoxDecoration(
+                        color: kPrimary,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        )),
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () async {
+                          ResponseModel status = await Get.find<DriverContactController>().goChat(driverData);
+                          if(status.isSuccess==false){
+                            showCustomSnackBar(status.message!, title: status.title!);
+                          }
+                        },
+                        child: ReusableText(
+                          text: "Chat",
+                          style: appStyle(12, kLightWhite, FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             )
-          ],
-        )
+        ),
       ),
     );
   }
@@ -735,6 +837,29 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 )
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+  Widget buildRateContainer(double width) {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        color: kLightWhite,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CustomButton(
+              onTap: () {
+                Get.to(
+                        () => ReviewPage(
+                      order: widget.order,
+                    ));
+              },
+              text: "Rate",
+              btnWidth: width / 2.5,
+            )
           ],
         ),
       ),

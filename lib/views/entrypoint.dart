@@ -7,15 +7,9 @@ import 'package:eatseasy/views/cart/restaurant_cart_page.dart';
 import 'package:eatseasy/views/home/home_page.dart';
 import 'package:eatseasy/views/profile/profile_page.dart';
 import 'package:eatseasy/views/search/seach_page.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-import '../common/app_style.dart';
-import '../common/reusable_text.dart';
-import '../controllers/tab_controller.dart';
-import 'cart/cart_page.dart';
 class MainScreen extends HookWidget {
   const MainScreen({super.key});
 

@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison
 
+import 'package:eatseasy/models/login_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,9 +19,10 @@ import '../item_cart_page.dart';
 class RestaurantCartTile extends StatelessWidget {
   const RestaurantCartTile({
     super.key,
-    required this.restaurant,
+    required this.restaurant, required this.user,
   });
 
+  final LoginResponse user;
   final Restaurants restaurant;
 
   @override
@@ -29,7 +31,7 @@ class RestaurantCartTile extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if(controller.defaultAddress != null) {
-          Get.to(() => ItemCartPage(restaurant: restaurant));
+          Get.to(() => ItemCartPage(restaurant: restaurant, user: user));
         } else {
           showAddressSheet(context);
         }

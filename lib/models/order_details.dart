@@ -253,8 +253,9 @@ class DriverId {
     Driver? driver;
     String? phone;
     String? vehicleNumber;
+    String? profileImage;
 
-    DriverId({this.currentLocation, this.id, this.driver, this.phone, this.vehicleNumber});
+    DriverId({this.currentLocation, this.id, this.driver, this.phone, this.vehicleNumber, this.profileImage});
 
     factory DriverId.fromJson(Map<String, dynamic> json) => DriverId(
         currentLocation: json['currentLocation'] != null ? CurrentLocation.fromJson(json['currentLocation']) : null,
@@ -262,6 +263,7 @@ class DriverId {
         driver: json['driver'] != null ? Driver.fromJson(json['driver']) : null,
         phone: json['phone'],
         vehicleNumber: json['vehicleNumber'],
+        profileImage: json['profileImage'],
     );
 
     Map<String, dynamic> toJson() => {
@@ -270,6 +272,7 @@ class DriverId {
         'driver': driver?.toJson(),
         'phone': phone,
         'vehicleNumber': vehicleNumber,
+        'profileImage': profileImage
     };
 }
 
@@ -293,19 +296,71 @@ class CurrentLocation {
 class Driver {
     String? id;
     String? username;
+    String? email;
+    String? fcm;
+    String? otp;
+    bool? verification;
+    String? password;
+    String? phone;
+    String? validIdUrl;
+    String? proofOfResidenceUrl;
+    bool? phoneVerification;
+    String? address;
+    String? userType;
     String? profile;
+    DateTime? createdAt;
+    DateTime? updatedAt;
 
-    Driver({this.id, this.username, this.profile});
+    Driver({
+        this.id,
+        this.username,
+        this.email,
+        this.fcm,
+        this.otp,
+        this.verification,
+        this.password,
+        this.phone,
+        this.validIdUrl,
+        this.proofOfResidenceUrl,
+        this.phoneVerification,
+        this.address,
+        this.userType,
+        this.profile,
+        this.createdAt,
+        this.updatedAt,
+    });
 
     factory Driver.fromJson(Map<String, dynamic> json) => Driver(
         id: json['_id'],
         username: json['username'],
-        profile: json['profile'],
+        email: json['email'],
+        fcm: json['fcm'],
+        otp: json['otp'],
+        verification: json['verification'] ?? false,
+        password: json['password'],
+        phone: json['phone'],
+        validIdUrl: json['validIdUrl'],
+        proofOfResidenceUrl: json['proofOfResidenceUrl'],
+        phoneVerification: json['phoneVerification'] ?? false,
+        address: json['address'],
+        userType: json['userType'],
+        profile: json['profile'] ?? 'default-profile-url',
     );
 
     Map<String, dynamic> toJson() => {
         '_id': id,
         'username': username,
+        'email': email,
+        'fcm': fcm,
+        'otp': otp,
+        'verification': verification,
+        'password': password,
+        'phone': phone,
+        'validIdUrl': validIdUrl,
+        'proofOfResidenceUrl': proofOfResidenceUrl,
+        'phoneVerification': phoneVerification,
+        'address': address,
+        'userType': userType,
         'profile': profile,
     };
 }

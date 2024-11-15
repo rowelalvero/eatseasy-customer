@@ -1,27 +1,31 @@
+
 import 'dart:convert';
 
-import 'package:eatseasy/common/entities/entities.dart';
-import 'package:eatseasy/common/utils/check_user.dart';
-import 'package:eatseasy/models/login_response.dart';
-import 'package:eatseasy/models/response_model.dart';
-import 'package:eatseasy/models/restaurants.dart';
-import 'package:eatseasy/views/message/chat/index.dart';
-import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-class ContactState {
+import '../common/entities/msg.dart';
+import '../common/entities/user.dart';
+import '../common/utils/check_user.dart';
+import '../models/login_response.dart';
+import '../models/order_details.dart';
+import '../models/response_model.dart';
+import '../models/restaurants.dart';
+import '../views/message/chat/view.dart';
+
+class DriverContactState {
   var count = 0.obs;
-  RxString restaurantId = "".obs;
-  Rxn<Restaurants> restaurant = Rxn<Restaurants>();
+  RxString driverId = "".obs;
+  Rxn<Driver> driver = Rxn<Driver>();
   RxBool loading = false.obs;
   RxList<UserData> contactList = <UserData>[].obs;
 }
 
-class ContactController extends GetxController {
-  ContactController();
+class DriverContactController extends GetxController {
+  DriverContactController();
 
-  final ContactState state = ContactState();
+  final DriverContactState state = DriverContactState();
   final db = FirebaseFirestore.instance;
   final box = GetStorage();
   String? token;
@@ -36,12 +40,12 @@ class ContactController extends GetxController {
     }
   }
 
-  Future<ResponseModel> goChat(Restaurants to_userdata) async {
+  Future<ResponseModel> goChat(Driver to_userdata) async {
     String? token = box.read("userId");
     if(token!=null){
       token = jsonDecode(token);
     }
-    if(token == state.restaurantId.value){
+    if(token == state.driverId.value){
       return ResponseModel(isSuccess: false, message: "You can not chat to yourself", title: "Token issue");
     }
     if(token==null){
@@ -51,7 +55,7 @@ class ContactController extends GetxController {
     if(appUser==false){
       return ResponseModel(isSuccess: false, message: "Corrupted user account", title: "Serious issue");
     }
-    to_userdata.id = state.restaurantId.value;
+    to_userdata.id = state.driverId.value;
     bool restaurantOwner = CheckUser.isValidId(to_userdata.id!);
 
     if(to_userdata.id==null){
@@ -64,16 +68,16 @@ class ContactController extends GetxController {
     var from_messages = await db
         .collection("message")
         .withConverter(
-            fromFirestore: Msg.fromFirestore,
-            toFirestore: (Msg msg, options) => msg.toFirestore())
+        fromFirestore: Msg.fromFirestore,
+        toFirestore: (Msg msg, options) => msg.toFirestore())
         .where("from_uid", isEqualTo: token) //and condition
         .where("to_uid", isEqualTo: to_userdata.id)
         .get();
     var to_messages = await db
         .collection("message")
         .withConverter(
-            fromFirestore: Msg.fromFirestore,
-            toFirestore: (Msg msg, options) => msg.toFirestore())
+        fromFirestore: Msg.fromFirestore,
+        toFirestore: (Msg msg, options) => msg.toFirestore())
         .where("from_uid", isEqualTo: to_userdata.id)
         .where("to_uid", isEqualTo: token)
         .get();
@@ -92,26 +96,26 @@ class ContactController extends GetxController {
       print("inserting---------");
       var msgdata = Msg(
           from_uid: userdata.id,
-          to_uid: to_userdata.owner,
+          to_uid: to_userdata.id,
           from_name: userdata.username,
-          to_name: to_userdata.title,
+          to_name: to_userdata.username,
           from_avatar: userdata.profile,
-          to_avatar: to_userdata.imageUrl,
+          to_avatar: to_userdata.profile,
           last_msg: "",
           last_time: Timestamp.now(),
           msg_num: 0);
       await db
           .collection("message")
           .withConverter(
-              fromFirestore: Msg.fromFirestore,
-              toFirestore: (Msg msg, options) => msg.toFirestore())
+          fromFirestore: Msg.fromFirestore,
+          toFirestore: (Msg msg, options) => msg.toFirestore())
           .add(msgdata)
           .then((value) {
         Get.to(const ChatPage(), arguments: {
           "doc_id": value.id,
           "to_uid": to_userdata.id ?? "",
-          "to_name": to_userdata.title ?? "",
-          "to_avatar": to_userdata.logoUrl ?? ""
+          "to_name": to_userdata.username ?? "",
+          "to_avatar": to_userdata.profile ?? ""
         });
       });
       return ResponseModel(isSuccess: true, message: "");
@@ -121,16 +125,16 @@ class ContactController extends GetxController {
         Get.to(const ChatPage(), arguments: {
           "doc_id": from_messages.docs.first.id,
           "to_uid": to_userdata.id ?? "",
-          "to_name": to_userdata.title ?? "",
-          "to_avatar": to_userdata.logoUrl ?? ""
+          "to_name": to_userdata.username ?? "",
+          "to_avatar": to_userdata.profile ?? ""
         });
       }
       if (to_messages.docs.isNotEmpty) {
         Get.to(const ChatPage(), arguments: {
           "doc_id": to_messages.docs.first.id,
           "to_uid": to_userdata.id ?? "",
-          "to_name": to_userdata.title ?? "",
-          "to_avatar": to_userdata.logoUrl ?? ""
+          "to_name": to_userdata.username ?? "",
+          "to_avatar": to_userdata.profile ?? ""
         });
       }
       return ResponseModel(isSuccess: true,);
@@ -138,14 +142,14 @@ class ContactController extends GetxController {
     }
   }
 
-  Future<ResponseModel> asyncLoadSingleRestaurant() async {
+  Future<ResponseModel> asyncLoadSingleDriver() async {
     // Retrieve the userId from storage
     final userId = box.read("userId");
     if(userId==null){
       return ResponseModel(isSuccess: false, message: "You did not login");
     }
     final decodedUserId = jsonDecode(userId).toString();
-    final restaurantId = state.restaurantId.value;
+    final restaurantId = state.driverId.value;
     print("Raw user id from storage: $userId");
     print("Decoded user id: $decodedUserId");
     print("Restaurant id : $restaurantId");
@@ -155,9 +159,9 @@ class ContactController extends GetxController {
         .collection("users")
         .where("id", isNotEqualTo: decodedUserId)
         .withConverter(
-          fromFirestore: UserData.fromFirestore,
-          toFirestore: (UserData userdata, options) => userdata.toFirestore(),
-        )
+      fromFirestore: UserData.fromFirestore,
+      toFirestore: (UserData userdata, options) => userdata.toFirestore(),
+    )
         .get();
     state.contactList.add(usersbase.docs[0].data());
     print("${usersbase.docs[0].data().toFirestore()}");
@@ -171,7 +175,7 @@ class ContactController extends GetxController {
       return ResponseModel(isSuccess: false, message: "You did not login");
     }
     final decodedUserId = jsonDecode(userId).toString();
-    final restaurantId = state.restaurantId.value;
+    final restaurantId = state.driverId.value;
     print("Raw user id from storage: $userId");
     print("Decoded user id: $decodedUserId");
     print("Restaurant id : $restaurantId");

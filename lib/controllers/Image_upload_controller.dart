@@ -1,8 +1,7 @@
-// ignore: file_names
-// ignore_for_file: prefer_final_fields
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show Uint8List, debugPrint;
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -10,20 +9,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 class ImageUploadController extends GetxController {
   final ImagePicker _picker = ImagePicker();
 
-  var logoFile = Rxn<File>();
-  var validId = Rxn<File>();
-  var proofOfResidence = Rxn<File>();
+  var logoFile = Rxn<dynamic>();
+  var validId = Rxn<dynamic>();
+  var proofOfResidence = Rxn<dynamic>();
 
   RxBool _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
   set setLoading(bool newValue) {
     _isLoading.value = newValue;
-  }
-
-  RxList<String> _images = <String>[].obs;
-  List<String> get images => _images;
-  set setImages(String newValue) {
-    _images.add(newValue);
   }
 
   RxString _validIdUrl = ''.obs;
@@ -53,18 +46,30 @@ class ImageUploadController extends GetxController {
 
     final pickedImage = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
-      switch (type) {
-        case "logo":
-          logoFile.value = File(pickedImage.path);
-          break;
-        case "validId":
-          validId.value = File(pickedImage.path);
-          break;
-        case "proofOfResidence":
-          proofOfResidence.value = File(pickedImage.path);
-          break;
+      if (kIsWeb) {
+        Uint8List imageData = await pickedImage.readAsBytes();
+        setImageData(type, imageData);
+      } else {
+        io.File file = io.File(pickedImage.path);
+        setImageData(type, file);
       }
       uploadImageToFirebase(type);
+    }
+
+  }
+
+  void setImageData(String type, dynamic data) {
+    switch (type) {
+      case "logo":
+        logoFile.value = data;
+        break;
+      case "validId":
+        validId.value = data;
+        break;
+      case "proofOfResidence":
+        proofOfResidence.value = data;
+        break;
+      case "2":
     }
   }
 
@@ -76,27 +81,26 @@ class ImageUploadController extends GetxController {
 
   Future<void> uploadImageToFirebase(String type) async {
     setLoading = true;
-    File? file;
 
-    switch (type) {
-      case "logo":
-        file = logoFile.value;
-        break;
-      case "validId":
-        file = validId.value;
-        break;
-      case "proofOfResidence":
-        file = proofOfResidence.value;
-        break;
-    }
-
-    if (file == null) return;
+    UploadTask? uploadTask;
+    String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}_$type.png';
 
     try {
-      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-      UploadTask uploadTask = FirebaseStorage.instance.ref().child(fileName).putFile(file);
+      if (kIsWeb) {
+        Uint8List? imageData = getImageData(type) as Uint8List?;
+        if (imageData != null) {
+          uploadTask = FirebaseStorage.instance.ref().child(fileName).putData(imageData);
+        }
+      } else {
+        io.File? file = getImageData(type) as io.File?;
+        if (file != null) {
+          uploadTask = FirebaseStorage.instance.ref().child(fileName).putFile(file);
+        }
+      }
 
-      // Start the upload and listen for progress
+      if (uploadTask == null) return;
+
+      // Track progress
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
         double progress = snapshot.bytesTransferred / snapshot.totalBytes;
         setUploadProgress = progress;
@@ -105,26 +109,40 @@ class ImageUploadController extends GetxController {
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
-      switch (type) {
-        case "logo":
-          logoUrl = downloadUrl;
-          break;
-        case "validId":
-          validIdUrl = downloadUrl;
-          break;
-        case "proofOfResidence":
-          proofOfResidenceUrl = downloadUrl;
-          break;
-      }
-
-      images.add(downloadUrl);
+      setDownloadUrl(type, downloadUrl);
     } catch (e) {
-      debugPrint("Error uploading");
+      debugPrint("Error uploading: $e");
     } finally {
-      // Reset the upload progress and the currently uploading image
       setUploadProgress = 0.0;
-      imageBeingUploaded.value = ""; // Reset the currently uploading image
+      imageBeingUploaded.value = "";
       setLoading = false;
+    }
+  }
+
+  dynamic getImageData(String type) {
+    switch (type) {
+      case "logo":
+        return logoFile.value;
+      case "validId":
+        return validId.value;
+      case "proofOfResidence":
+        return proofOfResidence.value;
+      default:
+        return null;
+    }
+  }
+
+  void setDownloadUrl(String type, String downloadUrl) {
+    switch (type) {
+      case "logo":
+        logoUrl = downloadUrl;
+        break;
+      case "validId":
+        validIdUrl = downloadUrl;
+        break;
+      case "proofOfResidence":
+        proofOfResidenceUrl = downloadUrl;
+        break;
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:eatseasy/views/auth/phone_verification.dart';
 import 'package:feedback/feedback.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -58,17 +59,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final box = GetStorage();
     String? token = box.read('token');
-    bool? verification = box.read("verification");
+    bool? verification = box.read("phone_verification");
     /*return Scaffold(
       body: Container(
         child: Image.network("https://dbestech-code.oss-ap-southeast-1.aliyuncs.com/foodly_flutter/icons/fried%20rice.png?OSSAccessKeyId=LTAI5t8cUzUwGV1jf4n5JVfD&Expires=36001719651337&Signature=OLAAucrHwJmYVbU9FU1kLCjhCXE%3D"),
       ),
     );*/
-    if (token != null && verification == false) {
-      defaultHome = const VerificationPage();
+    /*if (token != null && verification == false) {
+      defaultHome = const PhoneVerificationPage();
     } else if (token != null && verification == true) {
       defaultHome = MainScreen();
-    }
+    }*/
     return ScreenUtilInit(
         useInheritedMediaQuery: true,
         designSize: const Size(375, 825),
