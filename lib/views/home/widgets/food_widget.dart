@@ -26,8 +26,8 @@ class FoodWidget extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          width: width * 0.75,
-          height: 180.h,
+          width: 260.h,
+          height: 198.h,
           decoration: const BoxDecoration(
               color: kLightWhite,
               borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -41,7 +41,10 @@ class FoodWidget extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(12)),
-                      child: CachedImageLoader(image: image, imageHeight: 114.h,imageWidth: width*0.8,),
+                      child: CachedImageLoader(
+                        image: image,
+                        imageHeight: 114.h,
+                        imageWidth: width*0.8,),
                     ),
                   ],
                 ),
@@ -59,7 +62,7 @@ class FoodWidget extends StatelessWidget {
                             style: appStyle(12, kDark, FontWeight.w500)),
 
                             ReusableText(
-                            text: "\Php $price",
+                            text: "Php $price",
                             style: appStyle(12, kPrimary, FontWeight.w500)),
                       ],
                     ),

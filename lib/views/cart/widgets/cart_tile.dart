@@ -1,3 +1,4 @@
+import 'package:eatseasy/models/foods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -10,22 +11,30 @@ import 'package:eatseasy/controllers/cart_controller.dart';
 import 'package:eatseasy/models/user_cart.dart';
 import 'package:get/get.dart';
 
+import '../../../hooks/fetchCart.dart';
+import '../../entrypoint.dart';
+import '../../food/food_page.dart';
+
 class CartTile extends HookWidget {
   const CartTile({
     super.key,
     required this.item,
+    required this.refetch,
+    required this.food,
     
   });
   final UserCart item;
+  final VoidCallback refetch;
+  final Food food;
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(CartController());
-
+    final hookResult = useFetchCart();
+    final items = hookResult.data ?? [];
     return GestureDetector(
-      /*onTap: () {
-        Get.to(() => FoodPage(food: food)
-        );
-      },*/
+      onTap: () {
+        Get.to(() => FoodPage(food: food, quantity: item.quantity, refetch: refetch, customAdditives: item.customAdditives));
+      },
       child: Stack(
         clipBehavior: Clip.hardEdge,
         children: [
@@ -46,80 +55,99 @@ class CartTile extends HookWidget {
                     child: Stack(
                       children: [
                         SizedBox(
-                            height: 75,
-                            width: 85,
-                            child: Image.network(
-                              item.productId.imageUrl[0],
-                              fit: BoxFit.cover,
-                            )),
-
+                          height: 75,
+                          width: 85,
+                          child: Image.network(
+                            item.productId.imageUrl[0],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                         Positioned(
-                            bottom: 0,
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 6, bottom: 2),
-                              color: kGray.withOpacity(0.6),
-                              height: 16,
-                              width: width,
-                              child: RatingBarIndicator(
-                                rating: item.productId.rating,
-                                itemBuilder: (context, index) => const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                ),
-                                itemCount: 5,
-                                itemSize: 15.0,
-                                direction: Axis.horizontal,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 6, bottom: 2),
+                            color: kGray.withOpacity(0.6),
+                            height: 16,
+                            width: 85,
+                            child: RatingBarIndicator(
+                              rating: item.productId.rating!,
+                              itemBuilder: (context, index) => const Icon(
+                                Icons.star,
+                                color: Colors.amber,
                               ),
-                            ))
+                              itemCount: 5,
+                              itemSize: 15.0,
+                              direction: Axis.horizontal,
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  SizedBox(
-                    width: width * 0.53,
+                  const SizedBox(width: 10),
+                  Flexible(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(
-                          height: 5,
+
+                        ReusableText(
+                          text: item.productId.title,
+                          style: appStyle(11, kDark, FontWeight.w400),
+                        ),
+                        const SizedBox(height: 10),
+                        ReusableText(
+                          text: "Delivery time: ${item.productId.restaurant}",
+                          style: appStyle(9, kGray, FontWeight.w400),
                         ),
                         ReusableText(
-                            text: item.productId.title,
-                            style: appStyle(11, kDark, FontWeight.w400)),
-                        ReusableText(
-                            text:
-                            "Delivery time: ${item.productId.restaurant.time}",
-                            style: appStyle(9, kGray, FontWeight.w400)),
-                        ReusableText(
-                            text:
-                            "Quantity: ${item.quantity}",
-                            style: appStyle(9, kGray, FontWeight.w400)),
-                        const SizedBox(
-                          height: 5,
+                          text: "Quantity: ${item.quantity}",
+                          style: appStyle(9, kGray, FontWeight.w400),
                         ),
+                        /*Row(
+                          children: [
+                            ReusableText(
+                              text: "Quantity: ",
+                              style: appStyle(9, kGray, FontWeight.w400),
+                            ),
+                            // Decrement Button
+                            IconButton(
+                              icon: const Icon(
+                                Icons.remove_circle,
+                                size: 16,
+                                color: kPrimary,
+                              ),
+                              onPressed: () async {
+                                await controller.decrementProductQuantity(item.productId.id);
+                                refetch();
+                              },
+                            ),
+                            Text(
+                              "${item.quantity}",
+                              style: appStyle(10, kDark, FontWeight.w500),
+                            ),
+                            // Increment Button
+                            IconButton(
+                              icon: const Icon(
+                                Icons.add_circle,
+                                size: 16,
+                                color: kPrimary,
+                              ),
+                              onPressed: () async {
+                                await controller.incrementProductQuantity(item.productId.id);
+                                refetch();
+                              },
+                            ),
+                          ],
+                        ),*/
                         SizedBox(
                           height: 18,
-                          width: width * 0.67,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: item.customAdditives.length,
                             itemBuilder: (context, i) {
-                              // Get the key from the map
-                              String key = item.customAdditives.keys.elementAt(i); // Access the key by index
+                              String key = item.customAdditives.keys.elementAt(i);
                               var additive = item.customAdditives[key];
-
-                              // Handle case for Toppings which might be a list
-                              if (additive is List) {
-                                additive = additive.join(', '); // Join list items into a string
-                              } else if (additive == null) {
-                                additive = "Unknown"; // Default to "Unknown" if null
-                              }
-
-                              // Format the display text as "Key: Additive"
-                              String displayText = "$key: $additive";
+                              additive = additive is List ? additive.join(', ') : additive ?? "Unknown";
 
                               return Container(
                                 margin: const EdgeInsets.only(right: 5),
@@ -127,13 +155,11 @@ class CartTile extends HookWidget {
                                   color: kSecondaryLight,
                                   borderRadius: BorderRadius.all(Radius.circular(9)),
                                 ),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: ReusableText(
-                                      text: displayText, // Use the formatted display text
-                                      style: appStyle(8, kGray, FontWeight.w400),
-                                    ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ReusableText(
+                                    text: "$key: $additive",
+                                    style: appStyle(8, kGray, FontWeight.w400),
                                   ),
                                 ),
                               );
@@ -142,16 +168,16 @@ class CartTile extends HookWidget {
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
-              ),
+              )
             ),
           ),
           Positioned(
             right: 10,
             top: 6,
             child: Container(
-              width: 60,
+              width: 80,
               height: 19,
               decoration: const BoxDecoration(
                   color: kPrimary,
@@ -167,7 +193,7 @@ class CartTile extends HookWidget {
             ),
           ),
           Positioned(
-              right: 75,
+              right: 95,
               top: 6,
               child: Container(
                 width: 19.h,
@@ -176,13 +202,10 @@ class CartTile extends HookWidget {
                     color: kSecondary,
                     borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: GestureDetector(
-                  onTap: () {
-                    controller.removeFormCart(item.id);
-
+                  onTap: () async {
+                    await controller.removeFormCart(item.id, refetch: refetch);
                     Get.snackbar("Product removed",
                         "The product was removed from cart successfully",
-                        colorText: kDark,
-                        backgroundColor: kOffWhite,
                         icon: const Icon(Icons.add_alert));
                   },
                   child: const Center(

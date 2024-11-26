@@ -23,7 +23,6 @@ FetchHook useFetchDriver(id) {
     try {
       final response = await http.get(Uri.parse('${Environment.appBaseUrl}/api/users/byId/$id'));
 
-      print("..............."+ response.toString());
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         Driver fetchedDrivers = Driver.fromJson(data);

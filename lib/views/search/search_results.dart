@@ -7,6 +7,8 @@ import 'package:eatseasy/views/food/widgets/food_tile.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../common/app_style.dart';
+import '../../common/reusable_text.dart';
 import '../../hooks/fetchNearbyRestaurants.dart';
 import '../../models/restaurants.dart';
 
@@ -17,21 +19,46 @@ class SearchResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = Get.put(FoodSearchController());
-    return Container(
-      color: searchController.foodSearchResults!.isEmpty|| searchController.foodSearchResults == null ? kLightWhite : Colors.white,
-      padding:  EdgeInsets.only(left: 12.w, top: 10.h, right: 12.w),
-      height: height,
-      child: searchController.foodSearchResults!.isNotEmpty ? ListView.builder(
-          scrollDirection: Axis.vertical,
-          padding: EdgeInsets.zero,
-          itemCount: searchController.foodSearchResults!.length,
-          itemBuilder: (context, index) {
-            Food food = searchController.foodSearchResults![index];
-            return FoodTile(food: food);
-          }): Padding(
-        padding:  EdgeInsets.only(bottom:180.0.h),
-        child: LottieBuilder.asset("assets/anime/delivery.json", width: width, height: height/2,),
-      ),
+    return SingleChildScrollView(
+      child: Padding(
+        padding:  EdgeInsets.only(left: 12.w, right: 12.w),
+        child: Column(
+          children: [
+
+            if (searchController.foodSearchResults!.isNotEmpty)
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true, // Constrains the height of the ListView
+                padding: EdgeInsets.zero,
+                itemCount: searchController.foodSearchResults!.length,
+                itemBuilder: (context, index) {
+                  Food food = searchController.foodSearchResults![index];
+                  return FoodTile(food: food);
+                },
+              )
+            else
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/no_content.png',
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 16),
+                    ReusableText(
+                      text: "No results.",
+                      style: appStyle(14, kGray, FontWeight.normal),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      )
     );
   }
 }
+

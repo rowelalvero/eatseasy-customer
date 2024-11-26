@@ -51,7 +51,7 @@ class CategoriesWidget extends HookWidget {
                     child: Obx(() => Container(
                           margin: const EdgeInsets.only(right: 5),
                           padding: const EdgeInsets.only(top: 4),
-                          width: width * 0.19,
+                          width: 84.h,
                           height: 84.h,
                           decoration: BoxDecoration(
                               border: Border.all(

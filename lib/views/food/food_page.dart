@@ -36,9 +36,15 @@ class FoodPage extends StatefulHookWidget {
   const FoodPage({
     super.key,
     required this.food,
+    this.quantity,
+    this.refetch,
+    this.customAdditives
   });
 
   final Food food;
+  final int? quantity;
+  final VoidCallback? refetch;
+  final Map<String, dynamic>? customAdditives;
 
   @override
   _FoodPageState createState() => _FoodPageState();
@@ -46,21 +52,33 @@ class FoodPage extends StatefulHookWidget {
 
 class _FoodPageState extends State<FoodPage> {
   final foodController = Get.put(FoodController());
-  final TextEditingController _preferences = TextEditingController();
   final CounterController counterController = Get.put(CounterController());
-  final PageController _pageController = PageController();
   final ContactController _controller = Get.put(ContactController());
-  Map<String, dynamic> foodControlleruserResponses = {};
+  final PageController _pageController = PageController();
+  final TextEditingController _preferences = TextEditingController();
+  final TextEditingController _counter = TextEditingController();
+  final cartController = Get.put(CartController());
+
   @override
   void dispose() {
     _pageController.dispose();
+    _preferences.dispose();
+    _counter.dispose();
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.quantity != null) {
+      _counter.text = widget.quantity.toString();
+      counterController.count.value = widget.quantity!;
+    } else {
+      _counter.text = counterController.count.toString();
+    }
+  }
+
   Future<ResponseModel> loadData() async {
-    //prepare the contact list for this user.
-    //get the restaurant info from the firebase
-    //get only one restaurant info
     return   _controller.asyncLoadSingleRestaurant();
   }
 
@@ -74,10 +92,7 @@ class _FoodPageState extends State<FoodPage> {
   @override
   Widget build(BuildContext context)  {
     final box = GetStorage();
-    var phone_verification = box.read('phone_verification');
-    var address = box.read('default_address') ?? false;
     final cartController = Get.put(CartController());
-    //foodController.loadAdditives(widget.food.additives);
     foodController.loadCustomAdditives(widget.food.customAdditives);
     final hookResult = useFetchRestaurant(widget.food.restaurant);
     var restaurantData = hookResult.data;
@@ -113,6 +128,7 @@ class _FoodPageState extends State<FoodPage> {
         print("restaurantData is null");
       }
     }
+    print(widget.customAdditives);
 
     String? token = box.read('token');
     return load
@@ -127,11 +143,12 @@ class _FoodPageState extends State<FoodPage> {
       ),
     )
         : Scaffold(
-      backgroundColor: kLightWhite,
       body: Center(
           child: Padding(
               padding: EdgeInsets.only(
-                  bottom: height * 0.1) ,
+                  bottom: height * 0.1,
+                  top: height * 0.05
+              ) ,
               child: BackGroundContainer(
                   child: ListView(
                     padding: EdgeInsets.zero,
@@ -139,8 +156,8 @@ class _FoodPageState extends State<FoodPage> {
                       Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                bottomRight: Radius.circular(25)),
+                            borderRadius: BorderRadius.all(Radius.circular(20.r),
+                            ),
                             child: Stack(
                               children: [
                                 SizedBox(
@@ -233,7 +250,7 @@ class _FoodPageState extends State<FoodPage> {
                               bottom: 10,
                               right: 15,
                               child: CustomButton(
-                                  btnWidth: 110,
+                                  btnWidth: 85,
                                   radius: 30,
                                   color: kSecondary,
                                   onTap: () async {
@@ -256,9 +273,9 @@ class _FoodPageState extends State<FoodPage> {
                           ),
                           Positioned(
                               bottom: 10,
-                              right: 130,
+                              right: 110,
                               child: CustomButton(
-                                  btnWidth: 190,
+                                  btnWidth: 170,
                                   radius: 30,
                                   color: kPrimary,
                                   onTap: () {
@@ -354,66 +371,70 @@ class _FoodPageState extends State<FoodPage> {
                                   }),
                             ),
                             SizedBox(
+                              height: 5.h,
+                            ),
+                            Text(
+                              "In stock: ${widget.food.stocks}",
+                              maxLines: 8,
+                              style: appStyle(10, kGray, FontWeight.w400),
+                            ),
+                            SizedBox(
                               height: 15.h,
                             ),
 
                             // Adding a SizedBox with reduced height
                             ReusableText(
-                              text: "Additives and Toppings",
+                              text: "Additives and Add-ons",
                               style: appStyle(18, kDark, FontWeight.w600),
                             ),
 
-                            Column(
-                              children: [
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: foodController.customAdditivesList.length,
-                                  itemBuilder: (context, index) {
-                                    final question = foodController.customAdditivesList[index];
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                        border: Border.all(
-                                          color: Colors.grey, // Set the color of the border
-                                          width: 0.4, // Set the width of the border
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: foodController.customAdditivesList.length,
+                              itemBuilder: (context, index) {
+                                final question = foodController.customAdditivesList[index];
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    border: Border.all(
+                                      color: Colors.grey, // Set the color of the border
+                                      width: 0.4, // Set the width of the border
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ReusableText(
+                                          text: question.text,
+                                          style: appStyle(16, kDark, FontWeight.w600),
                                         ),
-                                      ),
-                                      child: ListTile(
-                                        title: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            ReusableText(
-                                              text: question.text,
-                                              style: appStyle(16, kDark, FontWeight.w600),
+                                        if (question.selectionType == "Select at least" ||
+                                            question.selectionType == "Select at most" ||
+                                            question.selectionType == "Select exactly") ...[
+                                          Text(
+                                            '${question.selectionType} ${question.selectionNumber} options.',
+                                            style: const TextStyle(fontSize: 16),
+                                          ),
+                                        ],
+                                        if (question.required) ...[
+                                          const Text(
+                                            "Required",
+                                            style: TextStyle(
+                                              color: Colors.redAccent,
+                                              fontSize: 16,
+                                              fontFamily: "Poppins",
                                             ),
-                                            if (question.selectionType == "Select at least" ||
-                                                question.selectionType == "Select at most" ||
-                                                question.selectionType == "Select exactly") ...[
-                                              Text(
-                                                '${question.selectionType} ${question.selectionNumber} options.',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                            ],
-                                            if (question.required) ...[
-                                              const Text(
-                                                "Required",
-                                                style: TextStyle(
-                                                  color: Colors.redAccent,
-                                                  fontSize: 16,
-                                                  fontFamily: "Poppins",
-                                                ),
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                        subtitle: _buildQuestionInput(question),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    subtitle: _buildQuestionInput(question),
+                                  ),
+                                );
+                              },
                             ),
                             ReusableText(
                                 text: "Preferences",
@@ -447,33 +468,61 @@ class _FoodPageState extends State<FoodPage> {
                                 Row(
                                   children: [
                                     GestureDetector(
-                                        onTap: counterController.increment,
+                                        onTap: () {
+                                          counterController.decrement();
+                                          _counter.text = counterController.count.toString();
+                                        },
                                         child: const Icon(
-                                          AntDesign.plussquareo,
+                                          AntDesign.minuscircleo,
+                                          color: kPrimary,
+                                        )
+                                    ),
+                                    SizedBox(
+                                      width: 6.w,
+                                    ),
+
+                                    SizedBox(
+                                      width: 47.w,
+                                      child: TextField(
+                                        keyboardType: TextInputType.number,
+                                        controller: _counter,
+                                        cursorColor: kPrimary,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            counterController.count.value = int.parse(value);
+                                          });
+                                        },
+                                        textAlign: TextAlign.center, // Aligns text to the center
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(color: kPrimary, width: 0.5),
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12),
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(color: kPrimary, width: 0.5),
+                                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    SizedBox(
+                                      width: 6.w,
+                                    ),
+                                    GestureDetector(
+                                        onTap: () {
+                                          counterController.increment();
+                                          _counter.text = counterController.count.toString();
+                                        },
+                                        child: const Icon(
+                                          AntDesign.pluscircleo,
                                           color: kPrimary,
                                         )),
                                     SizedBox(
                                       width: 6.w,
                                     ),
-                                    Obx(
-                                          () => Padding(
-                                        padding: const EdgeInsets.only(top: 4.0),
-                                        child: ReusableText(
-                                            text: "${counterController.count}",
-                                            style:
-                                            appStyle(16, kDark, FontWeight.w500)),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 6.w,
-                                    ),
-                                    //TextButton(onPressed: () {_showVerificationSheet(context);}, child: Text("Verification")),
-                                    GestureDetector(
-                                        onTap: counterController.decrement,
-                                        child: const Icon(
-                                          AntDesign.minussquareo,
-                                          color: kPrimary,
-                                        ))
                                   ],
                                 )
                               ],
@@ -541,42 +590,73 @@ class _FoodPageState extends State<FoodPage> {
                               Get.to(() => const Login());
                             } else {
                               if (isThisProductInCart.value) {
+                                await cartController.updateCustomAdditives(
+                                    widget.food.id, foodController.userResponses);
 
+                                if (counterController.count.toInt() > foodQuantityList.first) {
+                                  // Increment
+                                  await cartController.incrementProductQuantity(
+                                      widget.food.id, counterController.count.toInt());
+                                } else if (counterController.count.toInt() < foodQuantityList.first) {
+                                  // Decrement
+                                  await cartController.decrementProductQuantity(
+                                      widget.food.id, counterController.count.toInt());
+                                }
+
+                                cartHookResult.refetch();
+                                widget.refetch?.call();
+
+                                // Show Snackbar only if it hasn't been shown yet
+                                if (!cartController.isSnackbarVisible) {
+                                  Get.snackbar("Cart updated", "Your cart item has been updated.",
+                                      icon: const Icon(Icons.check));
+                                  cartController.isSnackbarVisible = true; // Set the flag
+                                  Future.delayed(const Duration(seconds: 2), () {
+                                    cartController.isSnackbarVisible = false; // Reset the flag after a delay
+                                  });
+                                }
                               } else {
                                 if (restaurant!.isAvailable) {
                                   if (widget.food.isAvailable == true || restaurant.isAvailable) {
-                                    double totalPrice = (widget.food.price +
-                                        foodController.additiveTotalCustom) *
-                                        counterController.count.toDouble();
+                                    if ((counterController.count.value ?? 0) <= (widget.food.stocks ?? 0)) {
+                                      if (_counter.text.isEmpty || counterController.count == '' || counterController.count.value == 0) {
+                                        Get.snackbar("Please provide quantity",
+                                            "Check your item quantity",
+                                            icon: const Icon(Icons.add_alert));
+                                      } else {
+                                        double totalPrice = (widget.food.price +
+                                            foodController.additiveTotalCustom) *
+                                            counterController.count.toDouble();
 
-                                    ToCart item = ToCart(
-                                      productId: widget.food.id,
-                                      instructions: _preferences.text,
-                                      //additives: foodController.getList(),
-                                      quantity: counterController.count.toInt(),
-                                      totalPrice: totalPrice,
-                                      prepTime: widget.food.time!,
-                                      restaurant: widget.food.restaurant!,
-                                      customAdditives: foodController.userResponses,
-                                    );
+                                        ToCart item = ToCart(
+                                          productId: widget.food.id,
+                                          instructions: _preferences.text,
+                                          quantity: counterController.count.toInt(),
+                                          totalPrice: totalPrice,
+                                          prepTime: widget.food.time!,
+                                          restaurant: widget.food.restaurant!,
+                                          customAdditives: foodController.userResponses,
+                                        );
 
-                                    String cart = toCartToJson(item);
+                                        print("sadasdsa"+foodController.userResponses.toString());
+                                        String cart = toCartToJson(item);
 
-                                    await cartController.addToCart(cart);
-                                    print(cart);
-                                    cartHookResult.refetch();
+                                        await cartController.addToCart(cart);
+                                        cartHookResult.refetch();
+                                      }
+                                    } else {
+                                      Get.snackbar("Quantity exceeded the available stocks",
+                                          "Please reduce the quantity of your items",
+                                          icon: const Icon(Icons.add_alert));
+                                    }
                                   } else {
                                     Get.snackbar("Item unavailable",
                                         "Please come and check later",
-                                        colorText: kDark,
-                                        backgroundColor: kOffWhite,
                                         icon: const Icon(Icons.add_alert));
                                   }
                                 } else {
                                   Get.snackbar("Restaurant is closed for now",
                                       "Please come and check later",
-                                      colorText: kDark,
-                                      backgroundColor: kOffWhite,
                                       icon: const Icon(Icons.add_alert));
                                 }
                               }
@@ -625,77 +705,14 @@ class _FoodPageState extends State<FoodPage> {
       ),
     );
   }
-  Future<dynamic> _showVerificationSheet(BuildContext context) {
-    return showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        showDragHandle: true,
-        barrierColor: kPrimary.withOpacity(0.2),
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            height: 500.h,
-            width: width,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(
-                      "assets/images/restaurant_bk.png",
-                    ),
-                    fit: BoxFit.fill),
-                color: kOffWhite,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12))),
-            child: Padding(
-              padding: EdgeInsets.all(8.0.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  ReusableText(
-                      text: "Verify Your Phone Number",
-                      style: appStyle(20, kPrimary, FontWeight.bold)),
-                  SizedBox(
-                      height: 250.h,
-                      child: ListView.builder(
-                          itemCount: verificationReasons.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(
-                                verificationReasons[index],
-                                textAlign: TextAlign.justify,
-                                style:
-                                appStyle(11, kGrayLight, FontWeight.normal),
-                              ),
-                              leading: const Icon(
-                                Icons.check_circle_outline,
-                                color: kPrimary,
-                              ),
-                            );
-                          })),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  CustomButton(
-                      onTap: () {
-                        Get.to(() => const PhoneVerificationPage());
-                      },
-                      btnHieght: 40.h,
-                      text: "Verify Phone Number"),
-                ],
-              ),
-            ),
-          );
-        });
-  }
   Widget _buildQuestionInput(ObsCustomAdditive question) {
+    // Access the pre-existing value from customAdditives if it exists
+    final customAdditiveValue = widget.customAdditives?[question.text];
+
     switch (question.type) {
       case 'Multiple Choice':
         return Column(
           children: question.options!.map((option) {
-            // Access the 'optionName' and 'price' fields within the Map
             final optionText = option['optionName'] as String;
             final optionPrice = option['price'] != null ? '(Php ${option['price']})' : '';
 
@@ -705,14 +722,12 @@ class _FoodPageState extends State<FoodPage> {
               visualDensity: VisualDensity.compact,
               title: Text('$optionText $optionPrice'),
               value: optionText,
-              groupValue: foodController.userResponses[question.text],
+              groupValue: foodController.userResponses[question.text] ?? customAdditiveValue,
               onChanged: (value) {
                 setState(() {
                   foodController.userResponses[question.text] = value;
                   question.toggleChecked();
-                  print("jkcacnlkadclka"+foodController.userResponses.toString());
                   foodController.getTotalPriceCustomAdditives();
-
                 });
               },
             );
@@ -724,6 +739,10 @@ class _FoodPageState extends State<FoodPage> {
             final optionText = option['optionName'] as String;
             final optionPrice = option['price'] != null ? '(Php ${option['price']})' : '';
 
+            // Get the selected values from customAdditives if available
+            final isChecked = (foodController.userResponses[question.text] ?? []).contains(optionText) ||
+                (customAdditiveValue != null && customAdditiveValue.contains(optionText));
+
             return CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               activeColor: kPrimary,
@@ -731,12 +750,11 @@ class _FoodPageState extends State<FoodPage> {
               controlAffinity: ListTileControlAffinity.leading,
               tristate: false,
               visualDensity: VisualDensity.compact,
-              title: Text('$optionText $optionPrice'), // Display option with price
-              value: foodController.userResponses[question.text]?.contains(optionText) ?? false,
+              title: Text('$optionText $optionPrice'),
+              value: isChecked,
               onChanged: (value) {
                 setState(() {
                   final currentSelections = foodController.userResponses[question.text] ?? [];
-                  print("jkcacnlkadclka"+foodController.userResponses.toString());
                   if (value == true) {
                     if (question.selectionType == 'Select at least' &&
                         currentSelections.length >= question.selectionNumber!) {
@@ -760,15 +778,15 @@ class _FoodPageState extends State<FoodPage> {
                     foodController.userResponses[question.text]?.remove(optionText);
                   }
                   question.toggleChecked();
-                  foodController.getTotalPriceCustomAdditives(); // Ensure you call this after updating selections
+                  foodController.getTotalPriceCustomAdditives();
                 });
               },
-
             );
           }).toList(),
         );
       case 'Short Answer':
         return TextField(
+          controller: TextEditingController(text: customAdditiveValue),
           onChanged: (value) {
             foodController.userResponses[question.text] = value;
           },
@@ -776,6 +794,7 @@ class _FoodPageState extends State<FoodPage> {
       case 'Paragraph':
         return TextField(
           maxLines: 3,
+          controller: TextEditingController(text: customAdditiveValue),
           onChanged: (value) {
             foodController.userResponses[question.text] = value;
           },
@@ -794,17 +813,18 @@ class _FoodPageState extends State<FoodPage> {
               ),
             ),
             Slider(
-              value: foodController.userResponses[question.text] ?? question.minScale ?? 1.0,
-              min: question.minScale ?? 1.0,
-              max: question.maxScale ?? 10.0,
+              value: (foodController.userResponses[question.text] ?? customAdditiveValue ?? question.minScale ?? 1.0).toDouble(),
+              min: question.minScale?.toDouble() ?? 1.0,
+              max: question.maxScale?.toDouble() ?? 10.0,
               divisions: (question.maxScale! - question.minScale!).toInt(),
-              label: (foodController.userResponses[question.text]?.toInt()).toString(),
+              label: (foodController.userResponses[question.text]?.toInt() ?? customAdditiveValue?.toInt() ?? 1).toString(),
               onChanged: (value) {
                 setState(() {
                   foodController.userResponses[question.text] = value;
                 });
               },
             ),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -815,7 +835,7 @@ class _FoodPageState extends State<FoodPage> {
           ],
         );
       default:
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
     }
   }
 }

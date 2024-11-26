@@ -527,8 +527,6 @@ class _AddNewPlaceState extends State<AddNewPlace> {
                 } else {
                   Get.snackbar(
                       "Error", "Please fill all the fields to continue",
-                      colorText: kLightWhite,
-                      backgroundColor: kRed,
                       icon: const Icon(Icons.error));
                 }
               } else {

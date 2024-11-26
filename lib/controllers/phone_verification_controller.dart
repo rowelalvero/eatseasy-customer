@@ -72,9 +72,6 @@ class PhoneVerificationController extends GetxController {
         phoneNumber = '';
         Get.snackbar("Successfully verified your phone number ",
             "Enjoy your awesome experience",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
-            snackPosition: SnackPosition.BOTTOM,
             icon: const Icon(Ionicons.fast_food_outline));
         if (data.phoneVerification == true) {
           Get.offAll(() => MainScreen());
@@ -84,16 +81,12 @@ class PhoneVerificationController extends GetxController {
 
         phoneNumber = '';
         Get.snackbar(data.message, "Failed to verify, please try again",
-            backgroundColor: kRed,
-            snackPosition: SnackPosition.BOTTOM,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
       phoneNumber = '';
       Get.snackbar(e.toString(), "Failed to login, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;

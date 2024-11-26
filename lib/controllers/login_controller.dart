@@ -55,6 +55,7 @@ class LoginController extends GetxController {
         box.write("token", json.encode(data.userToken));
         box.write("userId", json.encode(data.id));
         box.write("verification", data.verification);
+        box.write("email", data.email);
 
         print("my token is ${json.encode(data.userToken)}");
         if (data.phoneVerification == true) {
@@ -66,8 +67,6 @@ class LoginController extends GetxController {
         setLoading = false;
         controller.updateUserToken(controller.fcmToken);
         Get.snackbar("Welcome Back!", "Successful login",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
             icon: const Icon(Ionicons.fast_food_outline));
 
         var userbase = await db.collection("users").withConverter(
@@ -103,7 +102,7 @@ class LoginController extends GetxController {
         }
         Get.offAll(() => MainScreen());
         if (data.verification == false) {
-          Get.offAll(() => const PhoneVerificationPage());
+          Get.offAll(() => const VerificationPage());
         } else {
           Get.offAll(() => MainScreen());
         }
@@ -111,16 +110,12 @@ class LoginController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to login, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to login, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;
@@ -165,16 +160,12 @@ class LoginController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to delete, please try again",
-            backgroundColor: kRed,
-            snackPosition: SnackPosition.BOTTOM,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to delete, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;

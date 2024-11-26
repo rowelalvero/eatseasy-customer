@@ -146,7 +146,7 @@ class DriverContactController extends GetxController {
     // Retrieve the userId from storage
     final userId = box.read("userId");
     if(userId==null){
-      return ResponseModel(isSuccess: false, message: "You did not login");
+      return ResponseModel(isSuccess: false, message: "Please login first");
     }
     final decodedUserId = jsonDecode(userId).toString();
     final restaurantId = state.driverId.value;
@@ -172,7 +172,7 @@ class DriverContactController extends GetxController {
 
     final userId = box.read("userId");
     if(userId==null){
-      return ResponseModel(isSuccess: false, message: "You did not login");
+      return ResponseModel(isSuccess: false, message: "Please login first");
     }
     final decodedUserId = jsonDecode(userId).toString();
     final restaurantId = state.driverId.value;

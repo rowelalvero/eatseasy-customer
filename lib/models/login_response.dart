@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:eatseasy/models/wallet_top_up.dart';
+
 LoginResponse loginResponseFromJson(String str) => LoginResponse.fromJson(json.decode(str));
 
 String loginResponseToJson(LoginResponse data) => json.encode(data.toJson());
@@ -17,9 +19,11 @@ class LoginResponse {
     final bool phoneVerification;
     final String userType;
     final String profile;
-    final String userToken;
+    final String? userToken; // Made nullable
     final String? validIdUrl;
     final String? proofOfResidenceUrl;
+    final double? walletBalance;
+    final List<WalletTransactions>? walletTransactions;
 
     LoginResponse({
         required this.id,
@@ -30,9 +34,11 @@ class LoginResponse {
         required this.phoneVerification,
         required this.userType,
         required this.profile,
-        required this.userToken,
+        this.userToken, // Adjusted to accept nullable values
         required this.validIdUrl,
         required this.proofOfResidenceUrl,
+        required this.walletBalance,
+        required this.walletTransactions,
     });
 
     factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
@@ -44,9 +50,14 @@ class LoginResponse {
         phoneVerification: json["phoneVerification"],
         userType: json["userType"],
         profile: json["profile"],
-        userToken: json["userToken"],
+        userToken: json["userToken"], // Handles null values
         validIdUrl: json["validIdUrl"],
         proofOfResidenceUrl: json["proofOfResidenceUrl"],
+        walletBalance: json["walletBalance"]?.toDouble(),
+        walletTransactions: json["walletTransactions"] == null
+            ? null
+            : List<WalletTransactions>.from(
+            json["walletTransactions"].map((x) => WalletTransactions.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
@@ -58,8 +69,13 @@ class LoginResponse {
         "phoneVerification": phoneVerification,
         "userType": userType,
         "profile": profile,
-        "userToken": userToken,
+        "userToken": userToken, // Handles null values
         "validIdUrl": validIdUrl,
         "proofOfResidenceUrl": proofOfResidenceUrl,
+        "walletBalance": walletBalance,
+        "walletTransactions": walletTransactions
+            ?.map((x) => x.toJson())
+            .toList(), // Safely handles null `walletTransactions`
     };
 }
+

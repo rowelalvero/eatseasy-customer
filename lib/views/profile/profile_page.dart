@@ -1,5 +1,6 @@
 import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:eatseasy/views/profile/profile_screen.dart';
+import 'package:eatseasy/views/profile/wallet.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -48,7 +49,7 @@ class ProfilePage extends HookWidget {
         ? const LoginRedirection()
         : Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFFFF),
+        backgroundColor: kOffWhite,
         elevation: 0,
         toolbarHeight: screenHeight * 0.1, // Dynamic toolbar height
         title: Row(
@@ -99,10 +100,9 @@ class ProfilePage extends HookWidget {
       ),
       body: Center(
         child: BackGroundContainer(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-              child: Column(
+          child: ListView(
+            children: [
+              Column(
                 children: [
                   TextButton(
                     style: TextButton.styleFrom(
@@ -126,6 +126,15 @@ class ProfilePage extends HookWidget {
                     child: const TilesWidget(
                       title: "Ratings",
                       leading: Feather.message_circle,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Get.to(() => DashboardScreen());
+                    },
+                    child: TilesWidget(
+                      title: "Wallet",
+                      leading: MaterialCommunityIcons.wallet_outline,
                     ),
                   ),
                   TextButton(
@@ -214,7 +223,7 @@ class ProfilePage extends HookWidget {
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),

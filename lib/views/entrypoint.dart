@@ -21,11 +21,11 @@ class MainScreen extends HookWidget {
 
     // Fetch the default address only if token and verification conditions are met
     String? token = box.read('token');
-    bool? verification = box.read("verification");
+    /*bool? verification = box.read("verification");
 
     if (token != null && verification == true) {
       useFetchDefault(context, true);  // Hook now called within build method
-    }
+    }*/
 
     List<Widget> buildScreens() {
       return [
@@ -75,7 +75,7 @@ class MainScreen extends HookWidget {
       stateManagement: true,
       hideNavigationBarWhenKeyboardAppears: true,
       padding: const EdgeInsets.only(top: 8),
-      backgroundColor: Colors.white,
+      backgroundColor: kOffWhite,
       isVisible: true,
       onItemSelected: (index) {
         // Trigger a page rebuild by updating the reloadTrigger state
@@ -94,7 +94,7 @@ class MainScreen extends HookWidget {
       ),
       confineToSafeArea: true,
       navBarHeight: kBottomNavigationBarHeight,
-      navBarStyle: NavBarStyle.style9,
+      navBarStyle: NavBarStyle.style12,
     );
   }
 }

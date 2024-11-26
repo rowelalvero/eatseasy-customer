@@ -20,8 +20,7 @@ class OrderDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NotificationsController());
-    final message =
-        ModalRoute.of(context)!.settings.arguments as NotificationResponse;
+    final message = ModalRoute.of(context)!.settings.arguments as NotificationResponse;
 
     print(" notifications page payload ${message.payload}");
     var orderData = jsonDecode(message.payload.toString());

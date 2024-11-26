@@ -7,6 +7,7 @@ import 'package:eatseasy/hooks/fetchRecommendations.dart';
 import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/views/food/widgets/food_tile.dart';
 
+import '../../../hooks/fetchFoods.dart';
 import '../../../models/restaurants.dart';
 
 class Explore extends HookWidget {
@@ -16,7 +17,7 @@ class Explore extends HookWidget {
   final Restaurants restaurant;
   @override
   Widget build(BuildContext context) {
-    final hookResult = useFetchRecommendations("41007428", false);
+    final hookResult = useFetchFood();
     final foods = hookResult.data;
     final isLoading = hookResult.isLoading;
    

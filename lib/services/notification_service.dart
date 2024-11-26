@@ -18,13 +18,12 @@ class NotificationService {
     var initializationsSettings = InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
     flutterLocalNotificationsPlugin.initialize(initializationsSettings, onDidReceiveNotificationResponse: (data){
       try{
-        if(data != null && data.payload!.isNotEmpty) {
-          navigatorKey.currentState
-              ?.pushNamed('/order_details_page', arguments: data);
+        /*if(data != null && data.payload!.isNotEmpty) {
+          navigatorKey.currentState?.pushNamed('/order_details_page', arguments: data);
         }else {
 
           //  Get.toNamed(RouteHelper.getNotificationRoute());
-        }
+        }*/
       }catch (e) {
       }
     });

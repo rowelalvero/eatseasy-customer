@@ -14,6 +14,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
+import '../common/show_snack_bar.dart';
 import '../models/order_details.dart';
 import '../views/orders/payments/successful.dart';
 import 'cart_controller.dart';
@@ -94,9 +95,7 @@ class OrderController extends GetxController {
 
         orderId = data.orderId;
 
-        Get.snackbar("Order successfully created", data.message,
-            colorText: kDark,
-            backgroundColor: kOffWhite,
+        /*Get.snackbar("Order successfully created", data.message,
             icon: const Icon(Icons.money));
 
         Payment payment = Payment(userId: item.userId, cartItems: [
@@ -106,13 +105,12 @@ class OrderController extends GetxController {
               price: item.grandTotal,
               quantity: 1,
               restaurantId: item.restaurantId)
-        ]);
-
-        setLoading = false;
+        ]);*/
 
         if(item.paymentMethod == 'STRIPE') {
-          String paymentData = paymentToJson(payment);
-          paymentFunction(paymentData);
+          await initiateUserPay(item.paymentMethod, orderId, double.tryParse(item.orderTotal)!, double.tryParse(item.grandTotal)!, item.restaurantId);
+          /*String paymentData = paymentToJson(payment);
+          paymentFunction(paymentData);*/
         } else {
           Get.to(const Successful());
         }
@@ -122,21 +120,61 @@ class OrderController extends GetxController {
 
         Get.snackbar(
             data.message, "Failed to create an order, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to create an order, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;
     }
   }
+
+  Future<void> initiateUserPay(String paymentMethod, String orderId, double orderTotal, double grandTotal, String restaurantId) async {
+    setLoading = true;
+    String? userId = box.read('userId');
+    final sanitizedUserId = userId?.replaceAll('"', '').trim();
+    String token = box.read('token');
+    String accessToken = jsonDecode(token);
+    var url = Uri.parse('${Environment.appBaseUrl}/api/orders/user-pay/$orderId/$sanitizedUserId');
+
+    try {
+      var response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          "paymentMethod": paymentMethod,
+          "orderTotal": orderTotal,
+          "grandTotal": grandTotal,
+          "restaurantId": restaurantId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        Get.snackbar("Order successfully created", "Please wait for your order to prepare",
+            icon: const Icon(Icons.money));
+        setLoading = false;
+        Get.to(const Successful());
+      } else {
+        var data = apiErrorFromJson(response.body);
+        showCustomSnackBar(data.message.toString(), title: "Failed to place the order");
+        print(response.body.toString(),);
+      }
+    } catch (e) {
+      setLoading = false;
+      showCustomSnackBar(e.toString(), title: "Failed to accept the order");
+      print(e.toString(),);
+    } finally {
+      setLoading = false;
+    }
+
+  }
+
 
   void paymentFunction(String payment) async {
 
@@ -185,8 +223,6 @@ class OrderController extends GetxController {
       } else {
         var data = apiErrorFromJson(response.body);
         Get.snackbar(data.message, "Failed to login, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {

@@ -36,6 +36,7 @@ import '../home/widgets/custom_btn.dart';
 import '../restaurant/rating_page.dart';
 import '../restaurant/restaurants_page.dart';
 import '../reviews/review_page.dart';
+import 'package:http/http.dart' as http;
 
 class TrackOrderPage extends StatefulHookWidget {
   const TrackOrderPage({super.key, required this.order });
@@ -45,15 +46,12 @@ class TrackOrderPage extends StatefulHookWidget {
 }
 
 class _TrackOrderPageState extends State<TrackOrderPage> {
-  final box = GetStorage();
   final controller = Get.put(OrderController());
   final DriverContactController driverContactController = Get.put(DriverContactController());
   //final driverController = Get.put(DriverController());
 
   GoogleMapController? mapController;
   PolylinePoints polylinePoints = PolylinePoints();
-  List<LatLng> polylineCoordinatesToRestaurant = [];
-  List<LatLng> polylineCoordinatesToClient = [];
   Map<PolylineId, Polyline> polylines = {};
   Map<MarkerId, Marker> markers = {};
   DistanceTime? distanceTime1;
@@ -143,12 +141,12 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             } else if (controller.getOrder!.driverId != null) {
               fetchDistance2();
             }
-            if (controller.getOrder!.orderStatus == 'Delivered') {
+            /*if (controller.getOrder!.orderStatus == 'Delivered') {
               final hookResult = useFetchRating("?product=${controller.getOrder!.driverId!.id}&ratingType=Driver");
               SuccessResponse? ratingExistence = hookResult.data;
               final isLoading = hookResult.isLoading;
               final refetch = hookResult.refetch;
-            }
+            }*/
           });
         }
       }
@@ -194,7 +192,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
 
     try {
       return await BitmapDescriptor.asset(
-        const ImageConfiguration(size: Size(48, 48)), // Adjust as needed
+        const ImageConfiguration(size: Size(28, 28)), // Adjust as needed
         assetPath,
       );
     } catch (e) {
@@ -217,27 +215,59 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
   }
 
   Future<void> _getPolyline(LatLng origin, LatLng destination, String polylineId, Color color) async {
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleApiKey: Environment.googleApiKey,
-      request: PolylineRequest(
-        origin: PointLatLng(origin.latitude, origin.longitude),
-        destination: PointLatLng(destination.latitude, destination.longitude),
-        mode: TravelMode.driving,
-      ),
-    );
+    final String url = '${Environment.appBaseUrl}/api/address/getPolyline';
+    final box =  GetStorage();
+    String token = box.read('token');
+    String accessToken = jsonDecode(token);
 
-    if (result.status == 'OK') {
-      List<LatLng> polylineCoordinates = result.points.map((point) => LatLng(point.latitude, point.longitude)).toList();
-      setState(() {
-        polylines[PolylineId(polylineId)] = Polyline(
-          polylineId: PolylineId(polylineId),
-          color: color,
-          points: polylineCoordinates,
-          width: 6,
-        );
-      });
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          'originLat': origin.latitude.toString(),
+          'originLng': origin.longitude.toString(),
+          'destinationLat': destination.latitude.toString(),
+          'destinationLng': destination.longitude.toString(),
+          'googleApiKey': Environment.googleApiKey,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == true) {
+          final decodedPolyline = data['polyline'];
+          List<LatLng> polylineCoordinates = decodedPolyline.map<LatLng>((point) {
+            return LatLng(point['latitude'], point['longitude']);
+          }).toList();
+
+          if (polylineCoordinates.isEmpty) {
+            print("No polyline coordinates decoded.");
+            return;
+          }
+
+          setState(() {
+            polylines[PolylineId(polylineId)] = Polyline(
+              polylineId: PolylineId(polylineId),
+              color: color,
+              points: polylineCoordinates,
+              width: 6,
+            );
+          });
+        } else {
+          print('Error: ${data['message']}');
+        }
+      } else {
+        print('Failed to load polyline data from backend, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
     }
   }
+
 
   Future<void> fetchDistances() async {
     await Future.wait([fetchDistance1(), fetchDistance2()]);
@@ -287,40 +317,36 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
   Widget build(BuildContext context) {
     var driverData;
     final driverId = controller.getOrder?.driverId?.driver?.id;
+
     if (driverId != null) {
       final hookResult = useFetchDriver(driverId);
       driverData = hookResult.data;
       final load = hookResult.isLoading;
 
-      if (load == false) {
-        driverData = hookResult.data;
+      if (load == false && driverData != null) {
+        // Encoding to JSON string
+        String jsonString = jsonEncode(driverData);
 
-        if (driverData != null) {
-          // Encoding to JSON string
-          String jsonString = jsonEncode(driverData);
+        // Decoding the JSON string back to Map
+        Map<String, dynamic> resData = jsonDecode(jsonString);
 
-          // Decoding the JSON string back to Map
-          Map<String, dynamic> resData = jsonDecode(jsonString);
+        // Assigning the restaurant ID to the controller state
+        driverContactController.state.driverId.value = resData["_id"];
 
-          // Assigning the restaurant ID to the controller state
-          driverContactController.state.driverId.value = resData["_id"];
-
-          // Load chat data
-          loadChatData();
-        } else {
-          print("restaurantData is null");
-        }
+        // Load chat data
+        loadChatData();
       }
     }
-    return controller.isLoading || driverData == null
+
+    return controller.isLoading
         ? Center(
       child: SizedBox(
-          width: 150,
-          height: 150,
-          child: LoadingAnimationWidget.threeArchedCircle(
-              color: kSecondary,
-              size: 35
-          )
+        width: 150,
+        height: 150,
+        child: LoadingAnimationWidget.threeArchedCircle(
+          color: kSecondary,
+          size: 35,
+        ),
       ),
     )
         : Obx(() {
@@ -340,7 +366,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
               // Google Maps widget as the background
               GoogleMap(
                 onMapCreated: (GoogleMapController controller) {
-                  _onMapCreated(controller);  // Ensure the controller is saved for dynamic updates
+                  _onMapCreated(controller);
                 },
                 mapType: MapType.normal,
                 initialCameraPosition: CameraPosition(
@@ -353,7 +379,6 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 polylines: Set<Polyline>.of(polylines.values),
                 padding: const EdgeInsets.only(bottom: 150),
               ),
-
               // Button to trigger the modal bottom sheet
               Positioned(
                 bottom: 20,
@@ -368,22 +393,21 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
-                      //backgroundColor: Colors.transparent,
                       showDragHandle: true,
                       barrierColor: kGrayLight.withOpacity(0.2),
-                      isScrollControlled: true,  // Allows it to expand fully if needed
+                      isScrollControlled: true,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
                       ),
                       builder: (BuildContext context) {
                         return Container(
-                          height: MediaQuery.of(context).size.height * 0.65,  // Set height for modal
+                          height: MediaQuery.of(context).size.height * 0.65,
                           child: buildOrderContainer(
                             context,
                             ScrollController(),
                             MediaQuery.of(context).size.width,
                             controller,
-                              driverData
+                            driverData ?? {},  // Ensure driverData is not null
                           ),
                         );
                       },
@@ -392,7 +416,8 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
                 ),
               ),
             ],
-          ),
+          )
+
         );
       } else {
         return Scaffold(
@@ -426,6 +451,7 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
       }
     });
   }
+
 
   Widget buildOrderContainer(BuildContext context, ScrollController scrollController, double width, OrderController controller, Driver driverData) {
     return Container(
@@ -468,14 +494,14 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
             controller.getOrder!.orderStatus == 'Placed'
                 ? ReusableText(
                 text: "Waiting for the kitchen to accept your order",
-                style: appStyle(20, kDark, FontWeight.w400))
+                style: appStyle(16, kDark, FontWeight.w400))
                 : controller.getOrder!.orderStatus == 'Preparing' || controller.getOrder!.orderStatus == 'Ready'
                 ? ReusableText(
                 text: "Kitchen's preparing your order",
-                style: appStyle(20, kDark, FontWeight.w400))
+                style: appStyle(16, kDark, FontWeight.w400))
                 : ReusableText(
                 text: "Order is out for delivery!",
-                style: appStyle(20, kDark, FontWeight.w400)),
+                style: appStyle(16, kDark, FontWeight.w400)),
             SizedBox(height: 10.h),
             Obx(() => Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -602,90 +628,90 @@ class _TrackOrderPageState extends State<TrackOrderPage> {
     );
   }
   Widget buildDriverContainer(double width, OrderController controller, Driver driverData) {
-
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10.h),
       color: kLightWhite,
       child: GestureDetector(
         onTap: () async {
           ResponseModel status = await Get.find<DriverContactController>().goChat(driverData);
-          if(status.isSuccess==false){
+          if (status.isSuccess == false) {
             showCustomSnackBar(status.message!, title: status.title!);
           }
         },
         child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            width: width,
-            decoration: const BoxDecoration(
-                color: kOffWhite,
-                borderRadius: BorderRadius.all(Radius.circular(9))),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: kTertiary,
-                      backgroundImage: NetworkImage(controller.getOrder!.driverId!.profileImage!),
-                    ),
-                    SizedBox(width: 10.h),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ReusableText(
-                            text: controller.getOrder!.driverId!.driver!.username!,
-                            style: appStyle(16, kDark, FontWeight.w600)),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ReusableText(
-                                text: controller.getOrder!.driverId!.vehicleNumber!,
-                                style: appStyle(11, kDark, FontWeight.w400)),
-                            SizedBox(width: 5.h),
-                            ReusableText(
-                                text: '•',
-                                style: appStyle(11, kDark, FontWeight.w400)),
-                            SizedBox(width: 5.h),
-                            ReusableText(
-                                text: controller.getOrder!.driverId!.driver!.id!,
-                                style: appStyle(11, kDark, FontWeight.w400))
-                          ],
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-                Positioned(
-                  right: 5,
-                  bottom: 10,
-                  child: Container(
-                    width: 60,
-                    height: 19,
-                    decoration: const BoxDecoration(
-                        color: kPrimary,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
-                        )),
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: () async {
-                          ResponseModel status = await Get.find<DriverContactController>().goChat(driverData);
-                          if(status.isSuccess==false){
-                            showCustomSnackBar(status.message!, title: status.title!);
-                          }
-                        },
-                        child: ReusableText(
-                          text: "Chat",
-                          style: appStyle(12, kLightWhite, FontWeight.bold),
-                        ),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          width: width,
+          decoration: const BoxDecoration(
+              color: kOffWhite,
+              borderRadius: BorderRadius.all(Radius.circular(9))
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: kTertiary,
+                    backgroundImage: NetworkImage(controller.getOrder!.driverId!.profileImage!),
+                  ),
+                  SizedBox(width: 10.h),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ReusableText(
+                          text: controller.getOrder!.driverId!.driver!.username!,
+                          style: appStyle(16, kDark, FontWeight.w600)),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ReusableText(
+                              text: controller.getOrder!.driverId!.vehicleNumber!,
+                              style: appStyle(11, kDark, FontWeight.w400)),
+                          SizedBox(width: 5.h),
+                          ReusableText(
+                              text: '•',
+                              style: appStyle(11, kDark, FontWeight.w400)),
+                          SizedBox(width: 5.h),
+                          ReusableText(
+                              text: controller.getOrder!.driverId!.driver!.id!,
+                              style: appStyle(11, kDark, FontWeight.w400))
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              // Use normal Row or another layout instead of Positioned
+              Padding(
+                padding: EdgeInsets.only(right: 5, bottom: 10),
+                child: Container(
+                  width: 60,
+                  height: 19,
+                  decoration: const BoxDecoration(
+                      color: kPrimary,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      )),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () async {
+                        ResponseModel status = await Get.find<DriverContactController>().goChat(driverData);
+                        if (status.isSuccess == false) {
+                          showCustomSnackBar(status.message!, title: status.title!);
+                        }
+                      },
+                      child: ReusableText(
+                        text: "Chat",
+                        style: appStyle(12, kLightWhite, FontWeight.bold),
                       ),
                     ),
                   ),
                 ),
-              ],
-            )
+              ),
+            ],
+          ),
         ),
       ),
     );

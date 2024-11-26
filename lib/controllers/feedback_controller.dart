@@ -83,8 +83,6 @@ class UserFeedBackController extends GetxController {
           'Feedback Sent',
           success.message,
           duration: const Duration(seconds: 2),
-          colorText: kDark,
-          backgroundColor: kOffWhite,
         );
       }
     } catch (e) {

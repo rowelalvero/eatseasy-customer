@@ -36,7 +36,7 @@ class HomePage extends HookWidget {
             child: RefreshIndicator(
               color: kPrimary,
               onRefresh: () async {
-                Get.off(() =>  const MainScreen());
+                //Get.off(() =>  const MainScreen());
               },
               child: ListView(
                 padding: EdgeInsets.zero, // Ensure no padding for ListView
@@ -49,8 +49,8 @@ class HomePage extends HookWidget {
                         /*HomeHeading(
                       heading: "Pick Restaurants",
                       restaurant: true,
-                    ),*/
-                        //const RestaurantOptions(),
+                    ),
+                        const RestaurantOptions(),*/
                         HomeHeading(
                           heading: "Nearby Restaurants",
                           onTap: () {

@@ -32,9 +32,6 @@ FetchHook useFetchFoodByCategory(String id, String code) {
         Get.snackbar(
           "Error",
           apiError.message,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: kRed,
-          colorText: kWhite,
           margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
           borderRadius: 10,
           duration: const Duration(seconds: 3),
@@ -45,9 +42,6 @@ FetchHook useFetchFoodByCategory(String id, String code) {
       Get.snackbar(
         "Error",
         'Failed to fetch data: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: kRed,
-        colorText: kWhite,
         margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
         borderRadius: 10,
         duration: const Duration(seconds: 3),

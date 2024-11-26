@@ -23,9 +23,12 @@ import '../../common/divida.dart';
 import '../../controllers/address_controller.dart';
 import '../../controllers/location_controller.dart';
 import '../../controllers/order_controller.dart';
+import '../../hooks/fetchFoods.dart';
 import '../../models/distance_time.dart';
+import '../../models/foods.dart';
 import '../../models/order_item.dart';
 import '../../services/distance.dart';
+import '../entrypoint.dart';
 import '../home/widgets/custom_btn.dart';
 import '../orders/payment.dart';
 import '../profile/profile_screen.dart';
@@ -39,7 +42,6 @@ class ItemCartPage extends HookWidget {
   final LoginResponse user;
   @override
   Widget build(BuildContext context) {
-    final TextEditingController phone = TextEditingController();
     final controller = Get.put(AddressController());
     final orderController = Get.put(OrderController());
     final location = Get.put(UserLocationController());
@@ -50,6 +52,11 @@ class ItemCartPage extends HookWidget {
     final hookResult = useFetchCart();
     final items = hookResult.data ?? [];
     final isLoading = hookResult.isLoading;
+    final refetch = hookResult.refetch;
+
+    // Fetching foods data
+    final foodHookResult = useFetchFood();
+    final foods = foodHookResult.data ?? [];
 
     // Reset matchingCarts on each build
     List<OrderItem> matchingCarts = [];
@@ -134,7 +141,6 @@ class ItemCartPage extends HookWidget {
               : intList.reduce((current, next) => current > next ? current : next);
           standardDeliveryTime.value += highestNumber.toDouble();
           totalDeliveryOptionTime.value = standardDeliveryTime.value;
-          print("Highest prep time: " + highestNumber.toString());
 
           orderSubTotal.value = orderTotalAmount; // Update state with new total
           standardDeliveryPrice.value = distanceTime.value!.price;
@@ -150,10 +156,30 @@ class ItemCartPage extends HookWidget {
       return null; // Effect cleanup not needed
     }, [items]);
 
+    if (isLoading) {
+      // If still loading, show a loading indicator or nothing
+      return Scaffold(
+          appBar: AppBar(
+            backgroundColor: kLightWhite,
+            elevation: 0.3,
+            centerTitle: true,
+            title: ReusableText(
+              text: "Cart",
+              style: appStyle(20, kDark, FontWeight.w400),
+            ),
+          ),
+          body: const FoodsListShimmer() );// or any other loading widget
+    }
+
+    if (items.isEmpty) {
+      // If items are empty after loading, navigate to the home screen
+      Future.delayed(Duration.zero, () {
+        Get.offAll(() => const MainScreen());
+      });
+      return const SizedBox.shrink(); // Return an empty widget to stop rendering the ListView
+    }
     return token == null
         ? const LoginRedirection()
-        : Obx(() => orderController.paymentUrl.contains("https")
-        ? const PaymentWebView()
         : Scaffold(
       appBar: AppBar(
         backgroundColor: kLightWhite,
@@ -164,8 +190,7 @@ class ItemCartPage extends HookWidget {
           style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
-      body:isLoading ? const FoodsListShimmer()
-          :Center(
+      body: Center(
         child: Padding(padding: EdgeInsets.only(bottom: height * 0.2), child: BackGroundContainer(
           child: SingleChildScrollView(
             child: Column(
@@ -203,14 +228,6 @@ class ItemCartPage extends HookWidget {
                                 color: Colors.white,
                                 borderRadius: const BorderRadius.all(Radius.circular(9)),
                                 border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                                /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                               ),
                               child: Column(
                                 children: [
@@ -250,7 +267,7 @@ class ItemCartPage extends HookWidget {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Get.to(() => SavedPlaces());
+                                          Get.to(() => SavedPlaces(cartRefetch: refetch));
                                         },
                                         child: const Text('Edit'),
                                       ),
@@ -272,7 +289,7 @@ class ItemCartPage extends HookWidget {
                           style: appStyle(11, kDark, FontWeight.w400)),
                       const SizedBox(height: 8),
 
-                      Container(
+                      /*Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
@@ -280,14 +297,6 @@ class ItemCartPage extends HookWidget {
                             color: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(9)),
                             border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                            /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                           ),
                           child: // Priority Option
                           RadioListTile(
@@ -309,7 +318,7 @@ class ItemCartPage extends HookWidget {
                             },
                           ),
                         ),
-                      ),
+                      ),*/
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
@@ -318,14 +327,6 @@ class ItemCartPage extends HookWidget {
                             color: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(9)),
                             border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                            /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                           ),
                           child: // Priority Option
                           // Standard Option
@@ -347,7 +348,7 @@ class ItemCartPage extends HookWidget {
                           ),
                         ),
                       ),
-                      standardDeliveryPrice.value > baseDeliveryFee ?
+                      /*standardDeliveryPrice.value > baseDeliveryFee ?
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
@@ -356,14 +357,7 @@ class ItemCartPage extends HookWidget {
                             color: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(9)),
                             border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                            /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
+
                           ),
                           child: // Priority Option
                           // Standard Option
@@ -384,7 +378,7 @@ class ItemCartPage extends HookWidget {
                             },
                           ),
                         ),
-                      ) : const SizedBox.shrink(),
+                      ) : const SizedBox.shrink(),*/
                       Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: Container(
@@ -393,14 +387,6 @@ class ItemCartPage extends HookWidget {
                             color: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(9)),
                             border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                            /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                           ),
                           child: // Priority Option
                           // Standard Option
@@ -519,14 +505,6 @@ class ItemCartPage extends HookWidget {
                             color: Colors.white,
                             borderRadius: const BorderRadius.all(Radius.circular(9)),
                             border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                            /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                           ),
                           child: // Priority Option
                           // Standard Option
@@ -536,7 +514,7 @@ class ItemCartPage extends HookWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Pick up'),
-                                Text('Php ${(standardDeliveryPrice.value + 6 ).toStringAsFixed(2)}'),
+                                Text('Php ${(standardDeliveryPrice.value - 6 ).toStringAsFixed(2)}'),
                               ],
                             ),
                             value: 'Pick up',
@@ -562,14 +540,6 @@ class ItemCartPage extends HookWidget {
                       color: Colors.white,
                       borderRadius: const BorderRadius.all(Radius.circular(9)),
                       border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                      /*boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                      spreadRadius: 1,  // Control how far the shadow extends
-                                      blurRadius: 8,  // Control how blurry the shadow is
-                                      offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                    ),
-                                  ],*/
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,32 +566,45 @@ class ItemCartPage extends HookWidget {
                               borderRadius: BorderRadius.all(Radius.circular(9))),
 
                           child: ListView.builder(
-                            shrinkWrap: true, // Adjust height based on content
-                            physics: const NeverScrollableScrollPhysics(), // Disable scrolling to avoid nested scroll issues
-                            padding: EdgeInsets.zero, // Remove unnecessary padding
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
                             itemCount: items.length,
                             itemBuilder: (context, i) {
                               UserCart cart = items[i];
-                              print(cart.customAdditives);
-                              if (cart.restaurant == restaurant.id) {
+
+                              // Ensure both keys and IDs are strings
+                              final foodMap = {for (var food in foods) food.id.toString(): food};
+                              Food? matchedFood = foodMap[cart.productId.id.toString()];
+
+                              if (cart.restaurant == restaurant.id && matchedFood != null) {
                                 OrderItem orderItem = OrderItem(
-                                    foodId: cart.productId.id,
-                                    additives: cart.additives,
-                                    quantity: cart.quantity.toString(),
-                                    price: cart.totalPrice.toStringAsFixed(2),
-                                    instructions: cart.instructions,
-                                    cartItemId: cart.id,
-                                    customAdditives: cart.customAdditives
+                                  foodId: cart.productId.id,
+                                  quantity: cart.quantity.toString(),
+                                  price: cart.totalPrice.toStringAsFixed(2),
+                                  instructions: cart.instructions,
+                                  cartItemId: cart.id,
+                                  customAdditives: cart.customAdditives,
                                 );
 
                                 matchingCarts.add(orderItem);
 
-                                return CartTile(item: cart);
+                                return CartTile(
+                                  item: cart,
+                                  food: matchedFood, // Pass the matched Food to CartTile
+                                  refetch: refetch,
+                                );
                               } else {
-                                return Container();
+                                return const SizedBox.shrink();
                               }
                             },
                           ),
+
+
+
+
+
+
                         ),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -699,14 +682,6 @@ class ItemCartPage extends HookWidget {
                       color: Colors.white,
                       borderRadius: const BorderRadius.all(Radius.circular(9)),
                       border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                      /*boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                      spreadRadius: 1,  // Control how far the shadow extends
-                                      blurRadius: 8,  // Control how blurry the shadow is
-                                      offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                    ),
-                                  ],*/
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -735,14 +710,6 @@ class ItemCartPage extends HookWidget {
                               color: Colors.white,
                               borderRadius: const BorderRadius.all(Radius.circular(9)),
                               border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                              /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                             ),
                             child: // Priority Option
                             // Standard Option
@@ -777,14 +744,6 @@ class ItemCartPage extends HookWidget {
                               color: Colors.white,
                               borderRadius: const BorderRadius.all(Radius.circular(9)),
                               border: Border.all(color: Colors.grey, width: 0.2),  // Add border line color and width
-                              /*boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),  // Set shadow color with opacity
-                                    spreadRadius: 1,  // Control how far the shadow extends
-                                    blurRadius: 8,  // Control how blurry the shadow is
-                                    offset: const Offset(2, 4),  // Position the shadow (horizontal, vertical)
-                                  ),
-                                ],*/
                             ),
                             child: // Priority Option
                             // Standard Option
@@ -867,87 +826,88 @@ class ItemCartPage extends HookWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  controller.defaultAddress == null
-                      ? CustomButton(
-                    onTap: () {
-                      Get.to(() => const AddNewPlace());
-                    },
-                    radius: 9,
-                    color: kPrimary,
-                    btnWidth: width * 0.85,
-                    btnHieght: 34.h,
-                    text: "Add Default Address",
-                  )
-                      : orderController.isLoading
-                      ? Center(
-                    child: LoadingAnimationWidget.waveDots(
+              Obx(() =>
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      controller.defaultAddress == null
+                          ? CustomButton(
+                        onTap: () {
+                          Get.to(() => const AddNewPlace());
+                        },
+                        radius: 9,
                         color: kPrimary,
-                        size: 35
-                    ),
-                  )
-                      : Expanded(
-                    child: CustomButton(
-                      onTap: () {
-                        if(user.phoneVerification == false) {
-                          _showVerificationSheet(context);
-                        } else {
-                          if (distanceTime.value!.distance > 10.0) {
-                            Get.snackbar(
-                              colorText: kDark,
-                              backgroundColor: kOffWhite,
-                              "Distance Alert",
-                              "You are too far from the restaurant, please order from a restaurant closer to you ",
-                            );
-                            return;
-                          } else {
-                            print(paymentMethod);
+                        btnWidth: width * 0.85,
+                        btnHieght: 34.h,
+                        text: "Add Default Address",
+                      )
+                          : orderController.isLoading
+                          ? Center(
+                        child: LoadingAnimationWidget.waveDots(
+                            color: kPrimary,
+                            size: 35
+                        ),
+                      )
+                          : Expanded(
+                        child: CustomButton(
+                          onTap: () {
+                            if(location.defaultAddress == null) {
+                              _showVerificationSheet(context);
+                            } else {
+                              if (distanceTime.value!.distance > 10.0) {
+                                Get.snackbar(
+                                  "Distance Alert",
+                                  "You are too far from the restaurant, please order from a restaurant closer to you ",
+                                );
+                                return;
+                              } else {
+                                print(paymentMethod);
 
-                            Order order = Order(
-                                userId: controller.defaultAddress!.userId,
-                                orderItems: matchingCarts,
-                                orderTotal: orderSubTotal.value.toStringAsFixed(2),
-                                restaurantAddress: restaurant.coords.address,
-                                restaurantCoords: [
-                                  restaurant.coords.latitude,
-                                  restaurant.coords.longitude,
-                                ],
-                                recipientCoords: [
-                                  controller.defaultAddress!.latitude,
-                                  controller.defaultAddress!.longitude,
-                                ],
-                                deliveryFee: totalDeliveryOptionPrice.value.toStringAsFixed(2),
-                                deliveryDate: deliveryDate,
-                                grandTotal: total.value.toStringAsFixed(0),
-                                deliveryAddress: controller.defaultAddress!.id,
-                                paymentMethod: paymentMethod,
-                                restaurantId: restaurant.id!,
-                                deliveryOption: deliveryOption
-                            );
+                                Order order = Order(
+                                    userId: controller.defaultAddress!.userId,
+                                    orderItems: matchingCarts,
+                                    orderTotal: orderSubTotal.value.toStringAsFixed(2),
+                                    restaurantAddress: restaurant.coords.address,
+                                    restaurantCoords: [
+                                      restaurant.coords.latitude,
+                                      restaurant.coords.longitude,
+                                    ],
+                                    recipientCoords: [
+                                      controller.defaultAddress!.latitude,
+                                      controller.defaultAddress!.longitude,
+                                    ],
+                                    deliveryFee: totalDeliveryOptionPrice.value.toStringAsFixed(2),
+                                    deliveryDate: deliveryDate,
+                                    grandTotal: total.value.toStringAsFixed(2),
+                                    deliveryAddress: controller.defaultAddress!.id,
+                                    paymentMethod: paymentMethod,
+                                    restaurantId: restaurant.id!,
+                                    deliveryOption: deliveryOption
+                                );
 
-                            String orderData = orderToJson(order);
+                                String orderData = orderToJson(order);
 
-                            orderController.order = order;
+                                orderController.order = order;
 
-                            orderController.createOrder(orderData, order);
-                          }
-                        }
-                      },
-                      radius: 24,
-                      color: kPrimary,
-                      btnHieght: 50,
-                      text: "Proceed to payment",
-                    ),
+                                orderController.createOrder(orderData, order);
+                              }
+                            }
+                          },
+                          radius: 24,
+                          color: kPrimary,
+                          btnHieght: 50,
+                          text: "Proceed to payment",
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+
+              )
+
             ],
           ),
         ),
       ),
-    ),
     );
   }
   Future<dynamic> _showVerificationSheet(BuildContext context) {

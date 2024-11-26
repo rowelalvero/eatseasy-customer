@@ -35,7 +35,7 @@ class RestaurantWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(right: 12),
         child: Container(
-          width: width * 0.15,
+          width: 260.h,
           height: 198.h,
           decoration: const BoxDecoration(
               color: kLightWhite,
@@ -72,27 +72,27 @@ class RestaurantWidget extends StatelessWidget {
                                   text: isAvailable == true
                                       ? "OPEN"
                                       : "CLOSED",
-                                  style: appStyle(12, kWhite, FontWeight.bold),
+                                  style: appStyle(12, kDark, FontWeight.bold),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10.w,),
+                            const SizedBox(width: 10,),
 
                             ClipRRect(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(50)),
+                              const BorderRadius.all(Radius.circular(50)),
                               child: Container(
                                 color: kLightWhite,
                                 child: Padding(
                                   padding: const EdgeInsets.all(2.0),
                                   child: ClipRRect(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(50)),
+                                    const BorderRadius.all(Radius.circular(50)),
                                     child: Image.network(
                                       logo,
                                       fit: BoxFit.cover,
-                                      height: 20.h,
-                                      width: 20.w,
+                                      height: 20,
+                                      width: 20,
                                     ),
                                   ),
                                 ),

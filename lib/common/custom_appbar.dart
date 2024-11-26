@@ -9,6 +9,7 @@ import 'package:eatseasy/controllers/address_controller.dart';
 import 'package:eatseasy/controllers/location_controller.dart';
 import 'package:eatseasy/hooks/fetchDefaultAddress.dart';
 import 'package:eatseasy/views/orders/widgets/updates.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -57,7 +58,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
       height: 110,
-      color: kWhite,
+      color: kOffWhite,
       child: Container(
         margin: const EdgeInsets.only(top: 20.0),
         child: Row(
@@ -67,19 +68,19 @@ class _CustomAppBarState extends State<CustomAppBar> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Stack(
+                /*Stack(
                   children: [
-                    /*CachedImageLoader(
+                    CachedImageLoader(
                       imageWidth: 50,
                       imageHeight:50,
                       image: profile,
-                    ),*/
+                    ),
                     Positioned(
                         child: userId != null
                             ? UpdatesWidget(id: jsonDecode(userId.toString()))
                             : const SizedBox.shrink())
                   ],
-                ),
+                ),*/
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0, bottom: 6),
                   child: Column(
@@ -95,7 +96,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                             location.address.isNotEmpty
                                 ? controller.defaultAddress == null
                                 ? location.address
-                                : controller.defaultAddress!.addressLine1
+                                : controller
+                                .defaultAddress!.addressLine1
                                 : "Philippines",
                             overflow: TextOverflow.ellipsis,
                             style: appStyle(11, kGray, FontWeight.normal)),
@@ -183,4 +185,3 @@ class _CustomAppBarState extends State<CustomAppBar> {
     _getCurrentLocation();
   }
 }
-

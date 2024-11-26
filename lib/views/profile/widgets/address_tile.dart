@@ -16,11 +16,13 @@ class AddressTile extends StatelessWidget {
   const AddressTile({
     super.key,
     required this.address,
-    required this.refetch, // Add refetch parameter
+    required this.refetch,
+    this.cartRefetch// Add refetch parameter
   });
 
   final AddressesList address;
   final VoidCallback refetch; // Define refetch as a callback
+  final VoidCallback? cartRefetch;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +90,7 @@ class AddressTile extends StatelessWidget {
                   Switch.adaptive(
                     value: address.addressesListDefault,
                     onChanged: (bool value) {
-                      _showSetDefaultDialog(context, localContext, controller, address, refetch);
+                      _showSetDefaultDialog(context, localContext, controller, address, refetch, cartRefetch: cartRefetch);
                     },
                     thumbColor: WidgetStateProperty.resolveWith<Color>((Set<MaterialState> states) {
                       return states.contains(MaterialState.disabled)
@@ -99,7 +101,7 @@ class AddressTile extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () async {
-                      await _handleDelete(context, localContext, controller, address, refetch);
+                      await _handleDelete(context, localContext, controller, address, refetch, cartRefetch: cartRefetch);
                     },
                     icon: const Icon(Icons.delete_outline_rounded),
                   ),
@@ -112,7 +114,7 @@ class AddressTile extends StatelessWidget {
     );
   }
 
-  void _showSetDefaultDialog(BuildContext context, BuildContext localContext, AddressController controller, AddressesList address, VoidCallback refetch) {
+  void _showSetDefaultDialog(BuildContext context, BuildContext localContext, AddressController controller, AddressesList address, VoidCallback refetch, {VoidCallback? cartRefetch}) {
     showDialog(
       context: localContext,
       builder: (BuildContext context) {
@@ -142,6 +144,9 @@ class AddressTile extends StatelessWidget {
                 try {
                   await controller.setDefaultAddress(address.id);
                   refetch();
+                  if (cartRefetch != null) {
+                    cartRefetch();
+                  }
                 } finally {
                   Navigator.of(localContext).pop();
                 }
@@ -154,7 +159,7 @@ class AddressTile extends StatelessWidget {
     );
   }
 
-  Future<void> _handleDelete(BuildContext context, BuildContext localContext, AddressController controller, AddressesList address, VoidCallback refetch) async {
+  Future<void> _handleDelete(BuildContext context, BuildContext localContext, AddressController controller, AddressesList address, VoidCallback refetch, {VoidCallback? cartRefetch}) async {
     final confirmed = await showDialog<bool>(
       context: localContext,
       builder: (BuildContext context) {
@@ -191,6 +196,9 @@ class AddressTile extends StatelessWidget {
       try {
         await controller.deleteAddress(address.id);
         refetch();
+        if (cartRefetch != null) {
+          cartRefetch();
+        }
       } finally {
         Navigator.of(localContext).pop();
       }

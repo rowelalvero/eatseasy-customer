@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:eatseasy/constants/constants.dart';
-import 'package:cross_connectivity/cross_connectivity.dart';
-
 
 class BackGroundContainer extends StatelessWidget {
   const BackGroundContainer({
@@ -14,24 +11,15 @@ class BackGroundContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 1240,
-      child: Container(
-        width: width,
-        height: height,
-
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.all(
-            Radius.circular(20.r),
-          ),
-          /*image: const DecorationImage(
-              image: AssetImage('assets/images/restaurant_bk.png'),
-              fit: BoxFit.cover,
-              opacity: 0.7),*/
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.9, // Adjust to fit 90% of screen width
+      decoration: BoxDecoration(
+        color: color ?? Colors.white,
+        borderRadius: BorderRadius.all(
+          Radius.circular(20.r), // Responsive radius using flutter_screenutil
         ),
-        child: child,
       ),
+      child: child,
     );
   }
 }

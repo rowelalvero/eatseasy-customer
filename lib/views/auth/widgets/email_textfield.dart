@@ -46,15 +46,14 @@ class EmailTextField extends StatelessWidget {
           isDense: true,
           contentPadding: const EdgeInsets.all(6),
 
-          hintStyle: appStyle(12, kGray, FontWeight.normal),
+          labelStyle: appStyle(16, kGray, FontWeight.normal),
           // contentPadding: EdgeInsets.only(left: 24),
           errorBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red, width: 0.5),
               borderRadius: BorderRadius.all(Radius.circular(12))),
           focusedBorder: const OutlineInputBorder(
-              borderSide:
-                   BorderSide(color: kPrimary, width: 0.5),
-              borderRadius:  BorderRadius.all(Radius.circular(12))),
+              borderSide: BorderSide(color: kPrimary, width: 0.5),
+              borderRadius: BorderRadius.all(Radius.circular(12))),
           focusedErrorBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red, width: 0.5),
               borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -65,9 +64,8 @@ class EmailTextField extends StatelessWidget {
               borderSide: BorderSide(color: kGray, width: 0.5),
               borderRadius: BorderRadius.all(Radius.circular(12))),
           border: const OutlineInputBorder(
-            borderSide:
-                BorderSide(color: kPrimary, width: 0.5),
-            borderRadius:  BorderRadius.all(
+            borderSide: BorderSide(color: kPrimary, width: 0.5),
+            borderRadius: BorderRadius.all(
               Radius.circular(12),
             ),
           ),

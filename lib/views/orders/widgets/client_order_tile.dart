@@ -18,6 +18,7 @@ import 'package:eatseasy/views/message/chat/view.dart';
 import 'package:eatseasy/views/reviews/review_page.dart';
 import 'package:get/get.dart';
 
+import '../../restaurant/trackOrder.dart';
 import '../track_order_page.dart';
 
 class ClientOrderTile extends HookWidget {
@@ -155,7 +156,7 @@ class ClientOrderTile extends HookWidget {
                       ),
                       ReusableText(
                           text:
-                          "Status: ${order.paymentStatus}",
+                          "Payment status: ${order.paymentStatus}",
                           style: appStyle(9, kGray, FontWeight.w400)),
                       const SizedBox(
                         height: 3,
@@ -220,7 +221,7 @@ class ClientOrderTile extends HookWidget {
                   )),
               child: Center(
                 child: ReusableText(
-                  text: "\Php ${order.grandTotal.toStringAsFixed(2)}",
+                  text: "Php ${order.grandTotal.toStringAsFixed(2)}",
                   style: appStyle(12, kLightWhite, FontWeight.bold),
                 ),
               ),

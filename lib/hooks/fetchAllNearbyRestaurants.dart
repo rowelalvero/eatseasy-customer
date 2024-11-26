@@ -16,7 +16,7 @@ FetchHook useFetchAllRestaurants(code) {
     isLoading.value = true;
     try {
       final response =
-          await http.get(Uri.parse('${Environment.appBaseUrl}/api/restaurant/all/$code'));
+      await http.get(Uri.parse('${Environment.appBaseUrl}/api/restaurant/all/$code'));
 
       if (response.statusCode == 200) {
         restaurants.value = restaurantsFromJson(response.body);

@@ -14,6 +14,8 @@ class Registration {
     final String proofOfResidenceUrl;
     final String email;
     final String password;
+    final String phone;
+    final bool phoneVerification;
 
     Registration({
         required this.username,
@@ -21,6 +23,8 @@ class Registration {
         required this.proofOfResidenceUrl,
         required this.email,
         required this.password,
+        required this.phone,
+        required this.phoneVerification,
     });
 
     factory Registration.fromJson(Map<String, dynamic> json) => Registration(
@@ -29,6 +33,8 @@ class Registration {
         proofOfResidenceUrl: json["proofOfResidenceUrl"],
         email: json["email"],
         password: json["password"],
+        phone: json["phone"],
+        phoneVerification: json["phoneVerification"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -37,5 +43,7 @@ class Registration {
         "proofOfResidenceUrl": proofOfResidenceUrl,
         "email": email,
         "password": password,
+        "phone": phone,
+        "phoneVerification": phoneVerification,
     };
 }

@@ -32,25 +32,25 @@ class AboutUsScreen extends StatelessWidget {
                 children: [
                   _buildTeamMember(
                     name: "Red M. Landicho",
-                    role: "Red is our operations guru, ensuring smooth workflows.",
-                    imagePath: 'assets/devs/red.jpeg',
+                    role: "Red is our Project Manager of EatsEasy.",
+                    imagePath: 'assets/devs/red.jpg',
                   ),
                   const SizedBox(height: 20),
                   _buildTeamMember(
                     name: "John Francis V. Aguilar",
-                    role: "John is our technology expert, driving our technical advancements.",
-                    imagePath: 'assets/devs/agui.jpeg',
+                    role: "John is our System Analyst of EatsEasy.",
+                    imagePath: 'assets/devs/agui.jpg',
                   ),
                   const SizedBox(height: 20),
                   _buildTeamMember(
                     name: "Rowel B. Alvero Jr.",
-                    role: "Rowel is the creative force behind our product designs.",
-                    imagePath: 'assets/devs/rowel.jpeg',
+                    role: "Rowel is the Programmer Specialist of EatsEasy.",
+                    imagePath: 'assets/devs/rowel.jpg',
                   ),
                   const SizedBox(height: 20),
                   _buildTeamMember(
                     name: "Benedict M. Solina",
-                    role: "Benedict strategizes our marketing efforts with expertise.",
+                    role: "Benedict is the .",
                     imagePath: 'assets/devs/solina.jpg',
                   ),
                 ],

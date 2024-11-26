@@ -24,29 +24,34 @@ class LoginRedirection extends StatelessWidget {
       ),
       body: Center(
         child: BackGroundContainer(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  width: width,
-                  height: height / 2,
-                  color: Colors.white,
-                  child: LottieBuilder.asset(
-                    "assets/anime/delivery.json",
-                    width: width,
-                    height: height / 2,
-                  ),
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  children: [
+                    Container(
+                      width: width,
+                      height: height / 2,
+                      color: Colors.white,
+                      child: LottieBuilder.asset(
+                        "assets/anime/delivery.json",
+                        width: width,
+                        height: height / 2,
+                      ),
+                    ),
+                    CustomButton(
+                        onTap: () {
+                          Get.to(() => const Login());
+                        },
+                        color: kPrimary,
+                        btnHieght: 37.h,
+                        text: "L O G I N"
+                    )
+                  ],
                 ),
-                CustomButton(
-                    onTap: () {
-                      Get.to(() => const Login());
-                    },
-                    color: kPrimary,
-                    btnHieght: 40.h,
-                    btnWidth: width - 20.w,
-                    text: "L O G I N")
-              ],
-            ),
+              )
+            ],
           ),
         ),
       ),

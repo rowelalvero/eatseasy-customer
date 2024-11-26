@@ -10,8 +10,8 @@ class GetOrder {
     UserId? userId;
     List<OrderItem>? orderItems;
     double? deliveryFee;
-    final int grandTotal;
-    final int orderTotal;
+    final double grandTotal;
+    final double orderTotal;
     DeliveryAddress? deliveryAddress;
     String? orderStatus;
     RestaurantId? restaurantId;
@@ -41,8 +41,8 @@ class GetOrder {
             ? (json['orderItems'] as List).map((item) => OrderItem.fromJson(item)).toList()
             : null,
         deliveryFee: json['deliveryFee']?.toDouble(),
-        grandTotal: json["grandTotal"],
-        orderTotal: json["orderTotal"],
+        grandTotal: json["grandTotal"].toDouble(),
+        orderTotal: json["orderTotal"].toDouble(),
         deliveryAddress: json['deliveryAddress'] != null ? DeliveryAddress.fromJson(json['deliveryAddress']) : null,
         orderStatus: json['orderStatus'],
         restaurantId: json['restaurantId'] != null ? RestaurantId.fromJson(json['restaurantId']) : null,

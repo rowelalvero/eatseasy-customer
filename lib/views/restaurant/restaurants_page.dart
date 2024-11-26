@@ -151,12 +151,12 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  height: 80.h,
+                  height: 100.h,
                   child: ListView(
                     padding: EdgeInsets.zero,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       ReusableText(

@@ -29,14 +29,10 @@ FetchHook useFetchOrder(String id) {
       } else {
         var error = apiErrorFromJson(response.body);
         Get.snackbar(error.message, "Failed to get data, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       Get.snackbar(e.toString(), "Failed to get data, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
       // error.value = e as Exception?;
     } finally {

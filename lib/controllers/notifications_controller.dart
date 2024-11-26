@@ -62,8 +62,6 @@ class NotificationsController extends GetxController {
         var data = apiErrorFromJson(response.body);
         setLoader = false;
         Get.snackbar(data.message, "Failed to login, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
@@ -112,8 +110,6 @@ class NotificationsController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to login, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {

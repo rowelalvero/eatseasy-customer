@@ -11,14 +11,10 @@ FetchHook useFetchRestaurants() {
   final restaurants = useState<List<Restaurants>?>(null);
   final isLoading = useState(false);
   final error = useState<Exception?>(null);
+  final isMounted = useIsMounted(); // Hook to check if widget is mounted
 
-  // Mounted flag
-  final mounted = useIsMounted();
-
-  // Fetch Data Function
+// Fetch Data Function
   Future<void> fetchData() async {
-    if (!mounted()) return;
-
     isLoading.value = true;
     try {
       var url = Uri.parse('${Environment.appBaseUrl}/api/restaurant/41007428');
@@ -26,20 +22,23 @@ FetchHook useFetchRestaurants() {
 
       if (response.statusCode == 200) {
         restaurants.value = restaurantsFromJson(response.body);
+        isLoading.value = false;
       } else {
-        var apiError = apiErrorFromJson(response.body);
-        throw Exception(apiError.message); // Improved exception handling
+        var error = apiErrorFromJson(response.body);
+        isLoading.value = false;
       }
     } catch (e) {
-      error.value = e is Exception ? e : Exception('Unknown error');
-      debugPrint(error.value.toString());
+      debugPrint(e.toString());
+      if(isMounted()) {
+        error.value = e as Exception?;
+      }
+
     } finally {
-      if (mounted()) {
+      if(isMounted()) {
         isLoading.value = false;
       }
     }
   }
-
   // Side Effect
   useEffect(() {
     fetchData();
@@ -48,10 +47,11 @@ FetchHook useFetchRestaurants() {
 
   // Refetch Function
   void refetch() {
-    if (mounted()) {
-      isLoading.value = true;
+    if(isMounted()) {
+      isLoading.value = false;
       fetchData();
     }
+
   }
 
   // Return values

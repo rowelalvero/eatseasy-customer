@@ -44,13 +44,7 @@ class Distance {
   Future<DistanceTime?> calculateDistanceDurationPrice(
       double lat1, double lon1, double lat2, double lon2, double speedKmPerHr, double pricePkm) async {
     String googleApiKey = "AIzaSyCBrZpYQFIWHQfgX4wvjzY5cC4JWDvu9XI";
-    final box = GetStorage();
-    String token = box.read('token');
-    String accessToken = jsonDecode(token);
 
-    if (token != null) {
-      accessToken = jsonDecode(token);
-    }
     final String url = '${Environment.appBaseUrl}/api/address/directions'; // Call your backend here
 
     try {
@@ -58,7 +52,6 @@ class Distance {
         Uri.parse(url),
         headers: {
           "Content-Type": "application/json", // Ensure you're sending the correct content type
-          'Authorization': 'Bearer $accessToken', // Include the Authorization header with the token
         },
         body: json.encode({
           'originLat': lat1,

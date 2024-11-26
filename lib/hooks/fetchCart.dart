@@ -15,12 +15,14 @@ FetchHook useFetchCart() {
   final cartData = useState<List<UserCart>?>([]);
   final isLoading = useState(false);
   final error = useState<Exception?>(null);
-
+  final isMounted = useIsMounted();
   String? token = box.read('token');
   String accessToken = "";
 
   if (token != null) {
     accessToken = jsonDecode(token);
+  }else{
+    print("returning since no valid token");
   }
 
   // Fetch Data Function
@@ -34,18 +36,22 @@ FetchHook useFetchCart() {
           'Authorization': 'Bearer $accessToken',
         },
       );
-
       if (response.statusCode == 200) {
+        //Get.find<CartCheckoutController>().cartObs.refresh();
         cartData.value = userCartFromJson(response.body);
         isLoading.value = false;
+
       } else {
         var error = apiErrorFromJson(response.body);
         isLoading.value = false;
       }
     } catch (e) {
+      print("cart status  ${e.toString()}");
       debugPrint(e.toString());
     } finally {
-      isLoading.value = false;
+      if(isMounted()) {
+        isLoading.value = false;
+      }
     }
   }
 
@@ -61,8 +67,10 @@ FetchHook useFetchCart() {
 
   // Refetch Function
   void refetch() {
-    isLoading.value = true;
-    fetchData();
+    if(isMounted()){
+      isLoading.value = true;
+      fetchData();
+    }
   }
 
   // Return values
@@ -73,3 +81,4 @@ FetchHook useFetchCart() {
     refetch: refetch,
   );
 }
+

@@ -8,8 +8,13 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
+import '../../controllers/wallet_controller.dart';
+
 class PaymentWebView extends StatefulWidget {
-  const PaymentWebView({super.key});
+  final String amount;
+  final String currentAction;
+
+  const PaymentWebView({super.key, required this.amount, required this.currentAction});
 
   @override
   State<PaymentWebView> createState() => _PaymentWebViewState();
@@ -21,7 +26,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   @override
   void initState() {
     super.initState();
-    final orderController = Get.put(OrderController());
+    final WalletController walletController = Get.put(WalletController());
     // #docregion platform_features
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -34,7 +39,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
     }
 
     final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
+    WebViewController.fromPlatformCreationParams(params);
     // #enddocregion platform_features
 
     controller
@@ -52,17 +57,20 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           onNavigationRequest: (NavigationRequest request) {
             return NavigationDecision.navigate;
           },
-          onUrlChange: (UrlChange change) {
+          onUrlChange: (UrlChange change) async {
             if (change.url!.contains("checkout-success")) {
-            orderController.paymentUrl = '';
-            orderController.paymentId = '';
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Successful()));
+              walletController.paymentUrl = '';
+              if (widget.currentAction == 'load') {
+                await walletController.initiateTopUp(double.parse(widget.amount), 'Top-up');
+              } else if (widget.currentAction == 'pay') {
+                await walletController.initiatePay(double.parse(widget.amount), 'Pay');
+              } else {
+                await walletController.initiateWithdraw(double.parse(widget.amount), 'Withdraw');
+              }
+
             }else if(change.url!.contains("cancel")){
-              orderController.paymentUrl = '';
-              orderController.paymentId = '';
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const PaymentFailed()));
+              walletController.paymentUrl = '';
+              walletController.handlePaymentFailure();
             }
           },
         ),
@@ -75,7 +83,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
           );
         },
       )
-      ..loadRequest(Uri.parse(orderController.paymentUrl));
+      ..loadRequest(Uri.parse(walletController.paymentUrl));
 
     // #docregion platform_features
     if (controller.platform is AndroidWebViewController) {
@@ -91,18 +99,13 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
-        toolbarHeight: 5,
-        leading: Container()
-      ),
-      body: Center(
-        child: BackGroundContainer(
-            child: WebViewWidget(controller: _controller)
+        appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            toolbarHeight: 5,
+            leading: Container()
         ),
-      )
-    );
+        body: Center(child: BackGroundContainer(child: WebViewWidget(controller: _controller)),));
   }
 }

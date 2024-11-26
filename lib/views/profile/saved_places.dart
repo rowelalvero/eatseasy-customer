@@ -19,8 +19,9 @@ import '../../common/custom_container.dart';
 import '../../hooks/fetchDefaultAddress.dart';
 
 class SavedPlaces extends HookWidget {
-  const SavedPlaces({super.key});
+  const SavedPlaces({super.key, this.cartRefetch});
 
+  final VoidCallback? cartRefetch;
   @override
   Widget build(BuildContext context) {
     final hookResult = useFetchAdresses();
@@ -79,28 +80,34 @@ class SavedPlaces extends HookWidget {
               // Trigger refetch when the user pulls down to refresh
               refetch();
             },
-            child: isLoading
-                ? const FoodsListShimmer()
-                : Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              decoration: const BoxDecoration(
-                color: kWhite,
-                borderRadius: BorderRadius.all(Radius.circular(9)),
-              ),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const AlwaysScrollableScrollPhysics(), // Make the list scrollable
-                padding: EdgeInsets.zero,
-                itemCount: addresses.length,
-                itemBuilder: (context, i) {
-                  AddressesList address = addresses[i];
-                  return AddressTile(
-                    address: address,
-                    refetch: refetch, // Pass the refetch function
-                  );
-                },
-              ),
-            ),
+            child: ListView(
+              children: [
+                isLoading
+                    ? const FoodsListShimmer()
+                    : Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  decoration: const BoxDecoration(
+                    color: kWhite,
+                    borderRadius: BorderRadius.all(Radius.circular(9)),
+                  ),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const AlwaysScrollableScrollPhysics(), // Make the list scrollable
+                    padding: EdgeInsets.zero,
+                    itemCount: addresses.length,
+                    itemBuilder: (context, i) {
+                      AddressesList address = addresses[i];
+                      return AddressTile(
+                        address: address,
+                        refetch: refetch,
+                          cartRefetch: cartRefetch
+                        // Pass the refetch function
+                      );
+                    },
+                  ),
+                ),
+              ],
+            )
           ),
       ),
       ),

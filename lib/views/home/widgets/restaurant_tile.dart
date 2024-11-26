@@ -28,8 +28,6 @@ class RestaurantTile extends StatelessWidget {
         } else {
           Get.snackbar("Restaurant is closed for now",
               "Please come back later",
-              colorText: kDark,
-              backgroundColor: kOffWhite,
               icon: const Icon(Icons.add_alert));
         }
       },
@@ -53,17 +51,18 @@ class RestaurantTile extends StatelessWidget {
                     child: Stack(
                       children: [
                         SizedBox(
-                            height: 70.h,
-                            width: 70.w,
-                            child: Image.network(
-                              restaurant.imageUrl!,
-                              fit: BoxFit.cover,
-                            )),
+                          height: 75,
+                          width: 85,
+                          child: Image.network(
+                            restaurant.imageUrl!,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                         Positioned(
                             bottom: 0,
                             child: Container(
                               padding:
-                                  const EdgeInsets.only(left: 6, bottom: 2),
+                              const EdgeInsets.only(left: 6, bottom: 2),
                               color: kGray.withOpacity(0.6),
                               height: 16,
                               width: width,
@@ -77,43 +76,39 @@ class RestaurantTile extends StatelessWidget {
                                 itemSize: 15.0,
                                 direction: Axis.horizontal,
                               ),
-                            ))
+                            )
+                        )
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      ReusableText(
+                  const SizedBox(width: 10),
+                  Expanded( // Ensure the remaining space is distributed dynamically
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 5),
+                        ReusableText(
                           text: restaurant.title!,
-                          style: appStyle(11, kDark, FontWeight.w400)),
-                      ReusableText(
+                          style: appStyle(11, kDark, FontWeight.w400),
+                        ),
+                        ReusableText(
                           text: "Open hours: ${restaurant.time}",
-                          style: appStyle(9, kGray, FontWeight.w400)),
-                      // const SizedBox(
-                      //   height: 5,
-                      // ),
-                      SizedBox(
-                        width: width * 0.7,
-                        child: Text(
-                             restaurant.coords.address,
-                             overflow: TextOverflow.ellipsis,
-                            style: appStyle(9, kGray, FontWeight.w400)),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                    ],
-                  )
+                          style: appStyle(9, kGray, FontWeight.w400),
+                        ),
+                        Text(
+                          restaurant.coords.address,
+                          overflow: TextOverflow.ellipsis, // Handle overflow
+                          maxLines: 3, // Limit to one line
+                          style: appStyle(9, kGray, FontWeight.w400),
+                        ),
+                        const SizedBox(height: 5),
+                      ],
+                    ),
+                  ),
                 ],
               ),
+
             ),
           ),
           Positioned(
@@ -141,7 +136,7 @@ class RestaurantTile extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
+          /*Positioned(
               right: 70.h,
               top: 6.h,
               child: Container(
@@ -160,7 +155,8 @@ class RestaurantTile extends StatelessWidget {
                     ),
                   ),
                 ),
-              ))
+              )
+          )*/
         ],
       ),
     );

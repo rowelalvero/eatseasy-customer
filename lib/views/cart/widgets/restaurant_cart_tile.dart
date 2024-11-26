@@ -35,7 +35,6 @@ class RestaurantCartTile extends StatelessWidget {
         } else {
           showAddressSheet(context);
         }
-
       },
       child: Stack(
         clipBehavior: Clip.hardEdge,
@@ -145,7 +144,7 @@ class RestaurantCartTile extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
+          /*Positioned(
               right: 70.h,
               top: 6.h,
               child: Container(
@@ -164,7 +163,8 @@ class RestaurantCartTile extends StatelessWidget {
                     ),
                   ),
                 ),
-              ))
+              )
+          )*/
         ],
       ),
     );

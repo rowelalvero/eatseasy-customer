@@ -46,67 +46,14 @@ class NearbyRestaurants extends HookWidget {
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 10),
       height: 194.h,
-      child: ShaderMask(
-        shaderCallback: (Rect bounds) {
-          return const LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              Colors.transparent,
-              Colors.black,
-              Colors.black,
-              Colors.transparent,
-            ],
-            stops: [0.0, 0.1, 1.0, 1.0],
-          ).createShader(bounds);
-        },
-        blendMode: BlendMode.dstIn,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: restaurants.length,
-          itemBuilder: (context, index) {
-            Restaurants restaurant = restaurants[index];
-            Distance distanceCalculator = Distance();
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: restaurants.length,
+        itemBuilder: (context, index) {
+          Restaurants restaurant = restaurants[index];
+          Distance distanceCalculator = Distance();
 
-            if (controller.defaultAddress == null) {
-              return RestaurantWidget(
-                isAvailable: restaurant.isAvailable,
-                image: restaurant.imageUrl ?? 'default_image_url',
-                title: restaurant.title ?? 'No title available',
-                time: restaurant.time,
-                logo: restaurant.logoUrl ?? 'default_logo_url',
-                ratingBarCount: restaurant.rating,
-                rating: "${restaurant.ratingCount ?? 0} ratings",
-                onTap: () {
-                  if (restaurant.isAvailable == true) {
-                    location.setLocation(LatLng(restaurant.coords.latitude, restaurant.coords.longitude));
-                    Get.to(() => RestaurantPage(restaurant: restaurant));
-                  } else {
-                    Get.snackbar(
-                      "Restaurant is closed for now",
-                      "Please come back later",
-                      colorText: kDark,
-                      backgroundColor: kOffWhite,
-                      icon: const Icon(Icons.add_alert),
-                    );
-                  }
-                },
-              );
-            }
-
-            DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
-              controller.defaultAddress!.latitude,
-              controller.defaultAddress!.longitude,
-              restaurant.coords.latitude,
-              restaurant.coords.longitude,
-              35,
-              pricePkm,
-            );
-
-            if (distanceTime.distance > 10.0) {
-              return SizedBox.shrink();
-            }
-
+          if (controller.defaultAddress == null) {
             return RestaurantWidget(
               isAvailable: restaurant.isAvailable,
               image: restaurant.imageUrl ?? 'default_image_url',
@@ -123,15 +70,48 @@ class NearbyRestaurants extends HookWidget {
                   Get.snackbar(
                     "Restaurant is closed for now",
                     "Please come back later",
-                    colorText: kDark,
-                    backgroundColor: kOffWhite,
                     icon: const Icon(Icons.add_alert),
                   );
                 }
               },
             );
-          },
-        ),
+          }
+
+          DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
+            controller.defaultAddress!.latitude,
+            controller.defaultAddress!.longitude,
+            restaurant.coords.latitude,
+            restaurant.coords.longitude,
+            35,
+            pricePkm,
+          );
+
+          if (distanceTime.distance > 10.0) {
+            return SizedBox.shrink();
+          }
+
+          return RestaurantWidget(
+            isAvailable: restaurant.isAvailable,
+            image: restaurant.imageUrl ?? 'default_image_url',
+            title: restaurant.title ?? 'No title available',
+            time: restaurant.time,
+            logo: restaurant.logoUrl ?? 'default_logo_url',
+            ratingBarCount: restaurant.rating,
+            rating: "${restaurant.ratingCount ?? 0} ratings",
+            onTap: () {
+              if (restaurant.isAvailable == true) {
+                location.setLocation(LatLng(restaurant.coords.latitude, restaurant.coords.longitude));
+                Get.to(() => RestaurantPage(restaurant: restaurant));
+              } else {
+                Get.snackbar(
+                  "Restaurant is closed for now",
+                  "Please come back later",
+                  icon: const Icon(Icons.add_alert),
+                );
+              }
+            },
+          );
+        },
       ),
     );
   }

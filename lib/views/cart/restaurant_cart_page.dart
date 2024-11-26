@@ -29,6 +29,7 @@ class RestaurantCartPage extends HookWidget {
     LoginResponse? user;
     if (token != null) {
       user = controller.getUserData();
+      useFetchDefault(context, false);
     }
 
     final hookResult = useFetchCart();
@@ -36,12 +37,8 @@ class RestaurantCartPage extends HookWidget {
     final isLoading = hookResult.isLoading;
     final refetch = hookResult.refetch;
 
-    final restaurantHookResult = useFetchAllRestaurants("");
+    final restaurantHookResult = useFetchAllRestaurants("1400");
     final restaurants = restaurantHookResult.data ?? [];
-
-    if (token != null) {
-      useFetchDefault(context, false);
-    }
 
     useEffect(() {
       refetch();
@@ -50,7 +47,7 @@ class RestaurantCartPage extends HookWidget {
 
     return token == null
         ? const LoginRedirection()
-        :  Scaffold(
+        : Scaffold(
       appBar: AppBar(
         backgroundColor: kLightWhite,
         elevation: 0.3,
@@ -63,52 +60,58 @@ class RestaurantCartPage extends HookWidget {
       ),
       body: Center(
         child: BackGroundContainer(
+          child: RefreshIndicator(
+            color: kPrimary,
+            onRefresh: () async {
+              refetch();
+            },
             child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: SingleChildScrollView(
-                child: RefreshIndicator(
-                  color:  kPrimary,
-                  onRefresh: () async {
-                    refetch();
-                  },
-                  child: isLoading
-                      ? const Center(child:FoodsListShimmer())
-                      : items.isEmpty
-                      ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/no_content.png',
-                          height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
-                          width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
-                          fit: BoxFit.contain,
-                        ),
-                        ReusableText(
-                          text: "Cart is empty, try to look for some awesome treats!",
-                          style: appStyle(14, kGray, FontWeight.normal),
-                        ),
-                      ],
+              padding: const EdgeInsets.all(18.0),
+              child: isLoading
+                  ? const Center(child: FoodsListShimmer())
+                  : items.isEmpty
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/no_content.png',
+                      height: MediaQuery.of(context).size.height *
+                          0.3, // 30% of screen height
+                      width: MediaQuery.of(context).size.width *
+                          0.5, // 50% of screen width
+                      fit: BoxFit.contain,
                     ),
-                  )
-                      : ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: restaurants.length,
-                    shrinkWrap: true, // Important for SingleChildScrollView
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, i) {
-                      Restaurants restaurant = restaurants[i];
-                      List<UserCart> matchingCarts = items.where((cart) => cart.restaurant == restaurant.id).toList();
-
-                      if (matchingCarts.isNotEmpty) {
-                        return RestaurantCartTile(restaurant: restaurant, user: user!);
-                      }
-                      return const SizedBox.shrink(); // Return empty widget if no match
-                    },
-                  ),
+                    const SizedBox(height: 16),
+                    ReusableText(
+                      text:
+                      "Cart is empty, try to look for some awesome treats!",
+                      style: appStyle(
+                          14, kGray, FontWeight.normal),
+                    ),
+                  ],
                 ),
+              )
+                  : ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: restaurants.length,
+                physics:
+                const AlwaysScrollableScrollPhysics(), // Allows refresh indicator
+                itemBuilder: (context, i) {
+                  Restaurants restaurant = restaurants[i];
+                  List<UserCart> matchingCarts = items.where((cart) => cart.restaurant == restaurant.id).toList();
+
+                  if (matchingCarts.isNotEmpty) {
+                    return RestaurantCartTile(
+                      restaurant: restaurant,
+                      user: user!,
+                    );
+                  }
+                  return const SizedBox.shrink(); // Return empty widget if no match
+                },
               ),
-            )
+            ),
+          ),
         ),
       ),
     );

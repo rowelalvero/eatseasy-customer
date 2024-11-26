@@ -13,8 +13,8 @@ class Food {
     final double? rating;
     final String? ratingCount;
     final String description;
+    final int? stocks;
     final double price;
-    //final List<Additive> additives;
     final List<String> imageUrl;
     final int? v;
     final String? category;
@@ -32,8 +32,8 @@ class Food {
         this.rating,
         this.ratingCount,
         required this.description,
+        this.stocks,
         required this.price,
-        //required this.additives,
         required this.imageUrl,
         this.v,
         this.category,
@@ -52,15 +52,36 @@ class Food {
         rating: json["rating"]?.toDouble(),
         ratingCount: json["ratingCount"],
         description: json["description"] ?? '',
-        price: (json["price"] ?? 0).toDouble(), // Set a default or fallback
-        //additives: List<Additive>.from(json["additives"]?.map((x) => Additive.fromJson(x)) ?? []),
+        stocks: json["stocks"],
+        price: (json["price"] ?? 0).toDouble(),
         imageUrl: List<String>.from(json["imageUrl"]?.map((x) => x) ?? []),
         v: json["__v"],
         category: json["category"],
         time: json["time"],
         customAdditives: List<CustomAdditives>.from(json['customAdditives']?.map((x) => CustomAdditives.fromMap(x)) ?? []),
     );
+
+    Map<String, dynamic> toJson() => {
+        "_id": id,
+        "title": title,
+        "foodTags": foodTags,
+        "foodType": foodType,
+        "code": code,
+        "isAvailable": isAvailable,
+        "restaurant": restaurant,
+        "rating": rating,
+        "ratingCount": ratingCount,
+        "description": description,
+        "stocks": stocks,
+        "price": price,
+        "imageUrl": imageUrl,
+        "__v": v,
+        "category": category,
+        "time": time,
+        "customAdditives": customAdditives.map((x) => x.toMap()).toList(),
+    };
 }
+
 
 
 class Additive {

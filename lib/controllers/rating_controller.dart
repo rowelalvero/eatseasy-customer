@@ -52,9 +52,6 @@ class RatingController extends GetxController {
           'Success',
           success.message,
           duration: const Duration(seconds: 2),
-          snackPosition: SnackPosition.BOTTOM,
-          colorText: kDark,
-          backgroundColor: kOffWhite,
         );
         refetch();
       }

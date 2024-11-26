@@ -49,8 +49,6 @@ FetchHook useFetchClientOrders(String query, String paymentStatus) {
           Get.snackbar(
             apiError.message,
             "Failed to get data, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error),
           );
         }
@@ -60,8 +58,6 @@ FetchHook useFetchClientOrders(String query, String paymentStatus) {
         Get.snackbar(
           e.toString(),
           "Failed to get data, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error),
         );
         error.value = e as Exception?;

@@ -28,14 +28,10 @@ class FoodTile extends StatelessWidget {
         } else if (food.isAvailable != true) {
           Get.snackbar("Item sold out...",
               "Please come and check later",
-              colorText: kDark,
-              backgroundColor: kOffWhite,
               icon: const Icon(Icons.add_alert));
         } else {
           Get.snackbar("Restaurant is closed for now",
               "Please come back later",
-              colorText: kDark,
-              backgroundColor: kOffWhite,
               icon: const Icon(Icons.add_alert));
         }
       },
@@ -60,8 +56,8 @@ class FoodTile extends StatelessWidget {
                     child: Stack(
                       children: [
                         SizedBox(
-                            height: 75.h,
-                            width: 80.h,
+                            height: 75,
+                            width: 85,
                             child: Image.network(
                               food.imageUrl[0],
                               fit: BoxFit.cover,
@@ -105,6 +101,9 @@ class FoodTile extends StatelessWidget {
                       ReusableText(
                           text: "Delivery time: ${food.time} mins",
                           style: appStyle(9, kGray, FontWeight.w400)),
+                      /*ReusableText(
+                          text: "Category: ${food.isAvailable}",
+                          style: appStyle(9, kGray, FontWeight.w400)),*/
                       const SizedBox(
                         height: 5,
                       ),
@@ -144,7 +143,7 @@ class FoodTile extends StatelessWidget {
             right: 5,
             top: 6.h,
             child: Container(
-              width: 60.h,
+              width: 80.h,
               height: 23.h,
               decoration: const BoxDecoration(
                   color: kPrimary,
@@ -153,13 +152,13 @@ class FoodTile extends StatelessWidget {
                   )),
               child: Center(
                 child: ReusableText(
-                  text: "Php ${food.price.toString()}",
+                  text: "Php ${food.price.toStringAsFixed(2)}",
                   style: appStyle(12, kLightWhite, FontWeight.bold),
                 ),
               ),
             ),
           ),
-          Positioned(
+          /*Positioned(
               right: 70.h,
               top: 6.h,
               child: Container(
@@ -180,7 +179,8 @@ class FoodTile extends StatelessWidget {
                     ),
                   ),
                 ),
-              ))
+              )
+          )*/
         ],
       ),
     );

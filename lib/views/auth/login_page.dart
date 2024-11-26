@@ -16,6 +16,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../common/reusable_text.dart';
+import 'forgot_password.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -97,24 +98,46 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     height: 6.h,
                   ),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => const RegistrationPage());
-                          },
-                          child: Text('Register',
-                              style: appStyle(
-                                  12, kDark, FontWeight.normal)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Get.to(() => const ForgotPasswordPage());
+                              },
+                              child: Text('Forgot password',
+                                  style: appStyle(
+                                      12, Colors.black, FontWeight.normal)),
+                            ),
+                            SizedBox(
+                              width: 3.w,
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          width: 3.w,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Get.to(() => const RegistrationPage());
+                              },
+                              child: Text('Register',
+                                  style: appStyle(
+                                      12, Colors.black, FontWeight.normal)),
+                            ),
+                            SizedBox(
+                              width: 3.w,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
 
                   SizedBox(
@@ -149,70 +172,5 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
         )),
       ),
     );
-  }
-  Future<dynamic> _showVerificationSheet(BuildContext context) {
-    return showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        showDragHandle: true,
-        barrierColor: kPrimary.withOpacity(0.2),
-        context: context,
-        builder: (BuildContext context) {
-          return Container(
-            height: 500.h,
-            width: width,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(
-                      "assets/images/restaurant_bk.png",
-                    ),
-                    fit: BoxFit.fill),
-                color: kOffWhite,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12))),
-            child: Padding(
-              padding: EdgeInsets.all(8.0.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                  ReusableText(
-                      text: "Verify Your Phone Number",
-                      style: appStyle(20, kPrimary, FontWeight.bold)),
-                  SizedBox(
-                      height: 250.h,
-                      child: ListView.builder(
-                          itemCount: verificationReasons.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(
-                                verificationReasons[index],
-                                textAlign: TextAlign.justify,
-                                style:
-                                appStyle(11, kGrayLight, FontWeight.normal),
-                              ),
-                              leading: const Icon(
-                                Icons.check_circle_outline,
-                                color: kPrimary,
-                              ),
-                            );
-                          })),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  CustomButton(
-                      onTap: () {
-                        Get.to(() => const PhoneVerificationPage());
-                      },
-                      btnHieght: 40.h,
-                      text: "Verify Phone Number"),
-                ],
-              ),
-            ),
-          );
-        });
   }
 }

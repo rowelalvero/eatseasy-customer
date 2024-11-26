@@ -142,13 +142,9 @@ class ContactController extends GetxController {
     // Retrieve the userId from storage
     final userId = box.read("userId");
     if(userId==null){
-      return ResponseModel(isSuccess: false, message: "You did not login");
+      return ResponseModel(isSuccess: false, message: "Please login first");
     }
     final decodedUserId = jsonDecode(userId).toString();
-    final restaurantId = state.restaurantId.value;
-    print("Raw user id from storage: $userId");
-    print("Decoded user id: $decodedUserId");
-    print("Restaurant id : $restaurantId");
     state.contactList.clear();
     // Query the Firestore collection
     var usersbase = await db
@@ -168,7 +164,7 @@ class ContactController extends GetxController {
 
     final userId = box.read("userId");
     if(userId==null){
-      return ResponseModel(isSuccess: false, message: "You did not login");
+      return ResponseModel(isSuccess: false, message: "Please login first");
     }
     final decodedUserId = jsonDecode(userId).toString();
     final restaurantId = state.restaurantId.value;

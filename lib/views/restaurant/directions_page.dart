@@ -9,12 +9,10 @@ import 'package:eatseasy/common/app_style.dart';
 import 'package:eatseasy/common/divida.dart';
 import 'package:eatseasy/common/reusable_text.dart';
 import 'package:eatseasy/constants/constants.dart';
-import 'package:eatseasy/controllers/location_controller.dart';
 import 'package:eatseasy/models/distance_time.dart';
 import 'package:eatseasy/models/environment.dart';
 import 'package:eatseasy/models/restaurants.dart';
 import 'package:eatseasy/services/distance.dart';
-import 'package:eatseasy/views/home/widgets/custom_btn.dart';
 import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -102,7 +100,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
       //_center = LatLng(currentLocation.latitude, currentLocation.longitude);
       _center = LatLng(controller.defaultAddress!.latitude,
           controller.defaultAddress!.longitude);
-      CameraPosition _kGooglePlex = CameraPosition(
+      CameraPosition _kGooglePlex = const CameraPosition(
         target: LatLng(53, 10),
         zoom: 14.4746,
       );
@@ -130,15 +128,12 @@ class _DirectionsPageState extends State<DirectionsPage> {
 
   Future<void> _getPolyline() async {
     final String url = '${Environment.appBaseUrl}/api/address/getPolyline';
-    String token = box.read('token');
-    String accessToken = jsonDecode(token);
 
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {
           "Content-Type": "application/json",
-          'Authorization': 'Bearer $accessToken',
         },
         body: jsonEncode({
           'originLat': _center.latitude.toString(),
@@ -152,13 +147,17 @@ class _DirectionsPageState extends State<DirectionsPage> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['status'] == true) {
-          final polyline = data['polyline']; // Assume this is an encoded polyline string
-          polylineCoordinates.clear();
+          final decodedPolyline = data['polyline'];
+          polylineCoordinates = decodedPolyline.map<LatLng>((point) {
+            return LatLng(point['latitude'], point['longitude']);
+          }).toList();
 
-          // Decode the polyline string and add all points to the list
-          polylineCoordinates.addAll(decodePolyline(polyline));
+          if (polylineCoordinates.isEmpty) {
+            print("No polyline coordinates decoded.");
+            return;
+          }
 
-          _addPolyLine(); // Draws the polyline on the map
+          _addPolyLine();
         } else {
           print('Error: ${data['message']}');
         }
@@ -170,41 +169,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
     }
   }
 
-
-// Function to decode polyline (assuming it's a string of encoded points)
-  List<LatLng> decodePolyline(String encodedPolyline) {
-    var points = <LatLng>[];
-    int index = 0, len = encodedPolyline.length;
-    int lat = 0, lng = 0;
-
-    while (index < len) {
-      int result = 0, shift = 0;
-      int b;
-      do {
-        b = encodedPolyline.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lat += dLat;
-
-      result = shift = 0;
-      do {
-        b = encodedPolyline.codeUnitAt(index++) - 63;
-        result |= (b & 0x1F) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-      lng += dLng;
-
-      points.add(LatLng(lat / 1e5, lng / 1e5));
-    }
-
-    return points;
-  }
-
-
-  _addPolyLine() {
+  void _addPolyLine() {
     PolylineId id = const PolylineId("route");
     Polyline polyline = Polyline(
       polylineId: id,
@@ -213,12 +178,16 @@ class _DirectionsPageState extends State<DirectionsPage> {
       width: 5,
       startCap: Cap.roundCap,
       endCap: Cap.roundCap,
-      patterns: [PatternItem.dash(20), PatternItem.gap(10)], // Optional styles
     );
-    polylines[id] = polyline;
-    setState(() {});
 
+    setState(() {
+      polylines[id] = polyline;
+      _updateCameraBounds();
+    });
+
+    print("Polyline added with ${polylineCoordinates.length} points.");
   }
+
   Future<void> _fetchDistance() async {
     Distance distanceCalculator = Distance();
     distanceTime = await distanceCalculator.calculateDistanceDurationPrice(
@@ -233,30 +202,25 @@ class _DirectionsPageState extends State<DirectionsPage> {
       totalTime += distanceTime!.time;
     }); // Update the UI with fetched data
   }
+
+  Future<void> _updateCameraBounds() async {
+    if (polylineCoordinates.isNotEmpty) {
+      final GoogleMapController mapController = await _controller.future;
+
+      LatLngBounds bounds = LatLngBounds(
+        southwest: polylineCoordinates.reduce((a, b) =>
+            LatLng(a.latitude < b.latitude ? a.latitude : b.latitude,
+                a.longitude < b.longitude ? a.longitude : b.longitude)),
+        northeast: polylineCoordinates.reduce((a, b) =>
+            LatLng(a.latitude > b.latitude ? a.latitude : b.latitude,
+                a.longitude > b.longitude ? a.longitude : b.longitude)),
+      );
+
+      mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    //final location = Get.put(UserLocationController());
-    String? token = box.read('token');
-    /*if (controller.defaultAddress != null && token != null) {
-      accessToken = jsonDecode(token);
-      distanceTime = Distance().calculateDistanceTimePrice(
-          controller.defaultAddress!.latitude,
-          controller.defaultAddress!.longitude,
-          widget.restaurant.coords.latitude,
-          widget.restaurant.coords.longitude,
-          35,
-          baseDeliveryFee);
-    } else{
-      distanceTime = Distance().calculateDistanceTimePrice(
-          location.currentLocation.latitude,
-          location.currentLocation.longitude,
-          widget.restaurant.coords.latitude,
-          widget.restaurant.coords.longitude,
-          35,
-          baseDeliveryFee);
-    }
-
-    double totalTime = 25 + distanceTime.time;*/
 
     LatLng restaurant = LatLng(
         widget.restaurant.coords.latitude, widget.restaurant.coords.longitude);
@@ -325,7 +289,7 @@ class _DirectionsPageState extends State<DirectionsPage> {
                     RowText(
                         first: "Delivery fee",
                         second: distanceTime != null
-                            ? "\Php ${distanceTime!.price.toStringAsFixed(2)} km"
+                            ? "\Php ${distanceTime!.price.toStringAsFixed(2)}"
                             : "Loading..."),
                     SizedBox(
                       height: 5.h,

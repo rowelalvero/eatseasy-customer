@@ -57,8 +57,6 @@ class AddressController extends GetxController {
 
         Get.snackbar("Address successfully added",
             "Please reload this page",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
             icon: const Icon(Icons.add_alert));
 
         setLoading = false;
@@ -66,16 +64,12 @@ class AddressController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to add address, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to add address, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;
@@ -103,8 +97,6 @@ class AddressController extends GetxController {
 
         Get.snackbar("Address successfully updated",
             "Please reload this page",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
             icon: const Icon(Icons.add_alert));
         setLoading = false;
 
@@ -113,16 +105,12 @@ class AddressController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to update address, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to update address, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;
@@ -149,8 +137,6 @@ class AddressController extends GetxController {
 
         Get.snackbar("Address deleted",
             "Address has been successfully deleted.",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
             icon: const Icon(Icons.delete));
 
         setLoading = false;
@@ -159,16 +145,12 @@ class AddressController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to delete address. Try again.",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to delete address. Try again.",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;
@@ -196,8 +178,6 @@ class AddressController extends GetxController {
 
         Get.snackbar("Address Updated",
             "Address has been successfully saved.",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
             icon: const Icon(Icons.update));
 
         setLoading = false;
@@ -206,16 +186,12 @@ class AddressController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to update address. Try again.",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to update address. Try again.",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;

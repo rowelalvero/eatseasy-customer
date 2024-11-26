@@ -47,7 +47,7 @@ class PasswordField extends StatelessWidget {
                   color: kGrayLight,
                 ),
               ),
-              hintText: 'Password ',
+              labelText: 'Password ',
               prefixIcon: const Icon(
                 CupertinoIcons.lock_circle,
                 color: kGrayLight,
@@ -56,6 +56,7 @@ class PasswordField extends StatelessWidget {
               isDense: true,
               contentPadding: const EdgeInsets.all(6),
               hintStyle: appStyle(12, kGray, FontWeight.normal),
+              labelStyle: appStyle(16, kGray, FontWeight.normal),
               // contentPadding: EdgeInsets.only(left: 24),
               errorBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.red, width: 0.5),

@@ -34,8 +34,6 @@ class RegistrationController extends GetxController {
         setLoading = false;
 
         Get.snackbar(data.message, "Proceed to login",
-            colorText: kDark,
-            backgroundColor: kOffWhite,
             icon: const Icon(Icons.add_alert));
 
         Get.to(() => const Login());
@@ -43,16 +41,12 @@ class RegistrationController extends GetxController {
         var data = apiErrorFromJson(response.body);
 
         Get.snackbar(data.message, "Failed to login, please try again",
-            colorText: kLightWhite,
-            backgroundColor: kRed,
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
 
       Get.snackbar(e.toString(), "Failed to login, please try again",
-          colorText: kLightWhite,
-          backgroundColor: kRed,
           icon: const Icon(Icons.error));
 
     } finally {

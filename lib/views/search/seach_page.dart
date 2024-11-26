@@ -28,44 +28,43 @@ class _SearchPageState extends State<SearchPage> {
     final searchController = Get.put(FoodSearchController());
     return Obx(() => Scaffold(
       appBar: AppBar(
-        toolbarHeight: 74.h,
         elevation: 0,
         automaticallyImplyLeading: false,
-        backgroundColor: kWhite,
+        backgroundColor: kOffWhite,
         centerTitle: true,
         title: Text("Search food", style: appStyle(20, kDark, FontWeight.w400)),
       ),
 
       body: Center(
         child: BackGroundContainer(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Center(  // Center widget ensures vertical alignment
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20.h),  // Adjust vertical padding to achieve the best centering
-                      child: CustomTextField(
-                        controller: controller,
-                        hintText: "Search for food",
-                        keyboardType: TextInputType.text,
-                        suffixIcon: GestureDetector(
-                          onTap: () {
-                            searchController.searchFoods(controller.text);
-                          },
-                          child: Icon(
-                            Ionicons.search_circle,
-                            size: 36.h,
-                            color: kPrimary,
-                          ),
+            child: ListView(
+              children: [
+                Center(  // Center widget ensures vertical alignment
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h),  // Adjust vertical padding to achieve the best centering
+                    child: CustomTextField(
+                      controller: controller,
+                      hintText: "Search for food",
+                      keyboardType: TextInputType.text,
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          searchController.searchFoods(controller.text);
+                        },
+                        child: Icon(
+                          Ionicons.search_circle,
+                          size: 36.h,
+                          color: kPrimary,
                         ),
                       ),
                     ),
                   ),
-                  searchController.isLoading
-                      ? const FoodsListShimmer()
-                      :  searchController.foodSearchResults == null ? const LoadingWidget() : const SearchResults(),
-                ],
-              ),
+                ),
+                searchController.isLoading
+                    ? const FoodsListShimmer()
+                    :  searchController.foodSearchResults == null
+                    ? const SizedBox.shrink()
+                    : const SearchResults(),
+              ],
             )),
       ),
 
