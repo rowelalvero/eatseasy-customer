@@ -21,7 +21,6 @@ import 'package:eatseasy/models/cart_request.dart';
 import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/models/response_model.dart';
 import 'package:eatseasy/views/auth/login_page.dart';
-import 'package:eatseasy/views/auth/phone_verification.dart';
 import 'package:eatseasy/views/home/widgets/custom_btn.dart';
 import 'package:eatseasy/views/restaurant/restaurants_page.dart';
 import 'package:get/get.dart';
@@ -250,7 +249,7 @@ class _FoodPageState extends State<FoodPage> {
                               bottom: 10,
                               right: 15,
                               child: CustomButton(
-                                  btnWidth: 85,
+                                  btnWidth: 95,
                                   radius: 30,
                                   color: kSecondary,
                                   onTap: () async {
@@ -273,9 +272,9 @@ class _FoodPageState extends State<FoodPage> {
                           ),
                           Positioned(
                               bottom: 10,
-                              right: 110,
+                              right: 120,
                               child: CustomButton(
-                                  btnWidth: 170,
+                                  btnWidth: 180,
                                   radius: 30,
                                   color: kPrimary,
                                   onTap: () {
@@ -337,7 +336,7 @@ class _FoodPageState extends State<FoodPage> {
                                   width: 10,
                                 ),
                                 ReusableText(
-                                    text: "${widget.food.ratingCount} reviews and ratings",
+                                    text: "${widget.food.ratingCount} ratings",
                                     style: appStyle(9, kGray, FontWeight.w500)),
                               ],
                             ),
@@ -374,7 +373,7 @@ class _FoodPageState extends State<FoodPage> {
                               height: 5.h,
                             ),
                             Text(
-                              "In stock: ${widget.food.stocks}",
+                              "${widget.food.stocks} available orders",
                               maxLines: 8,
                               style: appStyle(10, kGray, FontWeight.w400),
                             ),
@@ -585,85 +584,97 @@ class _FoodPageState extends State<FoodPage> {
 
                         return ElevatedButton(
                           onPressed: () async {
-                            cartController.setLoading = true; // Can be reactive, if needed
+                            cartController.setLoading = true;
+
                             if (token == null) {
                               Get.to(() => const Login());
                             } else {
-                              if (isThisProductInCart.value) {
-                                await cartController.updateCustomAdditives(
-                                    widget.food.id, foodController.userResponses);
+                              bool hasMissingRequiredAdditives = false;
 
-                                if (counterController.count.toInt() > foodQuantityList.first) {
-                                  // Increment
-                                  await cartController.incrementProductQuantity(
-                                      widget.food.id, counterController.count.toInt());
-                                } else if (counterController.count.toInt() < foodQuantityList.first) {
-                                  // Decrement
-                                  await cartController.decrementProductQuantity(
-                                      widget.food.id, counterController.count.toInt());
+                              // Check if all required custom additives have been answered
+                              for (var question in  foodController.customAdditivesList) {
+                                if (question.required && foodController.userResponses[question.text] == null) {
+                                  hasMissingRequiredAdditives = true;
+                                  break;  // Exit the loop early if any required response is missing
                                 }
+                              }
 
-                                cartHookResult.refetch();
-                                widget.refetch?.call();
-
-                                // Show Snackbar only if it hasn't been shown yet
-                                if (!cartController.isSnackbarVisible) {
-                                  Get.snackbar("Cart updated", "Your cart item has been updated.",
-                                      icon: const Icon(Icons.check));
-                                  cartController.isSnackbarVisible = true; // Set the flag
-                                  Future.delayed(const Duration(seconds: 2), () {
-                                    cartController.isSnackbarVisible = false; // Reset the flag after a delay
-                                  });
-                                }
+                              if (hasMissingRequiredAdditives) {
+                                // Show Snackbar if a required field is missing
+                                Get.snackbar("Missing required additives", "Please answer all required additives before adding to cart.",
+                                    icon: const Icon(Icons.warning));
                               } else {
-                                if (restaurant!.isAvailable) {
-                                  if (widget.food.isAvailable == true || restaurant.isAvailable) {
-                                    if ((counterController.count.value ?? 0) <= (widget.food.stocks ?? 0)) {
-                                      if (_counter.text.isEmpty || counterController.count == '' || counterController.count.value == 0) {
-                                        Get.snackbar("Please provide quantity",
-                                            "Check your item quantity",
-                                            icon: const Icon(Icons.add_alert));
+                                if (isThisProductInCart.value) {
+                                  await cartController.updateCustomAdditives(widget.food.id, foodController.userResponses);
+
+                                  // Handle the quantity update logic
+                                  if (counterController.count.toInt() > foodQuantityList.first) {
+                                    await cartController.incrementProductQuantity(widget.food.id, counterController.count.toInt());
+                                  } else if (counterController.count.toInt() < foodQuantityList.first) {
+                                    await cartController.decrementProductQuantity(widget.food.id, counterController.count.toInt());
+                                  }
+
+                                  cartHookResult.refetch();
+                                  widget.refetch?.call();
+
+                                  // Show success Snackbar if the cart is updated
+                                  if (!cartController.isSnackbarVisible) {
+                                    Get.snackbar("Cart updated", "Your cart item has been updated.",
+                                        icon: const Icon(Icons.check));
+                                    cartController.isSnackbarVisible = true;
+                                    Future.delayed(const Duration(seconds: 2), () {
+                                      cartController.isSnackbarVisible = false;
+                                    });
+                                  }
+                                } else {
+                                  // Proceed with adding item to cart
+                                  if (restaurant!.isAvailable) {
+                                    if (widget.food.isAvailable == true || restaurant.isAvailable) {
+                                      if ((counterController.count.value ?? 0) <= (widget.food.stocks ?? 0)) {
+                                        if (_counter.text.isEmpty || counterController.count == '' || counterController.count.value == 0) {
+                                          Get.snackbar("Please provide quantity",
+                                              "Check your item quantity",
+                                              icon: const Icon(Icons.add_alert));
+                                        } else {
+                                          double totalPrice = (widget.food.price + foodController.additiveTotalCustom) *
+                                              counterController.count.toDouble();
+
+                                          ToCart item = ToCart(
+                                            productId: widget.food.id,
+                                            instructions: _preferences.text,
+                                            quantity: counterController.count.toInt(),
+                                            totalPrice: totalPrice,
+                                            prepTime: widget.food.time!,
+                                            restaurant: widget.food.restaurant!,
+                                            customAdditives: foodController.userResponses,
+                                          );
+                                          String cart = toCartToJson(item);
+
+                                          await cartController.addToCart(cart);
+                                          cartHookResult.refetch();
+                                        }
                                       } else {
-                                        double totalPrice = (widget.food.price +
-                                            foodController.additiveTotalCustom) *
-                                            counterController.count.toDouble();
-
-                                        ToCart item = ToCart(
-                                          productId: widget.food.id,
-                                          instructions: _preferences.text,
-                                          quantity: counterController.count.toInt(),
-                                          totalPrice: totalPrice,
-                                          prepTime: widget.food.time!,
-                                          restaurant: widget.food.restaurant!,
-                                          customAdditives: foodController.userResponses,
-                                        );
-
-                                        print("sadasdsa"+foodController.userResponses.toString());
-                                        String cart = toCartToJson(item);
-
-                                        await cartController.addToCart(cart);
-                                        cartHookResult.refetch();
+                                        Get.snackbar("Quantity exceeded the available stocks",
+                                            "Please reduce the quantity of your items",
+                                            icon: const Icon(Icons.add_alert));
                                       }
                                     } else {
-                                      Get.snackbar("Quantity exceeded the available stocks",
-                                          "Please reduce the quantity of your items",
+                                      Get.snackbar("Item unavailable",
+                                          "Please come and check later",
                                           icon: const Icon(Icons.add_alert));
                                     }
                                   } else {
-                                    Get.snackbar("Item unavailable",
+                                    Get.snackbar("Restaurant is closed for now",
                                         "Please come and check later",
                                         icon: const Icon(Icons.add_alert));
                                   }
-                                } else {
-                                  Get.snackbar("Restaurant is closed for now",
-                                      "Please come and check later",
-                                      icon: const Icon(Icons.add_alert));
                                 }
                               }
-                            }
 
-                            cartController.setLoading = false; // Can be reactive, if needed
+                              cartController.setLoading = false;
+                            }
                           },
+
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isThisProductInCart.value ? kPrimary : kGray,
                             padding: const EdgeInsets.symmetric(vertical: 12),

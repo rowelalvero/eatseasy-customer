@@ -66,7 +66,7 @@ class LoginController extends GetxController {
 
         setLoading = false;
         controller.updateUserToken(controller.fcmToken);
-        Get.snackbar("Welcome Back!", "Successful login",
+        Get.snackbar("Welcome!", "Successful login",
             icon: const Icon(Ionicons.fast_food_outline));
 
         var userbase = await db.collection("users").withConverter(

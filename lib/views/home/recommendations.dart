@@ -18,6 +18,7 @@ import '../../hooks/fetchNearbyRestaurants.dart';
 import '../../models/distance_time.dart';
 import '../../models/restaurants.dart';
 import '../../services/distance.dart';
+import '../profile/saved_places.dart';
 
 class Recommendations extends HookWidget {
   const Recommendations({super.key});
@@ -85,11 +86,41 @@ class Recommendations extends HookWidget {
               if (distanceTime.distance > 10.0) {
                 return SizedBox.shrink();
               }*/
-              return FoodTile(food: food);
+              if (controller.defaultAddress == null) {
+                _showVerificationDialog(context);
+                return SizedBox.shrink();  // Return empty widget until user takes action
+              } else {
+                return FoodTile(food: food); // Return FoodTile if address is available
+              }
+
             },
           ),
         ),
       )),),
+    );
+  }
+  void _showVerificationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User has to press the button to close the dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Address Required"),
+          content: const Text("Please add an address to continue."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                // Close the dialog
+                Navigator.of(context).pop();
+
+                // Navigate to the SavedPlaces page
+                Get.to(() => const SavedPlaces());
+              },
+              child: const Text("Go to Saved Places"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

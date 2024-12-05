@@ -13,6 +13,7 @@ class UpdateProfile {
   final String username;
   final String proofOfResidenceUrl;
   final String phone;
+  final bool phoneVerification;
   final String profile;
 
   UpdateProfile({
@@ -20,6 +21,7 @@ class UpdateProfile {
     required this.username,
     required this.email,
     required this.phone,
+    required this.phoneVerification,
     required this.profile,
   });
 
@@ -28,6 +30,7 @@ class UpdateProfile {
     username: json["username"],
     email: json["email"],
     phone: json["phone"],
+    phoneVerification: json["phoneVerification"],
     profile: json["profile"],
   );
 
@@ -36,6 +39,7 @@ class UpdateProfile {
     "username": username,
     "email": email,
     "phone": phone,
+    "phoneVerification": phoneVerification,
     "profile": profile
   };
 }

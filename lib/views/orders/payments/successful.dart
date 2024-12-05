@@ -105,7 +105,7 @@ class Successful extends StatelessWidget {
                                     text: "Payment Method",
                                     style: appStyle(11, kGray, FontWeight.normal)),
                                 ReusableText(
-                                    text: orderController.order!.paymentMethod,
+                                    text: orderController.order!.paymentMethod == "STRIPE" ? "Wallet" : "COD",
                                     style: appStyle(11, kGray, FontWeight.normal)),
                               ]),
                               TableRow(children: [

@@ -99,30 +99,52 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
       child: Scaffold(
           backgroundColor: kLightWhite,
           body: Center(
-            child: BackGroundContainer(child: ListView(
-              padding: EdgeInsets.zero,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                Stack(
+            child: Padding(padding: EdgeInsets.only(
+                bottom: height * 0.1,
+                top: height * 0.05
+            ) , child: BackGroundContainer(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(20.r),
+                          ),
+                          child: Stack(
+                            children: [
+                              SizedBox(
+                                  height: 230.h,
+                                  child: Container(
+                                    height: 230.h,
+                                    width: width,
+                                    color: kLightWhite,
+                                    child: CachedNetworkImage(
+                                        fit: BoxFit.cover,
+                                        imageUrl: widget.restaurant.imageUrl!),
+                                  )
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 230.h,
+                          width: width,
+                          child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: widget.restaurant.imageUrl!),
+                        ),
 
-                    SizedBox(
-                      height: 230.h,
-                      width: width,
-                      child: CachedNetworkImage(
-                          fit: BoxFit.cover,
-                          imageUrl: widget.restaurant.imageUrl!),
-                    ),
-
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      child: RestaurantTopBar(
-                        title: widget.restaurant.title!,
-                        restaurant: widget.restaurant,
-                      ),
-                    ),
-                    /*Positioned(
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          child: RestaurantTopBar(
+                            title: widget.restaurant.title!,
+                            restaurant: widget.restaurant,
+                          ),
+                        ),
+                        /*Positioned(
                     right: 5,
                     top: 6.h,
                     child: Container(
@@ -147,126 +169,123 @@ class _RestaurantPageState extends State<RestaurantPage> with TickerProviderStat
                       ),
                     ),
                   ),*/
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  height: 100.h,
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ReusableText(
-                          text: widget.restaurant.title!,
-                          style: appStyle(18, kDark, FontWeight.w600)),
-                      Row(
-                        children: [
-                          RatingBarIndicator(
-                            rating: widget.restaurant.rating,
-                            itemBuilder: (context, index) => const Icon(
-                              Icons.star,
-                              color: kPrimary,
-                            ),
-                            itemCount: 5,
-                            itemSize: 15.0,
-                            direction: Axis.horizontal,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          ReusableText(
-                              text: "${widget.restaurant.ratingCount} ratings",
-                              style: appStyle(9, kGray, FontWeight.w500)
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      RowText(
-                          first: "Distance To Restaurant",
-                          second: distanceTime != null
-                              ? "${distanceTime!.distance.toStringAsFixed(1)} km"
-                              : "Loading..."),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      RowText(
-                          first: "Delivery Price From Current Location",
-                          second: distanceTime != null
-                              ? "Php ${distanceTime!.price.toStringAsFixed(2)}"
-                              : "Loading..."),
-
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      RowText(
-                          first: "Estimated Delivery Time to Current Location",
-                          second: distanceTime != null
-                              ? "${"${totalTime.toStringAsFixed(0)} - ${(totalTime + distanceTime!.time).toStringAsFixed(0)}" } mins."
-                              : "Loading..."),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                  child: Divida(),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: SizedBox(
-                    height: 25.h,
-                    width: MediaQuery.of(context).size.width,
-                    child: TabBar(
-                      controller: _tabController,
-                      indicator: BoxDecoration(
-                        color: kPrimary,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      labelPadding: EdgeInsets.zero,
-                      labelColor: Colors.white,
-                      dividerColor: Colors.transparent,
-                      labelStyle: appStyle(12, kLightWhite, FontWeight.normal),
-                      unselectedLabelColor: Colors.grey.withOpacity(0.7),
-                      tabs:  <Widget>[
-                        Tab(
-                          child: SizedBox(
-                            width:MediaQuery.of(context).size.width/2,
-                            //margin: EdgeInsets.only(left: 20, right: 20),
-                            height: 25,
-                            child: const Center(child: Text("Menu")),
-                          ),
-                        ),
-                        Tab(
-                          child: SizedBox(
-                            width:MediaQuery.of(context).size.width/2,
-                            height: 25,
-
-                            child: const Center(child: Text("Explore")),
-                          ),
-                        )
                       ],
                     ),
-                  ).asGlass(
-                      tintColor: kPrimary,
-                      clipBorderRadius: BorderRadius.circular(19.0),
-                      blurX: 8,
-                      blurY: 8),
-                ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      height: 100.h,
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          ReusableText(
+                              text: widget.restaurant.title!,
+                              style: appStyle(18, kDark, FontWeight.w600)),
+                          Row(
+                            children: [
+                              RatingBarIndicator(
+                                rating: widget.restaurant.rating,
+                                itemBuilder: (context, index) => const Icon(
+                                  Icons.star,
+                                  color: kPrimary,
+                                ),
+                                itemCount: 5,
+                                itemSize: 15.0,
+                                direction: Axis.horizontal,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              ReusableText(
+                                  text: "${widget.restaurant.ratingCount} ratings",
+                                  style: appStyle(9, kGray, FontWeight.w500)
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          RowText(
+                              first: "Distance To Restaurant",
+                              second: distanceTime != null
+                                  ? "${distanceTime!.distance.toStringAsFixed(1)} km"
+                                  : "Loading..."),
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          RowText(
+                              first: "Delivery Price From Current Location",
+                              second: distanceTime != null
+                                  ? "Php ${distanceTime!.price.toStringAsFixed(2)}"
+                                  : "Loading..."),
 
-                SizedBox(
-                    height: height / 1.3,
-                    child: TabBarView(controller: _tabController, children: [
-                      RestaurantMenu(
-                        restaurant: widget.restaurant,
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          RowText(
+                              first: "Estimated Delivery Time to Current Location",
+                              second: distanceTime != null
+                                  ? "${"${totalTime.toStringAsFixed(0)} - ${(totalTime + distanceTime!.time).toStringAsFixed(0)}" } mins."
+                                  : "Loading..."),
+                        ],
                       ),
-                      Explore(restaurant: widget.restaurant)
-                    ]))
-              ],
-            )),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: SizedBox(
+                        height: 25.h,
+                        width: MediaQuery.of(context).size.width,
+                        child: TabBar(
+                          controller: _tabController,
+                          indicator: BoxDecoration(
+                            color: kPrimary,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          labelPadding: EdgeInsets.zero,
+                          labelColor: Colors.white,
+                          dividerColor: Colors.transparent,
+                          labelStyle: appStyle(12, kLightWhite, FontWeight.normal),
+                          unselectedLabelColor: Colors.grey.withOpacity(0.7),
+                          tabs:  <Widget>[
+                            Tab(
+                              child: SizedBox(
+                                width:MediaQuery.of(context).size.width/2,
+                                //margin: EdgeInsets.only(left: 20, right: 20),
+                                height: 25,
+                                child: const Center(child: Text("Menu")),
+                              ),
+                            ),
+                            Tab(
+                              child: SizedBox(
+                                width:MediaQuery.of(context).size.width/2,
+                                height: 25,
+
+                                child: const Center(child: Text("Explore")),
+                              ),
+                            )
+                          ],
+                        ),
+                      ).asGlass(
+                          tintColor: kPrimary,
+                          clipBorderRadius: BorderRadius.circular(19.0),
+                          blurX: 8,
+                          blurY: 8),
+                    ),
+
+                    SizedBox(
+                        height: height / 1.2,
+                        child: TabBarView(controller: _tabController, children: [
+                          RestaurantMenu(
+                            restaurant: widget.restaurant,
+                          ),
+                          Explore(restaurant: widget.restaurant)
+                        ]))
+                  ],
+                )
+            ),)
           )
       ),
     );

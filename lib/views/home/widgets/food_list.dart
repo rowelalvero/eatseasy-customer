@@ -1,5 +1,3 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,10 +11,6 @@ import 'package:get/get.dart';
 import '../../../constants/constants.dart';
 import '../../../constants/uidata.dart';
 import '../../../controllers/address_controller.dart';
-import '../../../hooks/fetchNearbyRestaurants.dart';
-import '../../../models/distance_time.dart';
-import '../../../models/restaurants.dart';
-import '../../../services/distance.dart';
 
 class FoodList extends HookWidget {
   const FoodList({super.key});
@@ -32,10 +26,6 @@ class FoodList extends HookWidget {
     final error = hookResult.error;
     final refetch = hookResult.refetch;
 
-    // Fetching restaurants data (even if not used currently)
-    final hookRestaurantResult = useFetchRestaurants();
-    final restaurants = hookRestaurantResult.data;
-
     if (isLoading) {
       return const NearbyShimmer();
     }
@@ -49,37 +39,24 @@ class FoodList extends HookWidget {
     }
 
     return Container(
-        padding: const EdgeInsets.only(left: 12, top: 10),
-        height: 180.h,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: foods.length,
-          itemBuilder: (context, index) {
+      padding: const EdgeInsets.only(left: 12, top: 10),
+      height: 180.h,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(foods.length, (index) {
             Food food = foods[index];
-            /*Restaurants restaurant = restaurants[index];
-
-          Distance distanceCalculator = Distance();
-          DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
-            controller.defaultAddress!.latitude,
-            controller.defaultAddress!.longitude,
-            restaurant.coords.latitude,
-            restaurant.coords.longitude,
-            35,
-            pricePkm,
-          );
-
-          if (distanceTime.distance > 10.0) {
-            return SizedBox.shrink();
-          }*/
 
             return FoodWidget(
               onTap: () {
-                if(food.isAvailable == true) {
+                if (food.isAvailable == true) {
                   Get.to(() => FoodPage(food: food));
                 } else {
-                  Get.snackbar("Item unavailable",
-                      "Please come and check later",
-                      icon: const Icon(Icons.add_alert));
+                  Get.snackbar(
+                    "Item unavailable",
+                    "Please come and check later",
+                    icon: const Icon(Icons.add_alert),
+                  );
                 }
               },
               image: food.imageUrl[0],
@@ -87,9 +64,9 @@ class FoodList extends HookWidget {
               price: food.price.toStringAsFixed(2),
               time: food.time!,
             );
-          },
-        )
+          }),
+        ),
+      ),
     );
   }
 }
-

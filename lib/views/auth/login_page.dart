@@ -44,7 +44,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final controller = Get.put(LoginController());
     return Scaffold(
-      backgroundColor: Colors.white,
+      /*backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -57,15 +57,20 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
             style: appStyle(24, kPrimary, FontWeight.bold),
           ),
         ),
-      ),
+      ),*/
       body: Center(
-        child: BackGroundContainer(child: ListView(
+        child: SizedBox(width: 640, child: BackGroundContainer(child: ListView(
           padding: EdgeInsets.zero,
           children: [
             SizedBox(
               height: 30.h,
             ),
-            Lottie.asset('assets/anime/delivery.json'),
+            //Lottie.asset('assets/anime/delivery.json'),
+            Image.asset(
+              'assets/images/welcomeImage.png',
+              height: height / 2.5,
+              width: width,
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
@@ -86,7 +91,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                   ),
 
                   SizedBox(
-                    height: 25.h,
+                    height: 15.h,
                   ),
 
                   PasswordField(
@@ -98,46 +103,23 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     height: 6.h,
                   ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Get.to(() => const ForgotPasswordPage());
-                              },
-                              child: Text('Forgot password',
-                                  style: appStyle(
-                                      12, Colors.black, FontWeight.normal)),
-                            ),
-                            SizedBox(
-                              width: 3.w,
-                            ),
-                          ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => const ForgotPasswordPage());
+                          },
+                          child: Text('Forgot password',
+                              style: appStyle(
+                                  12, Colors.black, FontWeight.normal)),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Get.to(() => const RegistrationPage());
-                              },
-                              child: Text('Register',
-                                  style: appStyle(
-                                      12, Colors.black, FontWeight.normal)),
-                            ),
-                            SizedBox(
-                              width: 3.w,
-                            ),
-                          ],
+                        SizedBox(
+                          width: 3.w,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
                   SizedBox(
@@ -152,7 +134,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                             size: 35
                         ))
                         : CustomButton(
-                        btnHieght: 37.h,
+                        btnHieght: 37,
                         color: kPrimary,
                         text: "L O G I N",
                         onTap: () {
@@ -164,12 +146,29 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
 
                           controller.loginFunc(authData, model);
                         }),
-                  )
+                  ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account?",
+                    style: appStyle(
+                        12, Colors.black, FontWeight.normal)
+                  ),
+                  TextButton(
+                    onPressed: () => Get.to(() => const RegistrationPage()),
+                    child: Text(
+                      "Register",
+                      style: appStyle(
+                          12, kPrimary, FontWeight.normal),
+                    ),
+                  )]),
+
                 ],
               ),
             )
           ],
-        )),
+        )),),
       ),
     );
   }

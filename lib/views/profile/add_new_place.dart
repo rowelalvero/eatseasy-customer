@@ -19,6 +19,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
 
 import 'saved_places.dart';
 
@@ -44,8 +45,7 @@ class _AddNewPlaceState extends State<AddNewPlace> {
     _determinePosition();
     controller.currentIndex = 0;
     _pageController.addListener(() {
-      setState(() {
-      });
+      setState(() {});
     });
   }
 
@@ -58,52 +58,80 @@ class _AddNewPlaceState extends State<AddNewPlace> {
     super.dispose();
   }
 
-
   List<dynamic> _placeList = [];
   final List<dynamic> _selectedPlace = [];
-
   LatLng? _selectedLocation;
 
   Future<void> _determinePosition() async {
-    if (!await _checkLocationServices()) return;
+    if (kIsWeb) {
+      print("Web platform detected. Skipping permission request.");
+      await _getCurrentLocation();
+      return;
+    }
 
+    if (!await _checkLocationServices()) return;
     await _showLocationPermission();
   }
 
   Future<bool> _checkLocationServices() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
-      return false; // Location services are disabled.
+      return false;
+    }
+
+    if (kIsWeb) {
+      return true;
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
-    return permission != LocationPermission.deniedForever; // Location permissions are permanently denied.
+    return permission != LocationPermission.deniedForever;
   }
 
   Future<void> _showLocationPermission() async {
-    // Request location permission
     var status = await Permission.location.request();
 
     if (status.isGranted) {
       await _getCurrentLocation();
     } else if (status.isDenied) {
-      // Permission denied, show a message
-      print("Location permission denied. Unable to access location.");
+      print("Location permission denied.");
     } else if (status.isPermanentlyDenied) {
-      // Permission permanently denied, open app settings
       openAppSettings();
     }
   }
 
   Future<void> _getCurrentLocation() async {
-    var currentLocation = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    if (kIsWeb) {
+      try {
+        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-    setState(() {
-      _selectedLocation = LatLng(currentLocation.latitude, currentLocation.longitude);
-      location.getAddressFromLatLng(_selectedLocation!);
+        setState(() {
+          _selectedLocation = LatLng(position.latitude, position.longitude);
+          location.getAddressFromLatLng(_selectedLocation!);
+          _searchController.text = location.address;
+          _postalCodeRes.text = location.postalCode;
+        });
 
-      _searchController.text = location.address;
-      _postalCodeRes.text = location.postalCode;
+        if (_selectedLocation != null && _mapController != null) {
+          //moveToSelectedLocation();
+          _mapController!.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: _selectedLocation!,
+                zoom: 16.0,
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        print("Error getting location on web: $e");
+      }
+    } else {
+      var currentLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        _selectedLocation = LatLng(currentLocation.latitude, currentLocation.longitude);
+        location.getAddressFromLatLng(_selectedLocation!);
+        _searchController.text = location.address;
+        _postalCodeRes.text = location.postalCode;
+      });
 
       if (_selectedLocation != null && _mapController != null) {
         _mapController!.animateCamera(
@@ -115,18 +143,27 @@ class _AddNewPlaceState extends State<AddNewPlace> {
           ),
         );
       }
-    });
+    }
   }
 
-  void _onSearchChanged(String searchQuery) async {
+  Future<void> _onSearchChanged(String searchQuery) async {
     if (searchQuery.isNotEmpty) {
-      final url = Uri.parse(
-          'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$searchQuery&key=${Environment.googleApiKey2}');
-      final response = await http.get(url);
+      final response = await http.post(
+        Uri.parse('${Environment.appBaseUrl}/api/address/search-places'),
+        body: json.encode({
+          'searchQuery': searchQuery,
+          'googleApiKey': Environment.googleApiKey2,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
       if (response.statusCode == 200) {
         setState(() {
           _placeList = json.decode(response.body)['predictions'];
+        });
+      } else {
+        setState(() {
+          _placeList = [];
         });
       }
     } else {
@@ -136,38 +173,27 @@ class _AddNewPlaceState extends State<AddNewPlace> {
     }
   }
 
-  void _getPlaceDetail(String placeId) async {
-    final detailUrl = Uri.parse(
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=${Environment.googleApiKey2}');
-    final detailResponse = await http.get(detailUrl);
+  Future<void> _getPlaceDetail(String placeId) async {
+    final response = await http.post(
+      Uri.parse('${Environment.appBaseUrl}/api/address/get-place-detail'),
+      body: json.encode({
+        'placeId': placeId,
+        'googleApiKey': Environment.googleApiKey2,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-    if (detailResponse.statusCode == 200) {
-      final responseBody = json.decode(detailResponse.body);
-
-      // Extracting latitude and longitude
-      final lat = responseBody['result']['geometry']['location']['lat'];
-      final lng = responseBody['result']['geometry']['location']['lng'];
-
-      // Extracting the formatted address
-      final address = responseBody['result']['formatted_address'];
-
-      // Extracting the postal code
-      String postalCode = "";
-      final addressComponents = responseBody['result']['address_components'];
-      for (var component in addressComponents) {
-        if (component['types'].contains('postal_code')) {
-          postalCode = component['long_name'];
-          break;
-        }
-      }
-
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
       setState(() {
-        _selectedLocation = LatLng(lat, lng);
-        _searchController.text = address;
-        _postalCodeRes.text = postalCode;
+        _selectedLocation = LatLng(data['lat'], data['lng']);
+        _searchController.text = data['address'];
+        _postalCodeRes.text = data['postalCode'];
         moveToSelectedLocation();
         _placeList = [];
       });
+    } else {
+      print('Failed to fetch place details');
     }
   }
 
@@ -177,7 +203,7 @@ class _AddNewPlaceState extends State<AddNewPlace> {
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: _selectedLocation!,
-            zoom: 16.0, // You can adjust the zoom level
+            zoom: 16.0, // Adjust zoom level as needed
           ),
         ),
       );
@@ -189,36 +215,24 @@ class _AddNewPlaceState extends State<AddNewPlace> {
       _selectedLocation = newPosition;
     });
 
-    final reverseGeocodeUrl = Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${newPosition.latitude},${newPosition.longitude}&key=${Environment.googleApiKey2}');
-
-    final response = await http.get(reverseGeocodeUrl);
+    final response = await http.post(
+      Uri.parse('${Environment.appBaseUrl}/api/address/reverse-geocode'),
+      body: json.encode({
+        'lat': newPosition.latitude,
+        'lng': newPosition.longitude,
+        'googleApiKey': Environment.googleApiKey2,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
 
     if (response.statusCode == 200) {
-      final responseBody = json.decode(response.body);
-
-      // Extracting the formatted address
-      final address = responseBody['results'][0]['formatted_address'];
-
-      // Extracting the postal code
-      String postalCode = "";
-      final addressComponents =
-          responseBody['results'][0]['address_components'];
-      for (var component in addressComponents) {
-        if (component['types'].contains('postal_code')) {
-          postalCode = component['long_name'];
-          break;
-        }
-      }
-
-      // Update the state with the new address and postal code
+      final data = json.decode(response.body);
       setState(() {
-        _searchController.text = address;
-        _postalCodeRes.text = postalCode;
+        _searchController.text = data['address'];
+        _postalCodeRes.text = data['postalCode'];
       });
     } else {
-      // Handle the error or no result case
-      print('Failed to fetch address');
+      print('Failed to fetch address for marker');
     }
   }
 
@@ -303,7 +317,8 @@ class _AddNewPlaceState extends State<AddNewPlace> {
                           _mapController = controller;
                         },
                         initialCameraPosition: CameraPosition(
-                          target: _selectedLocation ?? const LatLng(37.77483, -122.41942), // Default location
+                          target: _selectedLocation ??
+                              const LatLng(37.77483, -122.41942),
                           zoom: 15.0,
                         ),
                         markers: _selectedLocation == null
@@ -313,7 +328,7 @@ class _AddNewPlaceState extends State<AddNewPlace> {
                             markerId: const MarkerId('Your Location'),
                             position: _selectedLocation!,
                             draggable: false,
-                          )*/
+                          ),*/
                         },
                         onCameraMove: (position) {
                           setState(() {

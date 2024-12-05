@@ -46,8 +46,6 @@ Future<void> main() async {
   await dotenv.load(fileName: Environment.fileName);
   FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
   await GetStorage.init();
-  Get.put(CartController());
-  Get.put(ContactController());
 
   await NotificationService().initialize(flutterLocalNotificationsPlugin);
 

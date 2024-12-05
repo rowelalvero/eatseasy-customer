@@ -107,7 +107,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           elevation: 0,
           title: Container(
             padding: EdgeInsets.only(top: 5.w),
-            height: 50.h,
+            height: 50,
             child: Text(
               "Forgot password",
               style: appStyle(24, kDark, FontWeight.normal),
@@ -115,7 +115,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         ),
         body: Center(
-            child: BackGroundContainer(
+            child: SizedBox(width: 640, child: BackGroundContainer(
                 child: PageView(
                   physics: const NeverScrollableScrollPhysics(),
                   controller: _pageController,
@@ -160,7 +160,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     size: 35
                                 ),)
                                   : CustomButton(
-                                  btnHieght: 37.h,
+                                  btnHieght: 37,
                                   color: kPrimary,
                                   text: "Send email OTP",
                                   onTap: () async {
@@ -192,7 +192,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           SizedBox(
                             height: 100.h,
                           ),
-                          Lottie.asset('assets/anime/delivery.json'),
+                          //Lottie.asset('assets/anime/delivery.json'),
                           SizedBox(
                             height: 30.h,
                           ),
@@ -233,7 +233,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             },
                             color: kSecondary,
                             text: "Resend",
-                            btnHieght: 40.h,
+                            btnHieght: 40,
                           )),
                           SizedBox(
                             height: 15.h,
@@ -264,7 +264,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             },
                             color: kPrimary,
                             text: "Verify Account",
-                            btnHieght: 40.h,
+                            btnHieght: 40,
                           ))
                         ]
                         )
@@ -458,7 +458,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     size: 35
                                 ),)
                                   : CustomButton(
-                                btnHieght: 37.h,
+                                btnHieght: 37,
                                 color: kPrimary,
                                 text: "Confirm",
                                 onTap: () async {
@@ -504,7 +504,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                   ],
                 )
-            )
+            ),)
         )
     );
   }

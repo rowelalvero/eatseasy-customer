@@ -29,22 +29,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String currentAction = ''; // Variable to track the action (load, pay, withdraw)
   double walletBalance = 7595.00;
 
+  // Constant exchange rate: 1 PHP = 0.018 USD (this is an example, replace with actual dynamic rate if needed)
+  static const double phpToUsdExchangeRate = 0.018;
+
+  // A function to convert PHP to USD
+  double convertPhpToUsd(double phpAmount) {
+    return phpAmount * phpToUsdExchangeRate;
+  }
+
+  // Function to handle the wallet load action
   Future<void> _loadWallet() async {
     String? userId = box.read('userId');
     final sanitizedUserId = userId?.replaceAll('"', '').trim();
+
     if (sanitizedUserId != null && _amountController.text.isNotEmpty) {
       setState(() {
+        double phpAmount = double.parse(_amountController.text);
+        double usdAmount = convertPhpToUsd(phpAmount); // Convert PHP to USD
+
         UserWallet newTransaction = UserWallet(
           userId: sanitizedUserId,
           walletTransactions: [
             WalletTransactions(
-              amount: double.parse(_amountController.text),
+              amount: usdAmount, // Store the amount in USD
               paymentMethod: 'STRIPE',
             )
           ],
           walletBalance: walletBalance, // Or any balance update logic here
         );
-        _walletController.paymentFunction(double.parse(_amountController.text), 'STRIPE', newTransaction);
+        _walletController.paymentFunction(usdAmount, 'STRIPE', newTransaction);
       });
     } else {
       Get.snackbar(
@@ -57,21 +70,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Function to handle the payment action
   Future<void> _pay() async {
     String? driverId = box.read('driverId');
     if (driverId != null && _amountController.text.isNotEmpty) {
       setState(() {
+        double phpAmount = double.parse(_amountController.text);
+        double usdAmount = convertPhpToUsd(phpAmount); // Convert PHP to USD
+
         UserWallet newTransaction = UserWallet(
           userId: driverId,
           walletTransactions: [
             WalletTransactions(
-              amount: double.parse(_amountController.text),
+              amount: usdAmount, // Store the amount in USD
               paymentMethod: 'STRIPE',
             )
           ],
           walletBalance: walletBalance, // Or any balance update logic here
         );
-        _walletController.paymentFunction(double.parse(_amountController.text), 'STRIPE', newTransaction);
+        _walletController.paymentFunction(usdAmount, 'STRIPE', newTransaction);
       });
     } else {
       Get.snackbar(
@@ -84,21 +101,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Function to handle the withdrawal action
   Future<void> _withdraw() async {
     String? driverId = box.read('driverId');
     if (driverId != null && _amountController.text.isNotEmpty) {
       setState(() {
+        double phpAmount = double.parse(_amountController.text);
+        double usdAmount = convertPhpToUsd(phpAmount); // Convert PHP to USD
+
         UserWallet newTransaction = UserWallet(
           userId: driverId,
           walletTransactions: [
             WalletTransactions(
-              amount: double.parse(_amountController.text),
+              amount: usdAmount, // Store the amount in USD
               paymentMethod: 'STRIPE',
             )
           ],
           walletBalance: walletBalance, // Or any balance update logic here
         );
-        _walletController.paymentFunction(double.parse(_amountController.text), 'STRIPE', newTransaction);
+        _walletController.paymentFunction(usdAmount, 'STRIPE', newTransaction);
       });
     } else {
       Get.snackbar(
@@ -111,7 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-
+  // A helper function to handle back press logic
   Future<bool> _onWillPop() async {
     if (isToppingUp) {
       setState(() {
@@ -121,6 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
     return true; // Allows the Navigator to pop the page
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,12 +164,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () {},
-            ),
-          ],
         ),
         body: Stack(
           children: [
@@ -292,19 +308,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           CustomButton(
                             onTap: () async {
                               if (_amountController.text.isNotEmpty) {
-                                if (currentAction == 'load') {
-                                  print(currentAction);
-                                  await _loadWallet();
-                                } else if (currentAction == 'pay') {
-                                  print(currentAction);
-                                  await _pay();
-                                } else if (currentAction == 'withdraw') {
-                                  print(currentAction);
-                                  await _withdraw();
+                                if(double.tryParse(_amountController.text)! > 250) {
+                                  if (currentAction == 'load') {
+                                    print(currentAction);
+                                    await _loadWallet();
+                                  } else if (currentAction == 'pay') {
+                                    print(currentAction);
+                                    await _pay();
+                                  } else if (currentAction == 'withdraw') {
+                                    print(currentAction);
+                                    await _withdraw();
+                                  }
+                                  setState(() {
+                                    isToppingUp = false; // Close the sheet after action
+                                  });
+                                } else {
+                                  Get.snackbar(
+                                    "The minimum top-up amount is Php 250",
+                                    "Please enter beyond that amount",
+                                    colorText: kWhite,
+                                    backgroundColor: Colors.red,
+                                    icon: const Icon(Icons.error),
+                                  );
                                 }
-                                setState(() {
-                                  isToppingUp = false; // Close the sheet after action
-                                });
+
                               } else {
                                 Get.snackbar(
                                   "Empty amount",
@@ -314,6 +341,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   icon: const Icon(Icons.error),
                                 );
                               }
+
                             },
                             color: kPrimary,
                             text: "Confirm", // Text that indicates the action being taken

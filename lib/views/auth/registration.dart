@@ -1,6 +1,7 @@
 import 'package:eatseasy/common/back_ground_container.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:eatseasy/common/app_style.dart';
@@ -67,38 +68,76 @@ class _RegistrationPageState extends State<RegistrationPage> {
       isVerifying = true;
     });
 
-    await _auth.verifyPhoneNumber(
-      phoneNumber: _phoneController.text,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential);
-        Get.snackbar('Success', 'Phone number verified');
-        setState(() {
-          verificationId = '';
-          isVerifying = false;
-          isOtpVerified = true;
-          //controller.getUserData();
-        });
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        Get.snackbar('Error', e.message ?? 'Phone number verification failed');
-        setState(() {
-          isVerifying = false;
-        });
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
-          this.verificationId = verificationId;
-          isVerifying = false;
-        });
-        Get.snackbar('OTP Sent', 'Please check your phone for the OTP');
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        setState(() {
-          this.verificationId = verificationId;
-          isVerifying = false;
-        });
-      },
-    );
+    if (kIsWeb) {
+      // Web-specific OTP verification
+      await _auth.verifyPhoneNumber(
+        phoneNumber: _phoneController.text,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential);
+          Get.snackbar('Success', 'Phone number verified');
+          setState(() {
+            verificationId = '';
+            isVerifying = false;
+            isOtpVerified = true;
+            //controller.getUserData();
+          });
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          Get.snackbar('Error', e.message ?? 'Phone number verification failed');
+          setState(() {
+            isVerifying = false;
+          });
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            this.verificationId = verificationId;
+            isVerifying = false;
+          });
+          Get.snackbar('OTP Sent', 'Please check your phone for the OTP');
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          setState(() {
+            this.verificationId = verificationId;
+            isVerifying = false;
+          });
+        },
+        timeout: const Duration(seconds: 60),
+      );
+    } else {
+      // Mobile (Android/iOS) specific code
+      await _auth.verifyPhoneNumber(
+        phoneNumber: _phoneController.text,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential);
+          Get.snackbar('Success', 'Phone number verified');
+          setState(() {
+            verificationId = '';
+            isVerifying = false;
+            isOtpVerified = true;
+            //controller.getUserData();
+          });
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          Get.snackbar('Error', e.message ?? 'Phone number verification failed');
+          setState(() {
+            isVerifying = false;
+          });
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            this.verificationId = verificationId;
+            isVerifying = false;
+          });
+          Get.snackbar('OTP Sent', 'Please check your phone for the OTP');
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          setState(() {
+            this.verificationId = verificationId;
+            isVerifying = false;
+          });
+        },
+      );
+    }
   }
 
   Future<void> _verifyOtp() async {
@@ -167,24 +206,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Container(
-          padding: EdgeInsets.only(top: 5.w),
-          height: 50.h,
-          child: Center(
-            child: Text(
-              "EatsEasy",
-              style: appStyle(24, kPrimary, FontWeight.bold),
-            ),
-          ),
+        title: Text(
+          "Register",
+          style: appStyle(24, kPrimary, FontWeight.bold),
         ),
       ),
-      body: Center(child: BackGroundContainer(child: ListView(
+      body: Center(child: SizedBox(width: 640, child: BackGroundContainer(child: ListView(
         padding: EdgeInsets.zero,
         children: [
           SizedBox(
             height: 30.h,
           ),
-          Lottie.asset('assets/anime/delivery.json'),
+          //Lottie.asset('assets/anime/delivery.json'),
+          /*Image.asset(
+            'assets/images/welcomeImage.png',
+            height: height / 3,
+            width: width,
+          ),*/
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Form(
@@ -543,7 +581,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                           child: Container(
                               height: 120.h,
-                              width: width / 2.7,
+                              width: 180.h,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.r),
                                 border: Border.all(color: kGrayLight),
@@ -605,7 +643,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                           child: Container(
                               height: 120.h,
-                              width: width / 2.7,
+                              width: 180.h,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.r),
                                 border: Border.all(color: kGrayLight),
@@ -663,7 +701,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         ))
                         : CustomButton(
 
-                        btnHieght: 37.h,
+                        btnHieght: 37,
                         color: kPrimary,
                         text: "R E G I S T E R",
                         onTap: () {
@@ -716,7 +754,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
           )
         ],
-      )),),
+      )),),),
     );
   }
 }

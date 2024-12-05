@@ -19,7 +19,7 @@ class RatingReview extends StatelessWidget {
             text: "Ratings",
             style: appStyle(20, kDark, FontWeight.w400),
           ),),
-      body: Center(
+      body: const Center(
         child: BackGroundContainer(child: RateOrders()),
       ),
     );

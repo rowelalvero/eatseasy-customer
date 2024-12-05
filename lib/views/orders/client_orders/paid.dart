@@ -14,6 +14,7 @@ import 'package:get/get.dart';
 
 import '../../../common/app_style.dart';
 import '../../../common/reusable_text.dart';
+import '../../entrypoint.dart';
 
 class PaidOrders extends HookWidget {
   const PaidOrders({Key? key}) : super(key: key);
@@ -29,38 +30,68 @@ class PaidOrders extends HookWidget {
     controller.setOnStatusChangeCallback(refetch);
     final msgController = Get.put(MessageController());
     Get.put(ContactController());
+
     return isLoading
         ? const FoodsListShimmer()
         : orders!.isEmpty
         ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/no_content.png',
-              height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
-              width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
-              fit: BoxFit.contain,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/no_content.png',
+            height: MediaQuery.of(context).size.height * 0.3,
+            width: MediaQuery.of(context).size.width * 0.5,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 16),
+          ReusableText(
+            text: "No paid orders yet.",
+            style: appStyle(14, kGray, FontWeight.normal),
+          ),
+          ReusableText(
+            text: "Why not explore some tasty meals and place your first order?",
+            style: appStyle(14, kGray, FontWeight.normal),
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {
+              Get.offAll(() => MainScreen());
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: kPrimary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                "Browse foods",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
-            ReusableText(
-              text:
-              "Try to look for some awesome treats!",
-              style: appStyle(14, kGray, FontWeight.normal),
-            ),
-          ],
-        )
+          ),
+        ],
+      ),
     )
-        : Container(
-      height: height / 1.3,
-      width: width,
-      color: kLightWhite,
-      child: ListView.builder(
+        : RefreshIndicator(
+      color: kPrimary,
+      onRefresh: () async {
+        // Trigger the hook to refetch the data
+        refetch();
+      },
+      child: Container(
+        height: height / 1.3,
+        width: width,
+        color: kLightWhite,
+        child: ListView.builder(
           padding: EdgeInsets.only(top: 10.h, left: 12.w, right: 12.w),
           itemCount: orders.length,
           itemBuilder: (context, i) {
             ClientOrders order = orders[i];
             return ClientOrderTile(order: order);
-          }),
+          },
+        ),
+      ),
     );
   }
 }

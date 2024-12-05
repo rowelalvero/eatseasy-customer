@@ -23,14 +23,14 @@ class LoginRedirection extends StatelessWidget {
           text: "Please login to access this page", style: appStyle(20, kDark, FontWeight.w400),),
       ),
       body: Center(
-        child: BackGroundContainer(
+        child: SizedBox(width: 640, child: BackGroundContainer(
           child: ListView(
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   children: [
-                    Container(
+                    /*Container(
                       width: width,
                       height: height / 2,
                       color: Colors.white,
@@ -39,6 +39,11 @@ class LoginRedirection extends StatelessWidget {
                         width: width,
                         height: height / 2,
                       ),
+                    ),*/
+                    Image.asset(
+                      'assets/images/welcomeImage.png',
+                      height: height / 3,
+                      width: width,
                     ),
                     CustomButton(
                         onTap: () {
@@ -53,7 +58,7 @@ class LoginRedirection extends StatelessWidget {
               )
             ],
           ),
-        ),
+        ),)
       ),
     );
   }

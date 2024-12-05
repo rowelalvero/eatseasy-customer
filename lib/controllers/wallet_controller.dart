@@ -147,6 +147,7 @@ class WalletController extends GetxController {
       if (response.statusCode == 200) {
         var urlData = jsonDecode(response.body);
         paymentUrl = urlData['url'];
+        print(paymentUrl);
         setLoading = false;
       } else {
         print("Error: ${response.statusCode} - ${response.body}"); // Log the error response
@@ -193,10 +194,16 @@ class WalletController extends GetxController {
         },
       );
 
+      print(response.statusCode);
       if (response.statusCode == 200) {
+        setLoading = false;
         var data = jsonDecode(response.body);
+        print(response.body);
         user.value = LoginResponse.fromJson(data);
+
       } else {
+        setLoading = false;
+        print(response.body);
         Get.snackbar(
           "Error",
           "Failed to load driver details.",

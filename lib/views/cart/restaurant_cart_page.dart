@@ -9,6 +9,7 @@ import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/hooks/fetchCart.dart';
 import 'package:eatseasy/models/user_cart.dart';
 import 'package:eatseasy/views/auth/widgets/login_redirect.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -17,6 +18,7 @@ import '../../hooks/fetchAllNearbyRestaurants.dart';
 import '../../hooks/fetchDefaultAddress.dart';
 import '../../models/login_response.dart';
 import '../../models/restaurants.dart';
+import '../entrypoint.dart';
 
 class RestaurantCartPage extends HookWidget {
   const RestaurantCartPage({super.key});
@@ -76,18 +78,38 @@ class RestaurantCartPage extends HookWidget {
                   children: [
                     Image.asset(
                       'assets/images/no_content.png',
-                      height: MediaQuery.of(context).size.height *
-                          0.3, // 30% of screen height
-                      width: MediaQuery.of(context).size.width *
-                          0.5, // 50% of screen width
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      width: MediaQuery.of(context).size.width * 0.5,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 16),
                     ReusableText(
                       text:
-                      "Cart is empty, try to look for some awesome treats!",
-                      style: appStyle(
-                          14, kGray, FontWeight.normal),
+                      "Your cart is empty!",
+                      style: appStyle(14, kGray, FontWeight.normal),
+                    ),
+                    ReusableText(
+                      text:
+                      "Discover delicious dishes and add them to your cart.",
+                      style: appStyle(14, kGray, FontWeight.normal),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () {
+                        // Redirect user to restaurant browsing or home page
+                        Get.offAll(() => MainScreen());
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                        decoration: BoxDecoration(
+                          color: kPrimary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          "Browse Foods",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -95,8 +117,7 @@ class RestaurantCartPage extends HookWidget {
                   : ListView.builder(
                 padding: EdgeInsets.zero,
                 itemCount: restaurants.length,
-                physics:
-                const AlwaysScrollableScrollPhysics(), // Allows refresh indicator
+                physics: const AlwaysScrollableScrollPhysics(), // Allows refresh indicator
                 itemBuilder: (context, i) {
                   Restaurants restaurant = restaurants[i];
                   List<UserCart> matchingCarts = items.where((cart) => cart.restaurant == restaurant.id).toList();

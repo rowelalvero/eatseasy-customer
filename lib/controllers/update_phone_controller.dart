@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'package:eatseasy/controllers/wallet_controller.dart';
-import 'package:eatseasy/models/environment.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
-class UpdateUserController extends GetxController {
-  final WalletController _walletController = Get.put(WalletController());
+import '../constants/constants.dart';
+import '../models/environment.dart';
+
+class UpdatePhoneController extends GetxController {
   final box = GetStorage();
+  final WalletController _walletController = Get.put(WalletController());
   RxBool _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
   set setLoading(bool newValue) {
@@ -19,9 +21,8 @@ class UpdateUserController extends GetxController {
     String token = box.read('token');
     String accessToken = jsonDecode(token);
     String? data = box.read("user");
-
-    print("accesstoken: " + token);
-    print("userId: " + userId!);
+    print(userId);
+    print(token);
 
     final url = Uri.parse('${Environment.appBaseUrl}/api/users/$userId');
     final headers = {
@@ -40,11 +41,12 @@ class UpdateUserController extends GetxController {
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
+        print('Phone number updated successfully: $responseBody');
         await _walletController.fetchUserDetails();
-        Get.snackbar("Success", "Profile updated successfully.");
+        Get.snackbar("Success", "Phone number updated successfully.");
       } else {
-        print('Failed to update user. Status code: ${response.statusCode}');
-        Get.snackbar("Error", "Failed to update profile. Try again.");
+        print('Failed to update phone number. Status code: ${response.statusCode}');
+        Get.snackbar("Error", "Failed to update phone number. Try again.");
       }
     } catch (error) {
       print('Error: $error');

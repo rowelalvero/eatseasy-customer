@@ -29,34 +29,60 @@ class ActiveOrders extends HookWidget {
         ? const FoodsListShimmer()
         : orders!.isEmpty
         ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/no_content.png',
-              height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
-              width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
-              fit: BoxFit.contain,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/no_content.png',
+            height: MediaQuery.of(context).size.height * 0.3, // 30% of screen height
+            width: MediaQuery.of(context).size.width * 0.5,   // 50% of screen width
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 16),
+          ReusableText(
+            text: "You're all caught up! No active orders to deliver right now.",
+            style: appStyle(14, kGray, FontWeight.normal),
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {
+              // Trigger a refresh to check for new active orders
+              refetch();
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: kPrimary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                "Refresh Orders",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
-            ReusableText(
-              text:
-              "Try to look for some awesome treats!",
-              style: appStyle(14, kGray, FontWeight.normal),
-            ),
-          ],
-        )
+          ),
+        ],
+      ),
     )
-        : Container(
-      height: height / 1.3,
-      width: width,
-      color: kLightWhite,
-      child: ListView.builder(
-              padding: EdgeInsets.only(top: 10.h, left: 12.w, right: 12.w),
-              itemCount: orders.length,
-              itemBuilder: (context, i) {
-                ClientOrders order = orders[i];
-                return ClientOrderTile(order: order);
-              }),
+        : RefreshIndicator(
+      color: kPrimary,
+      onRefresh: () async {
+        // Trigger the hook to refetch the data
+        refetch();
+      },
+      child: Container(
+        height: height / 1.3,
+        width: width,
+        color: kLightWhite,
+        child: ListView.builder(
+          padding: EdgeInsets.only(top: 10.h, left: 12.w, right: 12.w),
+          itemCount: orders.length,
+          itemBuilder: (context, i) {
+            ClientOrders order = orders[i];
+            return ClientOrderTile(order: order);
+          },
+        ),
+      ),
     );
   }
 }

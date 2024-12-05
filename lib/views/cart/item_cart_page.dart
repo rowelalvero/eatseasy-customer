@@ -54,11 +54,14 @@ class ItemCartPage extends HookWidget {
     final isLoading = hookResult.isLoading;
     final refetch = hookResult.refetch;
 
-    // Fetching foods data
+// Fetching foods data
     final foodHookResult = useFetchFood();
     final foods = foodHookResult.data ?? [];
 
-    // Reset matchingCarts on each build
+// Map food items by their IDs for quick lookup
+    final Map<String, Food> foodMap = {for (var food in foods) food.id.toString(): food};
+
+// Ensure matchingCarts is populated outside the builder
     List<OrderItem> matchingCarts = [];
     List<String> foodTimeList = [];
 
@@ -136,9 +139,10 @@ class ItemCartPage extends HookWidget {
             }
           }
           List<int> intList = foodTimeList.map(int.parse).toList();
-          int highestNumber = (intList.length == 1)
-              ? intList.first
-              : intList.reduce((current, next) => current > next ? current : next);
+          int highestNumber = 0; // Default value if list is empty
+          if (intList.isNotEmpty) {
+            highestNumber = intList.reduce((current, next) => current > next ? current : next);
+          }
           standardDeliveryTime.value += highestNumber.toDouble();
           totalDeliveryOptionTime.value = standardDeliveryTime.value;
 
@@ -574,9 +578,9 @@ class ItemCartPage extends HookWidget {
                               UserCart cart = items[i];
 
                               // Ensure both keys and IDs are strings
-                              final foodMap = {for (var food in foods) food.id.toString(): food};
                               Food? matchedFood = foodMap[cart.productId.id.toString()];
 
+                              // Check if both conditions are met: restaurant ID matches and food is found
                               if (cart.restaurant == restaurant.id && matchedFood != null) {
                                 OrderItem orderItem = OrderItem(
                                   foodId: cart.productId.id,
@@ -587,7 +591,7 @@ class ItemCartPage extends HookWidget {
                                   customAdditives: cart.customAdditives,
                                 );
 
-                                matchingCarts.add(orderItem);
+                                matchingCarts.add(orderItem); // Add to the matchingCarts list
 
                                 return CartTile(
                                   item: cart,
@@ -595,16 +599,11 @@ class ItemCartPage extends HookWidget {
                                   refetch: refetch,
                                 );
                               } else {
+                                // Return empty widget if no match
                                 return const SizedBox.shrink();
                               }
                             },
                           ),
-
-
-
-
-
-
                         ),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -723,7 +722,7 @@ class ItemCartPage extends HookWidget {
                                     size: 20,
                                   ),
                                   SizedBox(width: 10),
-                                  Text('Stripe'),
+                                  Text('Wallet'),
                                 ],
                               ),
                               value: 'STRIPE',
@@ -968,7 +967,7 @@ class ItemCartPage extends HookWidget {
                   ),
                   CustomButton(
                       onTap: () {
-                        Get.to(() => ProfileScreen(user: user));
+                        Get.to(() => const SavedPlaces());
                       },
                       btnHieght: 40,
                       text: "Proceed profile page"),

@@ -15,13 +15,16 @@ import 'package:eatseasy/views/home/widgets/custom_btn.dart';
 import 'package:eatseasy/views/search/seach_page.dart';
 import 'package:get/get.dart';
 
+import '../../models/order_details.dart';
+
 class ReviewPage extends HookWidget {
-  const ReviewPage({super.key, required this.order});
+  const ReviewPage({super.key, required this.order, required this.orders});
 
   final ClientOrders order;
+  final DriverId orders;
   @override
   Widget build(BuildContext context) {
-    final driverResult = useFetchRating("?product=${order.restaurantId}&ratingType=Driver");
+    final driverResult = useFetchRating("?product=${orders.id}&ratingType=Driver");
     final restaurantResult = useFetchRating("?product=${order.restaurantId}&ratingType=Restaurant");
     final foodResult = useFetchRating("?product=${order.orderItems[0].foodId.id}&ratingType=Food");
 
@@ -33,9 +36,9 @@ class ReviewPage extends HookWidget {
     final isFoodLoading = foodResult.isLoading;
     final refetchFood = foodResult.refetch;
 
-    SuccessResponse? driverExistence = restaurantResult.data;
-    final isDriverLoading = restaurantResult.isLoading;
-    final refetchDriver = restaurantResult.refetch;
+    SuccessResponse? driverExistence = driverResult.data;
+    final isDriverLoading = driverResult.isLoading;
+    final refetchDriver = driverResult.refetch;
 
     final controller = Get.put(RatingController());
     controller.rating = 3;
@@ -66,18 +69,18 @@ class ReviewPage extends HookWidget {
                                 "Tap the stars to rate the restaurant and submit",
                                 style:
                                 appStyle(12, kGray, FontWeight.w600)),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             RatingBar.builder(
-                              initialRating: 3,
+                              initialRating: 0,
                               minRating: 1,
                               itemSize: 55.r,
                               direction: Axis.horizontal,
                               allowHalfRating: false,
                               itemCount: 5,
                               itemPadding:
-                              EdgeInsets.symmetric(horizontal: 4.0),
+                              const EdgeInsets.symmetric(horizontal: 4.0),
                               itemBuilder: (context, _) => const Icon(
                                 Icons.star,
                                 color: Colors.amber,
@@ -86,7 +89,7 @@ class ReviewPage extends HookWidget {
                                 controller.updateRating(rating);
                               },
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             CustomButton(
@@ -124,7 +127,7 @@ class ReviewPage extends HookWidget {
                                     height: 20.h,
                                   ),
                                   RatingBar.builder(
-                                    initialRating: 3,
+                                    initialRating: 0,
                                     minRating: 1,
                                     itemSize: 55.r,
                                     direction: Axis.horizontal,
@@ -181,7 +184,7 @@ class ReviewPage extends HookWidget {
                                     height: 20.h,
                                   ),
                                   RatingBar.builder(
-                                    initialRating: 3,
+                                    initialRating: 0,
                                     minRating: 1,
                                     itemSize: 55.r,
                                     direction: Axis.horizontal,

@@ -30,12 +30,17 @@ class VerificationPage extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-            child: BackGroundContainer(
-                child: ListView(children: [
+            child: SizedBox(width: 640, child: BackGroundContainer(
+                child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0), child: ListView(children: [
                   SizedBox(
                     height: 100.h,
                   ),
-                  Lottie.asset('assets/anime/delivery.json'),
+                  //Lottie.asset('assets/anime/delivery.json'),
+                  Image.asset(
+                    'assets/images/welcomeImage.png',
+                    height: height / 3,
+                    width: width,
+                  ),
                   SizedBox(
                     height: 30.h,
                   ),
@@ -95,9 +100,8 @@ class VerificationPage extends StatelessWidget {
                     text: "Verify Account",
                     btnHieght: 40.h,
                   ))
-                ]
-                )
-            )
+                ]),)
+            ),)
         ));
   }
 }

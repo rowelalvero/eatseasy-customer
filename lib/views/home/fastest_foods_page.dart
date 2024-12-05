@@ -17,6 +17,7 @@ import '../../hooks/fetchNearbyRestaurants.dart';
 import '../../models/distance_time.dart';
 import '../../models/restaurants.dart';
 import '../../services/distance.dart';
+import '../profile/saved_places.dart';
 
 class FastestFoods extends HookWidget {
   const FastestFoods({super.key});
@@ -40,18 +41,12 @@ class FastestFoods extends HookWidget {
         elevation: .4,
         centerTitle: true,
         backgroundColor: kLightWhite,
-        /*actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.grid_view),
-          ),
-        ],*/
         title: ReusableText(
           text: "Fastest Food",
           style: appStyle(20, kDark, FontWeight.w400),
         ),
       ),
-      body:  RefreshIndicator(
+      body: RefreshIndicator(
         color: kPrimary,
         onRefresh: () async {
           refetch();
@@ -70,26 +65,43 @@ class FastestFoods extends HookWidget {
             itemCount: foods.length, // Use the smaller length
             itemBuilder: (context, i) {
               Food food = foods[i];
-              /*Restaurants restaurant = restaurants[i];
 
-              Distance distanceCalculator = Distance();
-              DistanceTime distanceTime = distanceCalculator.calculateDistanceTimePrice(
-                controller.defaultAddress!.latitude,
-                controller.defaultAddress!.longitude,
-                restaurant.coords.latitude,
-                restaurant.coords.longitude,
-                35,
-                pricePkm,
-              );
-
-              if (distanceTime.distance > 10.0) {
-                return const SizedBox.shrink();
-              }*/
-              return FoodTile(food: food);
+              // Check if the default address is null
+              if (controller.defaultAddress == null) {
+                _showVerificationDialog(context);
+                return SizedBox.shrink();  // Return empty widget until user takes action
+              } else {
+                return FoodTile(food: food);  // Return FoodTile if address is available
+              }
             },
           ),
         ),
       ),
+    );
+  }
+  // Function to show the popup
+  void _showVerificationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User has to press the button to close the dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Address Required"),
+          content: const Text("Please add an address to continue."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                // Close the dialog
+                Navigator.of(context).pop();
+
+                // Navigate to the SavedPlaces page
+                Get.to(() => const SavedPlaces());
+              },
+              child: const Text("Go to Saved Places"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../controllers/location_controller.dart';
+import '../../controllers/wallet_controller.dart';
 import 'about_us.dart';
 
 class ProfilePage extends HookWidget {
@@ -36,11 +37,14 @@ class ProfilePage extends HookWidget {
     final controller = Get.put(LoginController());
     final serviceNumber = useFetchCustomerService();
     final location = Get.put(UserLocationController());
+    final WalletController _walletController = Get.put(WalletController());
     LoginResponse? user;
     final box = GetStorage();
     String? token = box.read('token');
 
     if (token != null) {
+      user = controller.getUserData();
+      _walletController.fetchUserDetails();
       user = controller.getUserData();
     }
     double screenHeight = MediaQuery.of(context).size.height;
@@ -84,8 +88,7 @@ class ProfilePage extends HookWidget {
             ),
             GestureDetector(
               onTap: () {
-                Get.to(() => ProfileScreen(
-                    user: user));
+                Get.to(() => ProfileScreen(user: user));
               },
               child: Padding(
                 padding: EdgeInsets.only(top: 8.h),
@@ -129,10 +132,13 @@ class ProfilePage extends HookWidget {
                     ),
                   ),
                   TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
+                    ),
                     onPressed: () {
                       Get.to(() => DashboardScreen());
                     },
-                    child: TilesWidget(
+                    child: const TilesWidget(
                       title: "Wallet",
                       leading: MaterialCommunityIcons.wallet_outline,
                     ),
@@ -149,7 +155,6 @@ class ProfilePage extends HookWidget {
                       leading: Feather.map_pin,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
                   TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
@@ -182,7 +187,6 @@ class ProfilePage extends HookWidget {
                       leading: Feather.pen_tool,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
                   TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
@@ -195,7 +199,6 @@ class ProfilePage extends HookWidget {
                       leading: Feather.message_circle,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
                   TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor: kPrimary, textStyle: TextStyle(fontSize: 16.sp),
@@ -208,7 +211,6 @@ class ProfilePage extends HookWidget {
                       leading: Feather.message_square,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
                   TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor: kRed, textStyle: TextStyle(fontSize: 16.sp),

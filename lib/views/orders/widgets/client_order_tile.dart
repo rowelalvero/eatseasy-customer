@@ -212,7 +212,7 @@ class ClientOrderTile extends HookWidget {
             right: 5,
             top: 6,
             child: Container(
-              width: 70,
+              width: 80,
               height: 19,
               decoration: const BoxDecoration(
                   color: kPrimary,

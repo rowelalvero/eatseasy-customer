@@ -24,6 +24,19 @@ double width = 375.w;
 double baseDeliveryFee = 20;
 double pricePkm = 10;
 
+const double kFontSizeH1 = 32.0; // Headline 1
+const double kFontSizeH2 = 28.0; // Headline 2
+const double kFontSizeH3 = 24.0; // Headline 3
+const double kFontSizeH4 = 20.0; // Headline 4
+const double kFontSizeBodyLarge = 18.0; // Large Body Text
+const double kFontSizeBodyRegular = 16.0; // Regular Body Text
+const double kFontSizeBodySmall = 14.0; // Small Body Text
+const double kFontSizeSubtext = 12.0; // Subtext
+const double kFontSizeCaption = 10.0; // Captions
+const double kFontSizeButton = 16.0; // Button Text
+const double kFontSizeLabel = 14.0; // Label Text
+const double kFontSizeInput = 18.0; // Input Text
+
 // const String {Environment.appBaseUrl} = "https://foodlybackend-production-4026.up.railway.app";
 // const String {Environment.appBaseUrl} = "http://localhost:6003";
 

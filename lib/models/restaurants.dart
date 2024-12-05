@@ -78,8 +78,8 @@ class Coords {
     final double longitude;
     final String address;
     final String title;
-    final double latitudeDelta;
-    final double longitudeDelta;
+    final double? latitudeDelta;
+    final double? longitudeDelta;
 
     Coords({
         required this.id,
@@ -87,8 +87,8 @@ class Coords {
         required this.longitude,
         required this.address,
         required this.title,
-        required this.latitudeDelta,
-        required this.longitudeDelta,
+        this.latitudeDelta,
+        this.longitudeDelta,
     });
 
     factory Coords.fromJson(Map<String, dynamic> json) => Coords(

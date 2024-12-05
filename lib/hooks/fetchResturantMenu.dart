@@ -2,6 +2,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:eatseasy/models/environment.dart';
 import 'package:eatseasy/models/foods.dart';
 import 'package:eatseasy/models/hook_models/hook_result.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 // Custom Hook
@@ -17,6 +18,7 @@ FetchHook useFetchMenu(id) {
       final response = await http.get(
           Uri.parse('${Environment.appBaseUrl}/api/foods/restaurant-foods/$id'));
 
+      print(response.body);
       if (response.statusCode == 200) {
         foods.value = foodFromJson(response.body);
       } else {
@@ -24,6 +26,10 @@ FetchHook useFetchMenu(id) {
       }
     } catch (e) {
       print(e.toString());
+      Get.snackbar(
+        e.toString(),
+        "Failed to get data, please try again",
+      );
       // error.value = e as Exception?;
     } finally {
       isLoading.value = false;

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:eatseasy/controllers/wallet_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:eatseasy/constants/constants.dart';
 import 'package:eatseasy/models/api_error.dart';
@@ -22,6 +23,7 @@ import 'cart_controller.dart';
 class OrderController extends GetxController {
   final box = GetStorage();
   final controller = Get.put(CartController());
+  final WalletController _walletController = Get.put(WalletController());
 
   Order? order;
   GetOrder? getOrder;
@@ -73,64 +75,71 @@ class OrderController extends GetxController {
   }
 
   void createOrder(String order, Order item) async {
-    String token = box.read('token');
-    String accessToken = jsonDecode(token);
-
     setLoading = true;
+    String? token = box.read('token');
+    if (token == null) {
+      Get.snackbar("Error", "Token not found, please log in again.",
+          icon: const Icon(Icons.error));
+      setLoading = false;
+      return;
+    }
+
+    String accessToken = jsonDecode(token);
+    await _walletController.fetchUserDetails();
+
     var url = Uri.parse('${Environment.appBaseUrl}/api/orders');
 
     try {
-      var response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken'
-        },
-        body: order,
-      );
-
-      if (response.statusCode == 201) {
-
-        OrderResponse data = orderResponseFromJson(response.body);
-
-        orderId = data.orderId;
-
-        /*Get.snackbar("Order successfully created", data.message,
-            icon: const Icon(Icons.money));
-
-        Payment payment = Payment(userId: item.userId, cartItems: [
-          CartItem(
-              name: item.orderItems[0].foodId,
-              id: orderId,
-              price: item.grandTotal,
-              quantity: 1,
-              restaurantId: item.restaurantId)
-        ]);*/
-
-        if(item.paymentMethod == 'STRIPE') {
-          await initiateUserPay(item.paymentMethod, orderId, double.tryParse(item.orderTotal)!, double.tryParse(item.grandTotal)!, item.restaurantId);
-          /*String paymentData = paymentToJson(payment);
-          paymentFunction(paymentData);*/
-        } else {
-          Get.to(const Successful());
-        }
-
+      if (_walletController.user.value!.walletBalance! > double.parse(item.grandTotal) && item.paymentMethod == 'STRIPE') {
+        await _processOrder(url, accessToken, order, item, "STRIPE");
+      } else if (item.paymentMethod == 'COD') {
+        await _processOrder(url, accessToken, order, item, "COD");
       } else {
-        var data = apiErrorFromJson(response.body);
-
-        Get.snackbar(
-            data.message, "Failed to create an order, please try again",
+        Get.snackbar("Insufficient balance", "Please top-up your wallet",
             icon: const Icon(Icons.error));
       }
     } catch (e) {
       setLoading = false;
-
       Get.snackbar(e.toString(), "Failed to create an order, please try again",
           icon: const Icon(Icons.error));
     } finally {
       setLoading = false;
     }
   }
+
+  Future<void> _processOrder(Uri url, String accessToken, String order, Order item, String paymentMethod) async {
+    var response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken'
+      },
+      body: order,
+    );
+
+    if (response.statusCode == 201) {
+      OrderResponse data = orderResponseFromJson(response.body);
+      orderId = data.orderId;
+
+      if (paymentMethod == 'STRIPE') {
+        await initiateUserPay(
+            paymentMethod,
+            orderId,
+            double.tryParse(item.orderTotal) ?? 0,
+            double.tryParse(item.grandTotal) ?? 0,
+            item.restaurantId
+        );
+      } else if (paymentMethod == 'COD') {
+        Get.to(const Successful());
+      }
+    } else {
+      var data = apiErrorFromJson(response.body);
+      Get.snackbar(data.message, "Failed to create an order, please try again",
+          icon: const Icon(Icons.error));
+    }
+  }
+
+
 
   Future<void> initiateUserPay(String paymentMethod, String orderId, double orderTotal, double grandTotal, String restaurantId) async {
     setLoading = true;

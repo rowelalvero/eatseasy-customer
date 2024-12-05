@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:eatseasy/models/distance_time.dart';
 
 import '../constants/constants.dart';
+import '../controllers/constant_controller.dart';
 import '../models/environment.dart';
 
 class Distance {
@@ -43,6 +45,8 @@ class Distance {
 
   Future<DistanceTime?> calculateDistanceDurationPrice(
       double lat1, double lon1, double lat2, double lon2, double speedKmPerHr, double pricePkm) async {
+    final ConstantController controller = Get.put(ConstantController());
+    controller.getConstants();
     String googleApiKey = "AIzaSyCBrZpYQFIWHQfgX4wvjzY5cC4JWDvu9XI";
 
     final String url = '${Environment.appBaseUrl}/api/address/directions'; // Call your backend here
@@ -69,7 +73,7 @@ class Distance {
           final duration = data['duration'].toDouble(); // in minutes
 
           // Calculate price (distance * rate per km)
-          final price = (distance * pricePkm) + baseDeliveryFee;
+          final price = (distance * pricePkm) + controller.constants.value.driverBaseRate;
 
           return DistanceTime(distance: distance, time: duration, price: price);
         } else {

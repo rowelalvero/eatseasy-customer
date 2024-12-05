@@ -66,7 +66,7 @@ class SavedPlaces extends HookWidget {
                 ),
                 ReusableText(
                   text:
-                  "Address list is empty, try to add one.",
+                  "Your saved places is empty, try to add one.",
                   style: appStyle(14, kGray, FontWeight.normal),
                 ),
               ],

@@ -20,7 +20,7 @@ class MessageList extends GetView<MessageController> {
   Widget messageListItem(Message item){
 
     return Container(
-      padding: EdgeInsets.only(top:10.w, left: 15.w, right: 15.w),
+      padding: EdgeInsets.only(top:10, left: 15, right: 15),
       child: InkWell(
         onTap: (){
 
@@ -37,15 +37,15 @@ class MessageList extends GetView<MessageController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.only(top:0.w, left: 0.w, right: 15.w),
+              padding: EdgeInsets.only(top:0, left: 0, right: 15),
               child: SizedBox(
-                width: 54.w,
-                height: 54.w,
+                width: 54,
+                height: 54,
                 child: CachedNetworkImage(
                   imageUrl: item.avatar!,
                   imageBuilder: (context, imageProvider) => Container(
-                    width: 54.w,
-                    height: 54.w,
+                    width: 54,
+                    height: 54,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(54)),
                         image: DecorationImage(
@@ -60,9 +60,8 @@ class MessageList extends GetView<MessageController> {
                 ),
               ),
             ),
-
             Container(
-              padding: EdgeInsets.only(top:0.w, left: 0.w, right: 5.w),
+              padding: EdgeInsets.only(top:0, left: 0, right: 5),
               decoration: const BoxDecoration(
                   border: Border(
                       bottom: BorderSide(width: 1, color:Color(0xffe5e5e5))
@@ -72,8 +71,8 @@ class MessageList extends GetView<MessageController> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 180.w,
-                    height: 48.w,
+                    width: 180,
+                    height: 48,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +85,7 @@ class MessageList extends GetView<MessageController> {
                               fontFamily: "Avenir",
                               fontWeight: FontWeight.bold,
                               color:AppColors.thirdElement,
-                              fontSize: 16.sp
+                              fontSize: 16
                           ),
                         ),
                         Text(
@@ -97,7 +96,7 @@ class MessageList extends GetView<MessageController> {
                               fontFamily: "Avenir",
                               fontWeight: FontWeight.normal,
                               color:AppColors.thirdElement,
-                              fontSize: 14.sp
+                              fontSize: 14
                           ),
                         ),
 
@@ -105,8 +104,8 @@ class MessageList extends GetView<MessageController> {
                     ),
                   ),
                   SizedBox(
-                    width: 60.w,
-                    height: 54.w,
+                    width: 60,
+                    height: 54,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -121,17 +120,17 @@ class MessageList extends GetView<MessageController> {
                               fontFamily: "Avenir",
                               fontWeight: FontWeight.normal,
                               color:AppColors.thirdElementText,
-                              fontSize: 12.sp
+                              fontSize: 12
                           ),
                         ),
                         item.msg_num == 0
                             ? Container()
                             : Container(
                           padding: EdgeInsets.only(
-                              left: 4.w,
-                              right: 4.w,
-                              top: 0.h,
-                              bottom: 0.h),
+                              left: 4,
+                              right: 4,
+                              top: 0,
+                              bottom: 0),
                           decoration: BoxDecoration(
                             color: Colors.red,
                             borderRadius: BorderRadius.all(
@@ -146,7 +145,7 @@ class MessageList extends GetView<MessageController> {
                               fontFamily: 'Avenir',
                               fontWeight: FontWeight.normal,
                               color: AppColors.primaryElementText,
-                              fontSize: 11.sp,
+                              fontSize: 11,
                             ),
                           ),
                         ),
@@ -162,12 +161,13 @@ class MessageList extends GetView<MessageController> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Obx(
             ()=>CustomScrollView(
           slivers: [
-            SliverPadding(padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 0.w),
+            SliverPadding(padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                         (context, index){

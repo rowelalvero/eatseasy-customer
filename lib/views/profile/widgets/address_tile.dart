@@ -54,21 +54,13 @@ class AddressTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: EdgeInsets.only(top: 0.0.r),
-                child: Icon(
-                  SimpleLineIcons.location_pin,
-                  color: kPrimary,
-                  size: 28.h,
-                ),
-              ),
-              const SizedBox(width: 10),
               Flexible(
+                fit: FlexFit.loose,  // Allow the child to take as much space as it needs
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 5),
+                    const SizedBox(width: 5),
                     ReusableText(
                       text: address.addressName,
                       style: appStyle(13, kGray, FontWeight.w600),
@@ -99,7 +91,9 @@ class AddressTile extends StatelessWidget {
                     }),
                     activeColor: kCupertinoModalBarrierColor,
                   ),
-                  IconButton(
+                  address.addressesListDefault ?
+                  SizedBox.shrink()
+                   : IconButton(
                     onPressed: () async {
                       await _handleDelete(context, localContext, controller, address, refetch, cartRefetch: cartRefetch);
                     },

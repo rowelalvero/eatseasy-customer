@@ -27,7 +27,7 @@ class RatingController extends GetxController {
     _isLoading.value = newValue;
   }
 
-  void addRating(String rating, Function refetch) async {
+  void  addRating(String rating, Function refetch) async {
     String token = box.read('token');
     String accessToken = jsonDecode(token);
     setLoading = true;
