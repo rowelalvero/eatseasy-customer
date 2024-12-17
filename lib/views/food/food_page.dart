@@ -114,7 +114,6 @@ class _FoodPageState extends State<FoodPage> {
         // Encoding to JSON string
         String jsonString = jsonEncode(restaurantData);
 
-
         // Decoding the JSON string back to Map
         Map<String, dynamic> resData = jsonDecode(jsonString);
 
@@ -234,14 +233,6 @@ class _FoodPageState extends State<FoodPage> {
                                     size: 38,
                                   ),
                                 ),
-                                /*GestureDetector(
-                            onTap: () {},
-                            child: const Icon(
-                              Entypo.share,
-                              color: kPrimary,
-                              size: 38,
-                            ),
-                          )*/
                               ],
                             ),
                           ),
@@ -266,7 +257,6 @@ class _FoodPageState extends State<FoodPage> {
                                         showCustomSnackBar(status.message!, title: status.title!);
                                       }
                                     }
-
                                   },
                                   text: "Chat")
                           ),
@@ -281,15 +271,14 @@ class _FoodPageState extends State<FoodPage> {
                                     if(token==null){
                                       showCustomSnackBar("You are not logged in. Your distance measure is not correct", title: "Distance alert",);
                                     }
-                                    Get.to(
-                                            () => restaurantData == null
-                                            ? const NotFoundPage(
-                                          text: "Can not open restaurant page",
-                                        )
-                                            : RestaurantPage(
-                                            restaurant: restaurantData));
+                                    Get.to(() => restaurantData == null
+                                            ? const NotFoundPage(text: "Can not open restaurant page",)
+                                            : RestaurantPage(restaurant: restaurantData)
+                                    );
                                   },
-                                  text: "Open Restaurant"))
+                                  text: "Open Restaurant"
+                              )
+                          )
                         ],
                       ),
                       Padding(
@@ -600,9 +589,7 @@ class _FoodPageState extends State<FoodPage> {
                               }
 
                               if (hasMissingRequiredAdditives) {
-                                // Show Snackbar if a required field is missing
-                                Get.snackbar("Missing required additives", "Please answer all required additives before adding to cart.",
-                                    icon: const Icon(Icons.warning));
+                                Get.snackbar("Missing required additives", "Please answer all required additives before adding to cart.", icon: const Icon(Icons.warning));
                               } else {
                                 if (isThisProductInCart.value) {
                                   await cartController.updateCustomAdditives(widget.food.id, foodController.userResponses);
@@ -670,11 +657,9 @@ class _FoodPageState extends State<FoodPage> {
                                   }
                                 }
                               }
-
                               cartController.setLoading = false;
                             }
                           },
-
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isThisProductInCart.value ? kPrimary : kGray,
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -719,7 +704,6 @@ class _FoodPageState extends State<FoodPage> {
   Widget _buildQuestionInput(ObsCustomAdditive question) {
     // Access the pre-existing value from customAdditives if it exists
     final customAdditiveValue = widget.customAdditives?[question.text];
-
     switch (question.type) {
       case 'Multiple Choice':
         return Column(
@@ -835,7 +819,6 @@ class _FoodPageState extends State<FoodPage> {
                 });
               },
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
